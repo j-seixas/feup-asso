@@ -1,5 +1,5 @@
 {
-  "name": "asso-scenarios",
+  "name": "asso",
   "version": "1.0.0",
   "description": "asso scenarios and exercises",
   "main": "index.js",
@@ -16,5 +16,9 @@
     "opn-cli": "^4.1.0",
     "ts-node": "^8.0.3",
     "typescript": "^3.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/literallysofia/feup-asso.git"
   }
 }
