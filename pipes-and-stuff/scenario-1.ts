@@ -19,7 +19,7 @@ abstract class Queue<T> {
     semaphore = new AsyncSemaphore();
 
     async abstract dequeue()
-    abstract enqueue(input: T)
+    async abstract enqueue(input: T)
 }
 
 
@@ -35,7 +35,7 @@ class AsyncQueue<T> extends Queue<T> {
  
     }
 
-    enqueue(input : T) {
+    async enqueue(input : T) {
         this.queue.push(input)
         this.semaphore.signal()
     }
