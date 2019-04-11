@@ -1,4 +1,6 @@
-class AsyncSemaphore {
+import {Queue} from './scenario-1'
+
+export class AsyncSemaphore {
     constructor(private available: number){}
 
     signal(): void {
@@ -14,15 +16,7 @@ class AsyncSemaphore {
     }
 }
 
-abstract class Queue<T> {
-    queue = Array<T>()
-    semaphore = new AsyncSemaphore(0)
-
-    async abstract dequeue()
-    abstract enqueue(input: T)
-}
-
-class BoundedAsyncQueue<T> extends Queue<T>{
+export class BoundedAsyncQueue<T> extends Queue<T>{
     enqueueSemaphore = new AsyncSemaphore(10)
     constructor(bound:number){
         super()
@@ -39,22 +33,6 @@ class BoundedAsyncQueue<T> extends Queue<T>{
 
     async enqueue(input: T): Promise<void> {
         await this.enqueueSemaphore.wait()
-        this.queue.push(input)
-        this.semaphore.signal()
-    }
-} 
-
-class AsyncQueue<T> extends Queue<T> {
-
-    async dequeue(): Promise<T> {
-        await this.semaphore.wait()
-        return new Promise<T>(resolve => {
-            if(this.queue.length > 0)
-                resolve(this.queue.shift())
-        })
-    }
-
-    enqueue(input: T) {
         this.queue.push(input)
         this.semaphore.signal()
     }

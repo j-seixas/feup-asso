@@ -1,45 +1,7 @@
-class AsyncSemaphore {
-    private available = 0;
-
-    signal(): void {
-        this.available++
-    }
-
-    async wait(): Promise<void> {
-        if(this.available == 0){
-            return new Promise<void>(resolve => resolve())
-        }
-        this.available--
-
-    }
-}
-
-export abstract class Queue<T> {
-    queue = Array<T>()
-    semaphore = new AsyncSemaphore();
-
-    async abstract dequeue()
-    abstract enqueue(input: T)
-}
+import {Queue} from './scenario-1'
+import {AsyncSemaphore, BoundedAsyncQueue} from './scenario-2'
 
 
-class AsyncQueue<T> extends Queue<T> {
-
-    async dequeue(): Promise<T> {
-        await this.semaphore.wait()
-        return new Promise<T>(resolve => {
-            if(this.queue.length > 0)
-                resolve(this.queue.shift())
-        })
-
- 
-    }
-
-    enqueue(input : T) {
-        this.queue.push(input)
-        this.semaphore.signal()
-    }
-} 
 
 class Subscriber<T> {
 
@@ -96,7 +58,7 @@ const isArraySorted = require('is-array-sorted')
 
 async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const result = new Array<number>()
-    const q = new AsyncQueue<number>()
+    const q = new BoundedAsyncQueue<number>(10)
 
     const enqueue = (m: number) => q.enqueue(m)
     const dequeue = () => q.dequeue()
