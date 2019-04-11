@@ -1,0 +1,28 @@
+{
+  "name": "asso",
+  "version": "1.0.0",
+  "description": "asso scenarios and exercises",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc; node build/main.js",
+    "s1": "tsc scenario-1.ts; node scenario-1.js",
+    "s2": "tsc scenario-2.ts; node scenario-2.js",
+    "s3": "tsc scenario-3.ts; node scenario-3.js",
+    "s4": "tsc scenario-4.ts; node scenario-4.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^11.13.0",
+    "browserify": "^16.2.3",
+    "is-array-sorted": "^1.0.0",
+    "npm": "^6.9.0",
+    "opn-cli": "^4.1.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/literallysofia/feup-asso.git"
+  }
+}

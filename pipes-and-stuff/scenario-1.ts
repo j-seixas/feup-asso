@@ -32,7 +32,7 @@ class AsyncQueue<T> extends Queue<T> {
                 resolve(this.queue.shift())
         })
 
-        
+ 
     }
 
     enqueue(input : T) {
