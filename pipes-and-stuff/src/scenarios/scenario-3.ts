@@ -1,34 +1,36 @@
-import {BoundedAsyncQueue} from './scenario-2'
+import { BoundedAsyncQueue } from '../BoundedAsyncQueue'
+import { AsyncSemaphore } from '../AsyncSemaphore'
 
-/* setInterval(() => { }, 1000); // run program until explicit exit
 
-(async () => {
-    const q = new AsyncQueue<number>()
+// setInterval(() => { }, 1000); // run program until explicit exit
 
-    const s1 = new Subscriber("s1", q)
-    const s2 = new Subscriber("s2", q)
+// (async () => {
+//     const q = new AsyncQueue<number>()
 
-    const p1 = new Publisher("p1", q)
-    const p2 = new Publisher("p2", q)
-    const p3 = new Publisher("p3", q)
+//     const s1 = new Subscriber("s1", q)
+//     const s2 = new Subscriber("s2", q)
 
-    p1.push(1111)
-    s1.pull()
-    s1.pull()
-    s1.pull()
-    p1.push(2222)
-    p1.push(3334)
+//     const p1 = new Publisher("p1", q)
+//     const p2 = new Publisher("p2", q)
+//     const p3 = new Publisher("p3", q)
 
-    for (let i = 0; i < 100; i += 1) {
-        if (Math.random() > 0.5) {
-            s1.pull()
-        } else {
-            p1.push(i)
-        }
-    }
+//     p1.push(1111)
+//     s1.pull()
+//     s1.pull()
+//     s1.pull()
+//     p1.push(2222)
+//     p1.push(3334)
 
-    // process.exit()
-})() */
+//     for (let i = 0; i < 100; i += 1) {
+//         if (Math.random() > 0.5) {
+//             s1.pull()
+//         } else {
+//             p1.push(i)
+//         }
+//     }
+
+//    // process.exit()
+// })()
 
 const isArraySorted = require('is-array-sorted')
 
@@ -59,7 +61,7 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     // console.log(`Total enqueues ${enqueues}; dequeues ${dequeues}`)
     const pending = Math.min(enqueues, dequeues)
     await Promise.all(promises.slice(0, pending))
-    
+
     // Length should be equal minimum between enqueues and dequeues
     const isLengthOk = pending === result.length
 

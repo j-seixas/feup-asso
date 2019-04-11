@@ -6,10 +6,10 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc; node build/main.js",
-    "s1": "tsc scenario-1.ts && tsc test-scenario-1.ts && node test-scenario-1.js",
-    "s2": "tsc scenario-2.ts && tsc test-scenario-2.ts && node test-scenario-2.js",
-    "s3": "tsc scenario-3.ts && tsc test-scenario-3.ts && node test-scenario-3.js",
-    "s4": "tsc scenario-4.ts && tsc test-scenario-4.ts && node test-scenario-4.js"
+    "s1": "tsc; node build/scenarios/scenario-1.js",
+    "s2": "tsc; node build/scenarios/scenario-2.js",
+    "s3": "tsc; node build/scenarios/scenario-3.js",
+    "s4": "tsc; node build/scenarios/scenario-4.js"
   },
   "license": "ISC",
   "dependencies": {

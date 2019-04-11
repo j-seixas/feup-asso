@@ -1,4 +1,5 @@
-import {Queue, AsyncSemaphore} from './scenario-1'
+import { Queue } from './Queue'
+import { AsyncSemaphore } from './AsyncSemaphore'
 
 export class BoundedAsyncQueue<T> extends Queue<T>{
     enqueueSemaphore: AsyncSemaphore
@@ -20,23 +21,5 @@ export class BoundedAsyncQueue<T> extends Queue<T>{
         await this.enqueueSemaphore.wait()
         this.queue.push(input)
         this.semaphore.signal()
-    }
-}
-
-class Subscriber<T> {
-
-    constructor(public id: string, private queue: Queue<T>) { }
-    pull() {
-        this.queue.dequeue().then(m => console.log(this.id + " processed this message: " + m))
-    }
-}
-
-class Publisher<T> {
-
-    constructor(public id: string, private queue: Queue<T>) { }
-
-    push(input: T) {
-        this.queue.enqueue(input)
-        console.log("Publisher " + this.id + " sent message: " + input)
     }
 }

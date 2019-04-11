@@ -1,4 +1,4 @@
-import {AsyncQueue} from './scenario-1'
+import {AsyncQueue} from '../AsyncQueue'
 
 /* setInterval(() => { }, 1000); // run program until explicit exit
 
@@ -34,10 +34,13 @@ const isArraySorted = require('is-array-sorted')
 
 async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const result = new Array<number>()
-    const q = new AsyncQueue<number>()
+    const queue = new AsyncQueue<number>()
 
-    const enqueue = (m: number) => q.enqueue(m)
-    const dequeue = () => q.dequeue()
+    /* const publisher = new Publisher<number>(queue)
+    const subscriber = new Subscriber<number>(10, queue) */
+
+    const enqueue = (m: number) => queue.enqueue(m)
+    const dequeue = () => queue.dequeue()
     const promises = Array<Promise<void>>()
 
     let enqueues = 0

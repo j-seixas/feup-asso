@@ -1,58 +1,34 @@
-import {Queue} from './scenario-1'
-import {AsyncSemaphore, BoundedAsyncQueue} from './scenario-2'
+import { BoundedAsyncQueue } from '../BoundedAsyncQueue'
 
+/* setInterval(() => { }, 1000); // run program until explicit exit
 
+(async () => {
+    const q = new AsyncQueue<number>()
 
-class Subscriber<T> {
+    const s1 = new Subscriber("s1", q)
+    const s2 = new Subscriber("s2", q)
 
-    constructor(public id: string, private queue: Queue<T>){}
+    const p1 = new Publisher("p1", q)
+    const p2 = new Publisher("p2", q)
+    const p3 = new Publisher("p3", q)
 
-    pull(){
-        this.queue.dequeue().then(m => console.log(this.id + " processed this message: " + m))
+    p1.push(1111)
+    s1.pull()
+    s1.pull()
+    s1.pull()
+    p1.push(2222)
+    p1.push(3334)
+
+    for (let i = 0; i < 100; i += 1) {
+        if (Math.random() > 0.5) {
+            s1.pull()
+        } else {
+            p1.push(i)
+        }
     }
-}
 
-class Publisher<T> {
-
-    constructor(public id: string, private queue: Queue<T>){}
-
-    push(input: T){
-        this.queue.enqueue(input)
-        console.log("Publisher " + this.id + " sent message: " + input)
-    }
-}
-
-
-
-// setInterval(() => { }, 1000); // run program until explicit exit
-
-// (async () => {
-//     const q = new AsyncQueue<number>()
-    
-//     const s1 = new Subscriber("s1", q)
-//     const s2 = new Subscriber("s2", q)
-
-//     const p1 = new Publisher("p1", q)
-//     const p2 = new Publisher("p2", q)
-//     const p3 = new Publisher("p3", q)
-
-//     p1.push(1111)
-//     s1.pull()
-//     s1.pull()
-//     s1.pull()
-//     p1.push(2222)
-//     p1.push(3334)
-
-//     for (let i = 0; i < 100; i += 1) {
-//         if (Math.random() > 0.5) {
-//             s1.pull()
-//         } else {
-//             p1.push(i)
-//         }
-//     }
-
-//    // process.exit()
-// })()
+    // process.exit()
+})() */
 
 const isArraySorted = require('is-array-sorted')
 
@@ -85,7 +61,7 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     await Promise.all(promises.slice(0, pending))
 
     // Length should be equal minimum between enqueues and dequeues
-    const isLengthOk = pending === result.length 
+    const isLengthOk = pending === result.length
 
     // Messages should be ordered
     const isSorted = isArraySorted(result)
