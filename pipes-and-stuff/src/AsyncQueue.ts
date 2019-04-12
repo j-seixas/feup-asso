@@ -4,11 +4,13 @@ export class AsyncQueue<T> extends Queue<T> {
 
     async dequeue(): Promise<T> {
         await this.semaphore.wait()
-        return Promise.resolve(this.queue.shift())
+        //return Promise.resolve(this.queue.shift())
+        return this.queue.pop()!
     }
 
     enqueue(input: T) {
-        this.queue.push(input)
+        this.queue.unshift(input)
+        //this.queue.push(input)
         this.semaphore.signal()
     }
 }
