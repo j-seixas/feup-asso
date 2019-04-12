@@ -12,18 +12,21 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const publisher1 = new BrokerPublisher<number>('p1')
     const publisher2 = new BrokerPublisher<number>('p2')
     const subscriber1 = new BrokerSubscriber<number>('s1')
-    //subscriber1.addSubscription('p1')
+    subscriber1.addSubscription('p1')
     subscriber1.addSubscription('p2')
     const subscriber2 = new BrokerSubscriber<number>('s2')
     subscriber2.addSubscription('p1')
+    subscriber2.addSubscription('p2')
 
     const broker = new Broker<number>()
     broker.addPublisher(publisher1)
     broker.addPublisher(publisher2)
     broker.addSubscriber(subscriber1)
     broker.addSubscriber(subscriber2)
-    
 
+    const subscribers = new Array<BrokerSubscriber<number>>()
+    subscribers.push(subscriber1)
+    subscribers.push(subscriber2)
    
     const promises = Array<Promise<void>>()
 
@@ -35,7 +38,6 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
         if (Math.random() > 0.5) {
             enqueues += 1
             // console.log(`${Date.now()} Enqueuing ${enqueues}`)
-            //enqueue(enqueues)
             if (Math.random() > 0.5) 
                 publisher1.push(enqueues)
             else 
@@ -46,22 +48,22 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
             dequeues += 1
             // console.log(`${Date.now()} Dequeuing`)
 
-            // Problema e aqui pq ele da pull nos 2 subscribers e 
-            // cria mais promises (result.length) do que o 
-            // min (enqueues, dequeues) que e a comparacao mais abaixo
-            promises.push(subscriber1.pull().then(v => { result.push(v) }))
-            promises.push(subscriber2.pull().then(v => { result.push(v) }))
+            // Solution to ensure a equal number between the 'result' and 'pending'
+            // When this test completes, there's a high chance of possible 
+            // messages still in queues of subscribers
+            
+            promises.push(subscribers[Math.floor(Math.random() * 2)].pull().then(v => { result.push(v) }))
         }
     }
 
-   // broker.runForever()
     console.log(`Total enqueues ${enqueues}; dequeues ${dequeues}`)
-    const pending = Math.min(enqueues, dequeues)
+    
+    // Pending has to be only dequeues because there's multiple subscribers to the same input
+    const pending = dequeues
     await Promise.all(promises.slice(0, pending))
 
     // Length should be equal minimum between enqueues and dequeues
     const isLengthOk = pending === result.length
-    console.log(result.length + " == " + pending)
 
     // Messages shouldn't be ordered since they come from different publishers
 
