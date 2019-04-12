@@ -28,7 +28,6 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
         if (Math.random() > 0.5) {
             enqueues += 1
             // console.log(`${Date.now()} Enqueuing ${enqueues}`)
-            // enqueue(enqueues)
             publisher.push(enqueues)
         } else {
             dequeues += 1
