@@ -16,7 +16,6 @@ export class Broker<T> {
     }
 
     addSubscriber(subscriber: BrokerSubscriber<T>) {
-        console.log(subscriber.id)
         subscriber.publishersSubscribed.forEach(p => {
             if(this.subscribers.has(p)) {
                 const a = this.subscribers.get(p)
@@ -26,8 +25,7 @@ export class Broker<T> {
 
             } else 
                 console.log("Publisher " + p + "doesn't exist")
-            console.log(this.subscribers)
-            console.log(subscriber.id + "added sub" + p);
+            console.log(subscriber.id + " added subscription to " + p);
         })
     }
 
@@ -35,7 +33,6 @@ export class Broker<T> {
         
         const message = await this.publishers.get(id).dequeue()
 
-        //console.log("Subscriber " + this.id + " processed message: " + message)
         this.subscribers.get(id).forEach(element => {
             element.getQueue().enqueue(message) 
         });
@@ -43,9 +40,8 @@ export class Broker<T> {
     }
     
 
-    runForever() {
-        
-            this.publishers.forEach((value, key) => this.pull(key))
+    iterateQueues() {
+        this.publishers.forEach((value, key) => this.pull(key))
         
     }
 

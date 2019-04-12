@@ -12,7 +12,7 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const publisher1 = new BrokerPublisher<number>('p1')
     const publisher2 = new BrokerPublisher<number>('p2')
     const subscriber1 = new BrokerSubscriber<number>('s1')
-    subscriber1.addSubscription('p1')
+    //subscriber1.addSubscription('p1')
     subscriber1.addSubscription('p2')
     const subscriber2 = new BrokerSubscriber<number>('s2')
     subscriber2.addSubscription('p1')
@@ -41,27 +41,31 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
             else 
                 publisher2.push(enqueues + 1000)
             
+            broker.iterateQueues()
         } else {
             dequeues += 1
             // console.log(`${Date.now()} Dequeuing`)
-            //promises.push(dequeue().then(v => { result.push(v) }))
-            broker.runForever()
+
+            // Problema e aqui pq ele da pull nos 2 subscribers e 
+            // cria mais promises (result.length) do que o 
+            // min (enqueues, dequeues) que e a comparacao mais abaixo
             promises.push(subscriber1.pull().then(v => { result.push(v) }))
             promises.push(subscriber2.pull().then(v => { result.push(v) }))
         }
     }
 
-    // console.log(`Total enqueues ${enqueues}; dequeues ${dequeues}`)
+   // broker.runForever()
+    console.log(`Total enqueues ${enqueues}; dequeues ${dequeues}`)
     const pending = Math.min(enqueues, dequeues)
     await Promise.all(promises.slice(0, pending))
 
     // Length should be equal minimum between enqueues and dequeues
     const isLengthOk = pending === result.length
+    console.log(result.length + " == " + pending)
 
-    // Messages should be ordered
-    const isSorted = isArraySorted(result)
+    // Messages shouldn't be ordered since they come from different publishers
 
-    return isLengthOk && isSorted
+    return isLengthOk
 }
 
 setInterval(() => { }, 1000); // run program forever until an explicit exit occurs
