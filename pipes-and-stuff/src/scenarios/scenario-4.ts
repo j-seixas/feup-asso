@@ -1,10 +1,6 @@
-import { AsyncQueue } from '../AsyncQueue'
-import { Publisher, BrokerPublisher } from '../Publisher'
-import { VentilatorSubscriber, BrokerSubscriber } from '../Subscriber'
-import { Ventilator } from '../Ventilator'
+import { BrokerPublisher } from '../Publisher'
+import { BrokerSubscriber } from '../Subscriber'
 import { Broker } from '../Broker';
-
-const isArraySorted = require('is-array-sorted')
 
 async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const result = new Array<number>()
@@ -12,9 +8,10 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const publisher1 = new BrokerPublisher<number>('p1')
     const publisher2 = new BrokerPublisher<number>('p2')
     const subscriber1 = new BrokerSubscriber<number>('s1')
+    const subscriber2 = new BrokerSubscriber<number>('s2')
+
     subscriber1.addSubscription('p1')
     subscriber1.addSubscription('p2')
-    const subscriber2 = new BrokerSubscriber<number>('s2')
     subscriber2.addSubscription('p1')
     subscriber2.addSubscription('p2')
 
@@ -27,7 +24,7 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
     const subscribers = new Array<BrokerSubscriber<number>>()
     subscribers.push(subscriber1)
     subscribers.push(subscriber2)
-   
+
     const promises = Array<Promise<void>>()
 
     let enqueues = 0
@@ -38,11 +35,11 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
         if (Math.random() > 0.5) {
             enqueues += 1
             // console.log(`${Date.now()} Enqueuing ${enqueues}`)
-            if (Math.random() > 0.5) 
+            if (Math.random() > 0.5)
                 publisher1.push(enqueues)
-            else 
+            else
                 publisher2.push(enqueues + 1000)
-            
+
             broker.iterateQueues()
         } else {
             dequeues += 1
@@ -51,13 +48,13 @@ async function testAsyncQueueBehavior(nOps: number): Promise<Boolean> {
             // Solution to ensure a equal number between the 'result' and 'pending'
             // When this test completes, there's a high chance of possible 
             // messages still in queues of subscribers
-            
+
             promises.push(subscribers[Math.floor(Math.random() * 2)].pull().then(v => { result.push(v) }))
         }
     }
 
     console.log(`Total enqueues ${enqueues}; dequeues ${dequeues}`)
-    
+
     // Pending has to be only dequeues because there's multiple subscribers to the same input
     const pending = dequeues
     await Promise.all(promises.slice(0, pending))
