@@ -2,9 +2,11 @@
   "name": "simple-draw",
   "version": "1.0.0",
   "description": "asso project",
-  "main": "index.js",
+  "main": "script.js",
   "scripts": {
     "build": "tsc",
+    "browserify": "browserify build/script.js -o dist/bundle.js",
+    "browser": "npm run build; npm run browserify; opn index.html",
     "start": "tsc; node build/main.js"
   },
   "author": "",
@@ -16,7 +18,6 @@
   "dependencies": {
     "@types/node": "^11.13.4",
     "browserify": "^16.2.3",
-    "is-array-sorted": "^1.0.0",
     "npm": "^6.9.0",
     "opn-cli": "^4.1.0",
     "ts-node": "^8.0.3",
