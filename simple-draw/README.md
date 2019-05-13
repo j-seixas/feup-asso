@@ -10,11 +10,11 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 ## Functionalities
 
-* [ ] SimpleDraw is based on the notion of documents;
-* [ ] Documents are rendered both in SVG or HTMLCanvas;
+* [x] Documents are rendered both in SVG or HTMLCanvas;
 * [ ] Support persistence in multiple formats (TXT, XML, BIN);
-* [ ] Extensible with different objects (triangles, arrows...);
-* [ ] Extensible with new tools (rotate, translate, grid...); Drag to select multiple objects;
+* [x] Extensible with different objects (triangles, arrows...);
+* [ ] Extensible with new tools (rotate, translate, grid...);
+* [ ] Drag to select multiple objects;
 * [ ] Document layers (with compositing strategies).
 
 ## Advanced Functionalities
@@ -23,7 +23,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 * [ ] Viewport tools (translate, zoom);
 * [ ] Different view styles per viewport (wireframe, color);
 * [ ] Two interaction modes: point-n-click and REPLs;
-* [ ] Support (un)limited Undo / Redo of all operations.
+* [x] Support (un)limited Undo / Redo of all operations.
 
 ---
 

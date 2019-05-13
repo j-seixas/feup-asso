@@ -1,13 +1,13 @@
 {
-  "name": "simple-draw",
+  "name": "simple-draw-ts",
   "version": "1.0.0",
-  "description": "asso project",
+  "description": "Simple Draw TS",
   "main": "script.js",
   "scripts": {
     "build": "tsc",
     "browserify": "browserify build/script.js -o dist/bundle.js",
     "browser": "npm run build; npm run browserify; opn index.html",
-    "start": "tsc; node build/main.js"
+    "start": "npm run build && node build/main.js"
   },
   "author": "",
   "license": "ISC",
