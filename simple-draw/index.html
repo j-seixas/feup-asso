@@ -10,62 +10,60 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>SimpleDraw</title>
+    <title>Simple Draw TS</title>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Simple Draw</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Simple Draw TS</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="objectDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        New Object
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="objectDropdown">
+                        <button type="button" class="btn btn-light">Rectangle</button>
+                        <button type="button" class="btn btn-light">Circle</button>
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="viewPortDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        New Viewport
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="viewPortDropdown">
+                        <button type="button" class="btn btn-light">HTML Canvas</button>
+                        <button type="button" class="btn btn-light">SVG</button>
+                    </div>
+                </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Export Simple</a>
+                    <button type="button" class="btn btn-dark">Export Simple</button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Export XML</a>
+                    <button type="button" class="btn btn-dark">Export XML</button>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div id="interface" class="d-flex align-items-center">
-        <div class="section">
-            <p>Objects</p>
-            <div class="buttons">
-                <button type="button" class="btn btn-light">Rectangle</button>
-                <button type="button" class="btn btn-light">Circle</button>
-            </div>
-        </div>
-        <div class="section">
-            <p>Objects</p>
-            <div class="buttons">
-                <button type="button" class="btn btn-light">Rectangle</button>
-                <button type="button" class="btn btn-light">Circle</button>
-            </div>
-        </div>
-        <div class="section">
-            <p>Objects</p>
-            <div class="buttons">
-                <button type="button" class="btn btn-light">Rectangle</button>
-                <button type="button" class="btn btn-light">Circle</button>
-            </div>
-        </div>
-    </div>
-
     <main>
         <div class="container-fluid mb-4">
-            <div class="row">
+            <div class="row text-center">
                 <div class="col">
-                    <canvas id="canvas" style="border: 1px solid red;"></canvas>
+                    <canvas id="canvas" width="550" height="550" style="border: 1px solid red;"></canvas>
                 </div>
                 <div class="col">
-                    <svg id="svgcanvas" style="border: 1px solid blue;">
+                    <svg id="svgcanvas" width="550" height="550" style="border: 1px solid blue;">
                     </svg>
                 </div>
             </div>
