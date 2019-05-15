@@ -5,6 +5,13 @@ body {
 * {
   font-family: 'Karla', sans-serif; }
 
+.navbar-dark .navbar-nav .nav-link {
+  color: white !important;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out, box-shadow .15s ease-in-out; }
+  .navbar-dark .navbar-nav .nav-link:hover {
+    background-color: #23272b;
+    border-radius: .25rem; }
+
 .dropdown-menu {
   padding: 0 !important; }
   .dropdown-menu button {
