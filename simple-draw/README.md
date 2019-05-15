@@ -29,8 +29,15 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 ## Approach
 
-Identification of the main problems and patterns.
+Identification of the main problems, design patterns and solutions.
 
-### Functionality 1 (change text)
+### Factory
 
-Description of the implementation progress and patterns used to solve the problem.
+**Problem:** Develop a simple graphical editor to draw different objects, such as rectangles and circles.
+
+#### Solution
+
+Firstly,  the superclass *Shape* was created. It specifies all standard and generic behavior of an object and then delegates the creation details to subclasses that are supplied by the user.
+In this case, it was implemented two different shapes, subclasses of Shape: rectangle and circle.
+
+The creation of shapes is done by creating objects by calling a factory method rather than calling a constructor, which makes future extensibility quite easier.
