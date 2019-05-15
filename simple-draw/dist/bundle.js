@@ -54,7 +54,7 @@ class TranslateAction {
 }
 exports.TranslateAction = TranslateAction;
 
-},{"./shape":5}],2:[function(require,module,exports){
+},{"./shape":6}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const actions_1 = require("./actions");
@@ -93,7 +93,37 @@ class SimpleDrawDocument {
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
 
-},{"./actions":1,"./undo":6}],3:[function(require,module,exports){
+},{"./actions":1,"./undo":7}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class EventListener {
+    constructor(doc, render) {
+        this.doc = doc;
+        this.render = render;
+        this.rectangleButton = document.getElementById('create-rectangle');
+        this.rectangleButton.addEventListener("click", (e) => this.drawRectangle());
+        this.circleButton = document.getElementById('create-circle');
+        this.circleButton.addEventListener("click", (e) => this.drawCircle());
+    }
+    drawRectangle() {
+        var xPosition = parseInt(document.getElementById('input-rect-x').value);
+        var yPosition = parseInt(document.getElementById('input-rect-y').value);
+        var heigth = parseInt(document.getElementById('input-rect-h').value);
+        var width = parseInt(document.getElementById('input-rect-w').value);
+        this.doc.createRectangle(xPosition, yPosition, width, heigth);
+        this.doc.draw(this.render);
+    }
+    drawCircle() {
+        var xPosition = parseInt(document.getElementById('input-circle-x').value);
+        var yPosition = parseInt(document.getElementById('input-circle-y').value);
+        var r = parseInt(document.getElementById('input-circle-r').value);
+        this.doc.createCircle(xPosition, yPosition, r);
+        this.doc.draw(this.render);
+    }
+}
+exports.EventListener = EventListener;
+
+},{}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -105,11 +135,19 @@ class SVGRender {
         for (const shape of objs) {
             if (shape instanceof shape_1.Rectangle) {
                 const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                e.setAttribute('style', 'stroke: black; fill: white');
+                e.setAttribute('style', 'stroke: black; fill: transparent');
                 e.setAttribute('x', shape.x.toString());
                 e.setAttribute('y', shape.y.toString());
                 e.setAttribute('width', shape.width.toString());
                 e.setAttribute('height', shape.height.toString());
+                this.svg.appendChild(e);
+            }
+            else if (shape instanceof shape_1.Circle) {
+                const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                e.setAttribute('style', 'stroke: black; fill: transparent');
+                e.setAttribute('cx', shape.x.toString());
+                e.setAttribute('cy', shape.y.toString());
+                e.setAttribute('r', shape.radius.toString());
                 this.svg.appendChild(e);
             }
         }
@@ -135,23 +173,25 @@ class CanvasRender {
 }
 exports.CanvasRender = CanvasRender;
 
-},{"./shape":5}],4:[function(require,module,exports){
+},{"./shape":6}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
 const render_1 = require("./render");
+const events_1 = require("./events");
 //const canvasrender = new CanvasRender()
 const svgrender = new render_1.SVGRender();
 const sdd = new document_1.SimpleDrawDocument();
+const eventListener = new events_1.EventListener(sdd, svgrender);
 const c1 = sdd.createCircle(50, 50, 30);
 const r1 = sdd.createRectangle(10, 10, 80, 80);
-const r2 = sdd.createRectangle(30, 30, 40, 40);
+/* const r2 = sdd.createRectangle(30, 30, 40, 40) */
 /* const s1 = sdd.createSelection(c1, r1, r2)
 sdd.translate(s1, 10, 10) */
 //sdd.draw(canvasrender)
 sdd.draw(svgrender);
 
-},{"./document":2,"./render":3}],5:[function(require,module,exports){
+},{"./document":2,"./events":3,"./render":4}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Shape {
@@ -185,7 +225,7 @@ class Circle extends Shape {
 }
 exports.Circle = Circle;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {
@@ -214,4 +254,4 @@ class UndoManager {
 }
 exports.UndoManager = UndoManager;
 
-},{}]},{},[4]);
+},{}]},{},[5]);
