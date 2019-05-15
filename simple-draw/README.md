@@ -41,3 +41,7 @@ Firstly,  the superclass *Shape* was created. It specifies all standard and gene
 In this case, it was implemented two different shapes, subclasses of Shape: rectangle and circle.
 
 The creation of shapes is done by creating objects by calling a factory method rather than calling a constructor, which makes future extensibility quite easier.
+
+```javascript
+final code of shape.ts
+```
