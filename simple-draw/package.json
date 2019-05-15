@@ -6,10 +6,10 @@
   "scripts": {
     "build": "tsc",
     "browserify": "browserify build/script.js -o dist/bundle.js",
-    "browser": "npm run build; npm run browserify",
+    "browser": "npm run build; npm run browserify; opn index.html",
     "css-build": "node-sass --omit-source-map-url sass/styles.scss styles.css",
     "css-watch": "npm run css-build -- --watch",
-    "start": "npm run browser; npm run css-watch; opn index.html"
+    "start": "npm run build; npm run browserify; npm run css-watch; opn index.html"
   },
   "author": "",
   "license": "ISC",
