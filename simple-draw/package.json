@@ -6,8 +6,10 @@
   "scripts": {
     "build": "tsc",
     "browserify": "browserify build/script.js -o dist/bundle.js",
-    "browser": "npm run build; npm run browserify; opn index.html",
-    "start": "npm run build && node build/main.js"
+    "browser": "npm run build; npm run browserify",
+    "css-build": "node-sass --omit-source-map-url sass/styles.scss styles.css",
+    "css-watch": "npm run css-build -- --watch",
+    "start": "npm run browser; npm run css-watch; opn index.html"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +20,7 @@
   "dependencies": {
     "@types/node": "^11.13.4",
     "browserify": "^16.2.3",
+    "node-sass": "^4.12.0",
     "npm": "^6.9.0",
     "opn-cli": "^4.1.0",
     "ts-node": "^8.0.3",
