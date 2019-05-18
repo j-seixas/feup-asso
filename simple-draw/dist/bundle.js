@@ -100,10 +100,24 @@ class EventListener {
     constructor(doc, render) {
         this.doc = doc;
         this.render = render;
+        this.undoButton = document.getElementById('undo');
+        this.undoButton.addEventListener("click", (e) => {
+            this.doc.undo();
+            this.doc.draw(this.render);
+        });
+        this.redoButton = document.getElementById('redo');
+        this.redoButton.addEventListener("click", (e) => {
+            this.doc.redo();
+            this.doc.draw(this.render);
+        });
         this.rectangleButton = document.getElementById('create-rectangle');
         this.rectangleButton.addEventListener("click", (e) => this.drawRectangle());
         this.circleButton = document.getElementById('create-circle');
         this.circleButton.addEventListener("click", (e) => this.drawCircle());
+        this.canvasButton = document.getElementById('create-canvas');
+        this.canvasButton.addEventListener("click", (e) => this.drawCircle());
+        this.svgButton = document.getElementById('create-svg');
+        this.svgButton.addEventListener("click", (e) => this.drawCircle());
     }
     drawRectangle() {
         var xPosition = parseInt(document.getElementById('input-rect-x').value);
@@ -132,6 +146,7 @@ class SVGRender {
         this.svg = document.getElementById('svgcanvas');
     }
     draw(...objs) {
+        this.svg.innerHTML = "";
         for (const shape of objs) {
             if (shape instanceof shape_1.Rectangle) {
                 const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");

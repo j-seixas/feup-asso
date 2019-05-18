@@ -8,11 +8,11 @@ export class SimpleDrawDocument {
   undoManager = new UndoManager()
 
   undo() {
-    this.undoManager.undo();
+    this.undoManager.undo()
   }
 
   redo() {
-    this.undoManager.redo();
+    this.undoManager.redo()
   }
 
   draw(render: Render): void {
@@ -25,8 +25,8 @@ export class SimpleDrawDocument {
   }
 
   do<T>(a: Action<T>): T {
-    this.undoManager.onActionDone(a);
-    return a.do();
+    this.undoManager.onActionDone(a)
+    return a.do()
   }
 
   createRectangle(x: number, y: number, width: number, height: number): Shape {

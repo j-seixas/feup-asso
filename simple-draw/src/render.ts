@@ -12,6 +12,7 @@ export class SVGRender implements Render {
     }
 
     draw(...objs: Array<Shape>): void {
+        this.svg.innerHTML = ""
         for (const shape of objs) {
             if (shape instanceof Rectangle) {
                 const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
