@@ -19,7 +19,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 ## Advanced Functionalities
 
-* [ ] Multiple views (viewports) of the same model;
+* [x] Multiple views (viewports) of the same model;
 * [ ] Viewport tools (translate, zoom);
 * [ ] Different view styles per viewport (wireframe, color);
 * [ ] Two interaction modes: point-n-click and REPLs;
@@ -37,7 +37,7 @@ Identification of the main problems, design patterns and solutions.
 
 #### Solution
 
-Firstly,  the superclass *Shape* was created. It specifies all standard and generic behavior of an object and then delegates the creation details to subclasses that are supplied by the user.
+Firstly, the superclass *Shape* was created. It specifies all standard and generic behavior of an object and then delegates the creation details to subclasses that are supplied by the user.
 In this case, it was implemented two different shapes, subclasses of Shape: rectangle and circle.
 
 ```javascript
@@ -198,3 +198,11 @@ export interface Render {
 ```
 
 One of this project's requirements is for documents to be rendered both in SVG or HTMLCanvas. For this reason, two renderers were created: **SVGRender** and **CanvasRender**. Each one of these classes extends the **Render** class.
+
+### Factory Method
+
+**Problem:** Add different views of the same model.
+
+#### Solution
+
+(unsure, ask in class)
