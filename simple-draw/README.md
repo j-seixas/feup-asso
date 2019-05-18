@@ -181,3 +181,20 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 ```javascript
 add when working
 ```
+
+### Strategy
+
+**Problem:** Multiple views of the same model.
+
+#### Solution
+
+The Strategy pattern defines a family of algorithms, encapsulates each one, and makes them interchangeable. It lets the algorithm vary depending on clients that use it.
+In order to achieve this, the **Render** class was created with a method called draw which takes care of mapping the model according to a certain renderer.
+
+```javascript
+export interface Render {
+    draw(...objs: Array<Shape>): void
+}
+```
+
+One of this project's requirements is for documents to be rendered both in SVG or HTMLCanvas. For this reason, two renderers were created: **SVGRender** and **CanvasRender**. Each one of these classes extends the **Render** class.
