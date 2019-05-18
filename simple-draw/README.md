@@ -31,7 +31,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 Identification of the main problems, design patterns and solutions.
 
-### Factory
+### Factory Method
 
 **Problem:** Develop a simple graphical editor to draw different objects, such as rectangles and circles.
 
@@ -40,8 +40,37 @@ Identification of the main problems, design patterns and solutions.
 Firstly,  the superclass *Shape* was created. It specifies all standard and generic behavior of an object and then delegates the creation details to subclasses that are supplied by the user.
 In this case, it was implemented two different shapes, subclasses of Shape: rectangle and circle.
 
+```javascript
+export abstract class Shape {
+    constructor(public x: number, public y: number) { }
+
+    translate(xd: number, yd: number): void {
+        this.x += xd
+        this.y += yd
+    }
+}
+
+export class Rectangle extends Shape {
+    constructor(public x: number, public y: number, public width: number, public height: number) {
+        super(x, y)
+    }
+}
+
+export class Circle extends Shape {
+    constructor(public x: number, public y: number, public radius: number) {
+        super(x, y)
+    }
+}
+```
+
 The creation of shapes is done by creating objects by calling a factory method rather than calling a constructor, which makes future extensibility quite easier.
 
 ```javascript
-final code of shape.ts
+createRectangle(x: number, y: number, width: number, height: number): Shape {
+    return this.do(new CreateRectangleAction(this, x, y, width, height))
+}
+
+createCircle(x: number, y: number, radius: number): Shape {
+    return this.do(new CreateCircleAction(this, x, y, radius))
+}
 ```
