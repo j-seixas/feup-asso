@@ -88,3 +88,96 @@ export class CreateRectangleAction extends CreateShapeAction<Rectangle> {
     }
 }
 ```
+
+### Command
+
+**Problem:** Support (un)limited undo/redo of all operations.
+
+#### Solution
+
+Simple Draw allows you to perform multiple actions, such as creating shapes. The undo/redo functionality enables you to, well, undo or redo the actions previously executed. The command pattern helps to achieve these behaviors. Basically, it encapsulates a request as an object thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
+
+To implement this pattern three roles are necessary: the requester, the command and the invoker.
+
+The **SimpleDrawDocument** class is the invoker, this class receives the operations and it’s responsible for their execution. Every time we perform an operation, an action is created. For this same reason, the class **UndoManager** was created, so that it stores all the actions that were done and undone. The requester is the **Shape** class because every action is performed on it.
+
+```javascript
+export class SimpleDrawDocument {
+  undoManager = new UndoManager()
+
+  undo() {
+    this.undoManager.undo()
+  }
+
+  redo() {
+    this.undoManager.redo()
+  }
+
+  do<T>(a: Action<T>): T {
+    this.undoManager.onActionDone(a)
+    return a.do()
+  }
+}
+```
+
+```javascript
+type UndoableAction<S> = { do(): S; undo(): void }
+
+export class UndoManager<S, A extends UndoableAction<S>> {
+  doStack = new Array<A>();
+  undoStack = new Array<A>();
+
+  undo() {
+    if (this.doStack.length > 0) {
+      const a1 = this.doStack.pop();
+      a1.undo();
+      this.undoStack.push(a1);
+    }
+  }
+
+  redo() {
+    if (this.undoStack.length > 0) {
+      const a1 = this.undoStack.pop();
+      a1.do();
+      this.doStack.push(a1);
+    }
+  }
+
+  onActionDone(a: A): void {
+    this.doStack.push(a);
+    this.undoStack.length = 0;
+  }
+}
+```
+
+The **Action** class (the command) is extended and implemented by each type of action. It has two methods:
+* *do*: execution of an action;
+* *undo*: un-execution of an action.
+
+```javascript
+export interface Action<T> {
+    do(): T
+    undo(): void
+}
+```
+
+**Create Shape Action**
+```javascript
+abstract class CreateShapeAction<S extends Shape> implements Action<S> {
+    constructor(private doc: SimpleDrawDocument, public readonly shape: S) { }
+
+    do(): S {
+        this.doc.add(this.shape)
+        return this.shape
+    }
+
+    undo() {
+        this.doc.objects = this.doc.objects.filter(o => o !== this.shape)
+    }
+}
+```
+
+**Translate Shape Action**
+```javascript
+add when working
+```
