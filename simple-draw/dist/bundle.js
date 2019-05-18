@@ -179,10 +179,19 @@ class SVGRender {
 exports.SVGRender = SVGRender;
 class CanvasRender {
     constructor() {
-        const canvas = document.getElementById('canvas');
+        var container = document.getElementById('renders');
+        const col = document.createElement('div');
+        col.className = "col";
+        container.appendChild(col);
+        const canvas = document.createElement('canvas');
+        canvas.setAttribute('style', 'border: 1px solid red');
+        canvas.setAttribute('width', '550');
+        canvas.setAttribute('height', '550');
+        col.appendChild(canvas);
         this.ctx = canvas.getContext('2d');
     }
     draw(...objs) {
+        this.ctx.clearRect(0, 0, 550, 550);
         for (const shape of objs) {
             if (shape instanceof shape_1.Circle) {
                 this.ctx.ellipse(shape.x, shape.y, shape.radius, shape.radius, 0, 0, 2 * Math.PI);

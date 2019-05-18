@@ -48,11 +48,23 @@ export class CanvasRender implements Render {
     ctx: CanvasRenderingContext2D
 
     constructor() {
-        const canvas = <HTMLCanvasElement>document.getElementById('canvas')
+        var container = <HTMLElement>document.getElementById('renders')
+
+        const col = document.createElement('div')
+        col.className = "col"
+        container.appendChild(col)
+
+        const canvas = document.createElement('canvas')
+        canvas.setAttribute('style', 'border: 1px solid red')
+        canvas.setAttribute('width', '550')
+        canvas.setAttribute('height', '550')
+        col.appendChild(canvas)
+
         this.ctx = canvas.getContext('2d')
     }
 
     draw(...objs: Array<Shape>): void {
+        this.ctx.clearRect(0, 0, 550, 550)
         for (const shape of objs) {
             if (shape instanceof Circle) {
                 this.ctx.ellipse(shape.x, shape.y, shape.radius, shape.radius, 0, 0, 2 * Math.PI)
