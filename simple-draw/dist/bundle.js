@@ -97,27 +97,27 @@ exports.SimpleDrawDocument = SimpleDrawDocument;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class EventListener {
-    constructor(doc, render) {
+    constructor(doc, view) {
         this.doc = doc;
-        this.render = render;
+        this.view = view;
         this.undoButton = document.getElementById('undo');
         this.undoButton.addEventListener("click", (e) => {
             this.doc.undo();
-            this.doc.draw(this.render);
+            this.view.render();
         });
         this.redoButton = document.getElementById('redo');
         this.redoButton.addEventListener("click", (e) => {
             this.doc.redo();
-            this.doc.draw(this.render);
+            this.view.render();
         });
         this.rectangleButton = document.getElementById('create-rectangle');
         this.rectangleButton.addEventListener("click", (e) => this.drawRectangle());
         this.circleButton = document.getElementById('create-circle');
         this.circleButton.addEventListener("click", (e) => this.drawCircle());
         this.canvasButton = document.getElementById('create-canvas');
-        this.canvasButton.addEventListener("click", (e) => this.drawCircle());
+        this.canvasButton.addEventListener("click", (e) => this.view.addRender(this.view.createCanvas()));
         this.svgButton = document.getElementById('create-svg');
-        this.svgButton.addEventListener("click", (e) => this.drawCircle());
+        this.svgButton.addEventListener("click", (e) => this.view.addRender(this.view.createSVG()));
     }
     drawRectangle() {
         var xPosition = parseInt(document.getElementById('input-rect-x').value);
@@ -125,14 +125,14 @@ class EventListener {
         var heigth = parseInt(document.getElementById('input-rect-h').value);
         var width = parseInt(document.getElementById('input-rect-w').value);
         this.doc.createRectangle(xPosition, yPosition, width, heigth);
-        this.doc.draw(this.render);
+        this.view.render();
     }
     drawCircle() {
         var xPosition = parseInt(document.getElementById('input-circle-x').value);
         var yPosition = parseInt(document.getElementById('input-circle-y').value);
         var r = parseInt(document.getElementById('input-circle-r').value);
         this.doc.createCircle(xPosition, yPosition, r);
-        this.doc.draw(this.render);
+        this.view.render();
     }
 }
 exports.EventListener = EventListener;
@@ -143,7 +143,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
 class SVGRender {
     constructor() {
-        this.svg = document.getElementById('svgcanvas');
+        var container = document.getElementById('renders');
+        const col = document.createElement('div');
+        col.className = "col";
+        container.appendChild(col);
+        this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.svg.setAttribute('style', 'border: 1px solid blue');
+        this.svg.setAttribute('width', '550');
+        this.svg.setAttribute('height', '550');
+        col.appendChild(this.svg);
     }
     draw(...objs) {
         this.svg.innerHTML = "";
@@ -192,21 +200,19 @@ exports.CanvasRender = CanvasRender;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
-const render_1 = require("./render");
+const view_1 = require("./view");
 const events_1 = require("./events");
-//const canvasrender = new CanvasRender()
-const svgrender = new render_1.SVGRender();
-const sdd = new document_1.SimpleDrawDocument();
-const eventListener = new events_1.EventListener(sdd, svgrender);
-const c1 = sdd.createCircle(50, 50, 30);
-const r1 = sdd.createRectangle(10, 10, 80, 80);
+const doc = new document_1.SimpleDrawDocument();
+const view = new view_1.View(doc);
+const eventListener = new events_1.EventListener(doc, view);
+const c1 = doc.createCircle(50, 50, 30);
+const r1 = doc.createRectangle(10, 10, 80, 80);
 /* const r2 = sdd.createRectangle(30, 30, 40, 40) */
 /* const s1 = sdd.createSelection(c1, r1, r2)
 sdd.translate(s1, 10, 10) */
-//sdd.draw(canvasrender)
-sdd.draw(svgrender);
+view.render();
 
-},{"./document":2,"./events":3,"./render":4}],6:[function(require,module,exports){
+},{"./document":2,"./events":3,"./view":8}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Shape {
@@ -269,4 +275,32 @@ class UndoManager {
 }
 exports.UndoManager = UndoManager;
 
-},{}]},{},[5]);
+},{}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const render_1 = require("./render");
+class View {
+    constructor(doc) {
+        this.doc = doc;
+        this.renders = new Array();
+        this.renders.push(new render_1.SVGRender());
+    }
+    addRender(render) {
+        this.renders.push(render);
+        this.render();
+    }
+    createSVG() {
+        return new render_1.SVGRender();
+    }
+    createCanvas() {
+        return new render_1.CanvasRender();
+    }
+    render() {
+        for (const render of this.renders) {
+            this.doc.draw(render);
+        }
+    }
+}
+exports.View = View;
+
+},{"./render":4}]},{},[5]);

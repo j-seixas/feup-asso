@@ -1,9 +1,9 @@
 import { SimpleDrawDocument } from './document'
-import { CanvasRender, SVGRender } from './render'
+import { View } from './view'
 
 export class EventListener {
     doc: SimpleDrawDocument
-    render: SVGRender
+    view: View
     undoButton: HTMLElement
     redoButton: HTMLElement
     rectangleButton: HTMLElement
@@ -11,20 +11,20 @@ export class EventListener {
     canvasButton: HTMLElement
     svgButton: HTMLElement
 
-    constructor(doc: SimpleDrawDocument, render: SVGRender) {
+    constructor(doc: SimpleDrawDocument, view: View) {
         this.doc = doc
-        this.render = render
+        this.view = view
 
         this.undoButton = <HTMLElement>document.getElementById('undo')
         this.undoButton.addEventListener("click", (e: Event) => {
             this.doc.undo()
-            this.doc.draw(this.render)
+            this.view.render()
         })
 
         this.redoButton = <HTMLElement>document.getElementById('redo')
         this.redoButton.addEventListener("click", (e: Event) => {
             this.doc.redo()
-            this.doc.draw(this.render)
+            this.view.render()
         })
 
         this.rectangleButton = <HTMLElement>document.getElementById('create-rectangle')
@@ -34,10 +34,10 @@ export class EventListener {
         this.circleButton.addEventListener("click", (e: Event) => this.drawCircle())
 
         this.canvasButton = <HTMLElement>document.getElementById('create-canvas')
-        this.canvasButton.addEventListener("click", (e: Event) => this.drawCircle())
+        this.canvasButton.addEventListener("click", (e: Event) => this.view.addRender(this.view.createCanvas()))
 
         this.svgButton = <HTMLElement>document.getElementById('create-svg')
-        this.svgButton.addEventListener("click", (e: Event) => this.drawCircle())
+        this.svgButton.addEventListener("click", (e: Event) => this.view.addRender(this.view.createSVG()))
     }
 
     drawRectangle() {
@@ -47,7 +47,7 @@ export class EventListener {
         var width = parseInt((<HTMLInputElement>document.getElementById('input-rect-w')).value)
 
         this.doc.createRectangle(xPosition, yPosition, width, heigth)
-        this.doc.draw(this.render)
+        this.view.render()
     }
 
     drawCircle() {
@@ -56,6 +56,6 @@ export class EventListener {
         var r = parseInt((<HTMLInputElement>document.getElementById('input-circle-r')).value)
 
         this.doc.createCircle(xPosition, yPosition, r)
-        this.doc.draw(this.render)
+        this.view.render()
     }
 }

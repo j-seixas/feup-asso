@@ -5,10 +5,20 @@ export interface Render {
 }
 
 export class SVGRender implements Render {
-    svg: HTMLElement
+    svg: SVGElement
 
     constructor() {
-        this.svg = <HTMLElement>document.getElementById('svgcanvas')
+        var container = <HTMLElement>document.getElementById('renders')
+
+        const col = document.createElement('div')
+        col.className = "col"
+        container.appendChild(col)
+
+        this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+        this.svg.setAttribute('style', 'border: 1px solid blue')
+        this.svg.setAttribute('width', '550')
+        this.svg.setAttribute('height', '550')
+        col.appendChild(this.svg)
     }
 
     draw(...objs: Array<Shape>): void {
