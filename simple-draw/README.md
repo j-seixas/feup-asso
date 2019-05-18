@@ -74,3 +74,17 @@ createCircle(x: number, y: number, radius: number): Shape {
     return this.do(new CreateCircleAction(this, x, y, radius))
 }
 ```
+
+```javascript
+export class CreateCircleAction extends CreateShapeAction<Circle> {
+    constructor(doc: SimpleDrawDocument, private x: number, private y: number, private radius: number) {
+        super(doc, new Circle(x, y, radius))
+    }
+}
+
+export class CreateRectangleAction extends CreateShapeAction<Rectangle> {
+    constructor(doc: SimpleDrawDocument, private x: number, private y: number, private width: number, private height: number) {
+        super(doc, new Rectangle(x, y, width, height))
+    }
+}
+```
