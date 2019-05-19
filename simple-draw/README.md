@@ -20,7 +20,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 ## Advanced Functionalities
 
 * [x] Multiple views (viewports) of the same model;
-* [ ] Viewport tools (translate, zoom);
+* [x] Viewport tools (translate, zoom);
 * [ ] Different view styles per viewport (wireframe, color);
 * [ ] Two interaction modes: point-n-click and REPLs;
 * [x] Support (un)limited Undo / Redo of all operations.
@@ -206,3 +206,11 @@ One of this project's requirements is for documents to be rendered both in SVG o
 #### Solution
 
 (unsure, ask in class)
+
+
+### Model-View-Controller (MVC)
+TODO 
+
+**Problem:** 
+
+#### Solution

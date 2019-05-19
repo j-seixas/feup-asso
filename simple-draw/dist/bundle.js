@@ -115,9 +115,15 @@ class EventListener {
         this.circleButton = document.getElementById('create-circle');
         this.circleButton.addEventListener("click", (e) => this.drawCircle());
         this.canvasButton = document.getElementById('create-canvas');
-        this.canvasButton.addEventListener("click", (e) => this.view.addRender(this.view.createCanvas()));
+        this.canvasButton.addEventListener("click", (e) => {
+            this.view.addRender(this.view.createCanvas());
+            this.createViewportTools();
+        });
         this.svgButton = document.getElementById('create-svg');
-        this.svgButton.addEventListener("click", (e) => this.view.addRender(this.view.createSVG()));
+        this.svgButton.addEventListener("click", (e) => {
+            this.view.addRender(this.view.createSVG());
+            this.createViewportTools();
+        });
     }
     drawRectangle() {
         var xPosition = parseInt(document.getElementById('input-rect-x').value);
@@ -134,6 +140,44 @@ class EventListener {
         this.doc.createCircle(xPosition, yPosition, r);
         this.view.render();
     }
+    createViewportTools() {
+        const lastRender = document.querySelectorAll("[id=renders] > .col");
+        const lastRenderId = lastRender.length - 1;
+        const buttonZoomIn = document.createElement('button');
+        buttonZoomIn.className = "btn btn-outline-primary";
+        const iconZoomIn = document.createElement('i');
+        iconZoomIn.className = "fa fa-search-plus";
+        buttonZoomIn.appendChild(iconZoomIn);
+        buttonZoomIn.addEventListener("click", (e) => { this.view.increaseZoom(lastRenderId); this.view.render(); });
+        const buttonZoomOut = document.createElement('button');
+        buttonZoomOut.className = "btn btn-outline-danger";
+        const iconZoomOut = document.createElement('i');
+        iconZoomOut.className = "fa fa-search-minus";
+        buttonZoomOut.appendChild(iconZoomOut);
+        buttonZoomOut.addEventListener("click", (e) => { this.view.decreaseZoom(lastRenderId); this.view.render(); });
+        const buttonUp = document.createElement('button');
+        buttonUp.className = "btn btn-outline-primary";
+        buttonUp.innerHTML = "up";
+        buttonUp.addEventListener("click", (e) => { this.view.setPositionY(lastRenderId, -10); this.view.render(); });
+        const buttonLeft = document.createElement('button');
+        buttonLeft.className = "btn btn-outline-primary";
+        buttonLeft.innerHTML = "left";
+        buttonLeft.addEventListener("click", (e) => { this.view.setPositionX(lastRenderId, -10); this.view.render(); });
+        const buttonDown = document.createElement('button');
+        buttonDown.className = "btn btn-outline-primary";
+        buttonDown.innerHTML = "down";
+        buttonDown.addEventListener("click", (e) => { this.view.setPositionY(lastRenderId, 10); this.view.render(); });
+        const buttonRight = document.createElement('button');
+        buttonRight.className = "btn btn-outline-primary";
+        buttonRight.innerHTML = "right";
+        buttonRight.addEventListener("click", (e) => { this.view.setPositionX(lastRenderId, 10); this.view.render(); });
+        lastRender[lastRenderId].appendChild(buttonZoomIn);
+        lastRender[lastRenderId].appendChild(buttonZoomOut);
+        lastRender[lastRenderId].appendChild(buttonUp);
+        lastRender[lastRenderId].appendChild(buttonDown);
+        lastRender[lastRenderId].appendChild(buttonLeft);
+        lastRender[lastRenderId].appendChild(buttonRight);
+    }
 }
 exports.EventListener = EventListener;
 
@@ -143,6 +187,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
 class SVGRender {
     constructor() {
+        this.zoom = 1;
+        this.positionX = 0;
+        this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
         col.className = "col";
@@ -153,24 +200,43 @@ class SVGRender {
         this.svg.setAttribute('height', '550');
         col.appendChild(this.svg);
     }
+    increaseZoom() {
+        this.zoom *= 2;
+    }
+    decreaseZoom() {
+        this.zoom /= 2;
+    }
+    setX(x) {
+        this.positionX += x;
+    }
+    setY(y) {
+        this.positionY += y;
+    }
     draw(...objs) {
         this.svg.innerHTML = "";
         for (const shape of objs) {
             if (shape instanceof shape_1.Rectangle) {
                 const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                 e.setAttribute('style', 'stroke: black; fill: transparent');
-                e.setAttribute('x', shape.x.toString());
-                e.setAttribute('y', shape.y.toString());
-                e.setAttribute('width', shape.width.toString());
-                e.setAttribute('height', shape.height.toString());
+                const x = (shape.x + this.positionX) * this.zoom;
+                e.setAttribute('x', x.toString());
+                const y = (shape.y + this.positionY) * this.zoom;
+                e.setAttribute('y', y.toString());
+                const w = shape.width * this.zoom;
+                e.setAttribute('width', w.toString());
+                const h = shape.height * this.zoom;
+                e.setAttribute('height', h.toString());
                 this.svg.appendChild(e);
             }
             else if (shape instanceof shape_1.Circle) {
                 const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 e.setAttribute('style', 'stroke: black; fill: transparent');
-                e.setAttribute('cx', shape.x.toString());
-                e.setAttribute('cy', shape.y.toString());
-                e.setAttribute('r', shape.radius.toString());
+                const x = (shape.x + this.positionX) * this.zoom;
+                e.setAttribute('cx', x.toString());
+                const y = (shape.y + this.positionY) * this.zoom;
+                e.setAttribute('cy', y.toString());
+                const r = shape.radius * this.zoom;
+                e.setAttribute('r', r.toString());
                 this.svg.appendChild(e);
             }
         }
@@ -179,6 +245,9 @@ class SVGRender {
 exports.SVGRender = SVGRender;
 class CanvasRender {
     constructor() {
+        this.zoom = 1;
+        this.positionX = 0;
+        this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
         col.className = "col";
@@ -190,19 +259,34 @@ class CanvasRender {
         col.appendChild(canvas);
         this.ctx = canvas.getContext('2d');
     }
+    increaseZoom() {
+        this.zoom *= 2;
+    }
+    decreaseZoom() {
+        this.zoom /= 2;
+    }
+    setX(x) {
+        this.positionX += x;
+    }
+    setY(y) {
+        this.positionY += y;
+    }
     draw(...objs) {
         this.ctx.clearRect(0, 0, 550, 550);
+        this.ctx.save();
+        this.ctx.scale(this.zoom, this.zoom);
         for (const shape of objs) {
             if (shape instanceof shape_1.Circle) {
                 this.ctx.beginPath();
-                this.ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);
+                this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI);
                 this.ctx.stroke();
                 this.ctx.closePath();
             }
             else if (shape instanceof shape_1.Rectangle) {
-                this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+                this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
             }
         }
+        this.ctx.restore();
     }
 }
 exports.CanvasRender = CanvasRender;
@@ -214,7 +298,7 @@ const document_1 = require("./document");
 const view_1 = require("./view");
 const events_1 = require("./events");
 const doc = new document_1.SimpleDrawDocument();
-const view = new view_1.View(doc);
+const view = new view_1.ViewsController(doc);
 const eventListener = new events_1.EventListener(doc, view);
 const c1 = doc.createCircle(50, 50, 30);
 const r1 = doc.createRectangle(10, 10, 80, 80);
@@ -290,7 +374,7 @@ exports.UndoManager = UndoManager;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
-class View {
+class ViewsController {
     constructor(doc) {
         this.doc = doc;
         this.renders = new Array();
@@ -306,12 +390,24 @@ class View {
     createCanvas() {
         return new render_1.CanvasRender();
     }
+    increaseZoom(idRender) {
+        this.renders[idRender].increaseZoom();
+    }
+    decreaseZoom(idRender) {
+        this.renders[idRender].decreaseZoom();
+    }
+    setPositionX(idRender, n) {
+        this.renders[idRender].setX(n);
+    }
+    setPositionY(idRender, n) {
+        this.renders[idRender].setY(n);
+    }
     render() {
         for (const render of this.renders) {
             this.doc.draw(render);
         }
     }
 }
-exports.View = View;
+exports.ViewsController = ViewsController;
 
 },{"./render":4}]},{},[5]);
