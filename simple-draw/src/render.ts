@@ -67,8 +67,10 @@ export class CanvasRender implements Render {
         this.ctx.clearRect(0, 0, 550, 550)
         for (const shape of objs) {
             if (shape instanceof Circle) {
-                this.ctx.ellipse(shape.x, shape.y, shape.radius, shape.radius, 0, 0, 2 * Math.PI)
+                this.ctx.beginPath()
+                this.ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI)
                 this.ctx.stroke()
+                this.ctx.closePath()
             } else if (shape instanceof Rectangle) {
                 this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height)
             }
