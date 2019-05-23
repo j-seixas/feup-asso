@@ -20,7 +20,7 @@ export class CanvasFactory implements RenderFactory {
 export class ViewController {
     renders = new Array<Render>()
 
-    constructor(public doc: SimpleDrawDocument, public factory: RenderFactory) {
+    constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
         this.renders.push(factory.createRender())
     }
 

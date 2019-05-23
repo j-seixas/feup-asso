@@ -390,7 +390,6 @@ exports.CanvasFactory = CanvasFactory;
 class ViewController {
     constructor(doc, factory) {
         this.doc = doc;
-        this.factory = factory;
         this.renders = new Array();
         this.renders.push(factory.createRender());
     }
