@@ -36,13 +36,11 @@ export class EventListener {
         this.canvasButton = <HTMLElement>document.getElementById('create-canvas')
         this.canvasButton.addEventListener("click", (e: Event) => {
             this.view.addRender(new CanvasFactory())
-            this.createViewportTools()
         })
-        
+
         this.svgButton = <HTMLElement>document.getElementById('create-svg')
         this.svgButton.addEventListener("click", (e: Event) => {
             this.view.addRender(new SVGFactory())
-            this.createViewportTools()
         })
     }
 
@@ -63,55 +61,5 @@ export class EventListener {
 
         this.doc.createCircle(xPosition, yPosition, r)
         this.view.render()
-    }
-
-    createViewportTools(){
-        const lastRender = document.querySelectorAll("[id=renders] > .col")
-        const lastRenderId = lastRender.length - 1
-
-        const buttonZoomIn = document.createElement('button')
-        buttonZoomIn.className = "btn btn-outline-primary"
-        
-        const iconZoomIn = document.createElement('i')
-        iconZoomIn.className = "fa fa-search-plus"
-        buttonZoomIn.appendChild(iconZoomIn)
-
-        buttonZoomIn.addEventListener("click", (e: Event) => {this.view.increaseZoom(lastRenderId); this.view.render()})
-
-        const buttonZoomOut = document.createElement('button')
-        buttonZoomOut.className = "btn btn-outline-danger"
-        
-        const iconZoomOut = document.createElement('i')
-        iconZoomOut.className = "fa fa-search-minus"
-        buttonZoomOut.appendChild(iconZoomOut)
-
-        buttonZoomOut.addEventListener("click", (e: Event) => {this.view.decreaseZoom(lastRenderId); this.view.render()})
-
-        const buttonUp = document.createElement('button')
-        buttonUp.className = "btn btn-outline-primary"
-        buttonUp.innerHTML = "up"
-        buttonUp.addEventListener("click", (e: Event) => {this.view.setPositionY(lastRenderId, -10); this.view.render()})
-
-        const buttonLeft = document.createElement('button')
-        buttonLeft.className = "btn btn-outline-primary"
-        buttonLeft.innerHTML = "left"
-        buttonLeft.addEventListener("click", (e: Event) => {this.view.setPositionX(lastRenderId, -10); this.view.render()})
-
-        const buttonDown = document.createElement('button')
-        buttonDown.className = "btn btn-outline-primary"
-        buttonDown.innerHTML = "down"
-        buttonDown.addEventListener("click", (e: Event) => {this.view.setPositionY(lastRenderId, 10); this.view.render()})
-
-        const buttonRight = document.createElement('button')
-        buttonRight.className = "btn btn-outline-primary"
-        buttonRight.innerHTML = "right"
-        buttonRight.addEventListener("click", (e: Event) => {this.view.setPositionX(lastRenderId, 10); this.view.render()})
-
-        lastRender[lastRenderId].appendChild(buttonZoomIn)
-        lastRender[lastRenderId].appendChild(buttonZoomOut)
-        lastRender[lastRenderId].appendChild(buttonUp)
-        lastRender[lastRenderId].appendChild(buttonDown)
-        lastRender[lastRenderId].appendChild(buttonLeft)
-        lastRender[lastRenderId].appendChild(buttonRight)
     }
 }

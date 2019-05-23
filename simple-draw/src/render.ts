@@ -25,7 +25,7 @@ export class SVGRender implements Render {
         var container = <HTMLElement>document.getElementById('renders')
 
         const col = document.createElement('div')
-        col.className = "col"
+        col.className = "col d-flex flex-column-reverse align-items-start"
         container.appendChild(col)
 
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
@@ -94,7 +94,7 @@ export class CanvasRender implements Render {
         var container = <HTMLElement>document.getElementById('renders')
 
         const col = document.createElement('div')
-        col.className = "col"
+        col.className = "col d-flex flex-column-reverse align-items-start"
         container.appendChild(col)
 
         const canvas = document.createElement('canvas')

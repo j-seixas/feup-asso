@@ -118,12 +118,10 @@ class EventListener {
         this.canvasButton = document.getElementById('create-canvas');
         this.canvasButton.addEventListener("click", (e) => {
             this.view.addRender(new view_1.CanvasFactory());
-            this.createViewportTools();
         });
         this.svgButton = document.getElementById('create-svg');
         this.svgButton.addEventListener("click", (e) => {
             this.view.addRender(new view_1.SVGFactory());
-            this.createViewportTools();
         });
     }
     drawRectangle() {
@@ -141,44 +139,6 @@ class EventListener {
         this.doc.createCircle(xPosition, yPosition, r);
         this.view.render();
     }
-    createViewportTools() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col");
-        const lastRenderId = lastRender.length - 1;
-        const buttonZoomIn = document.createElement('button');
-        buttonZoomIn.className = "btn btn-outline-primary";
-        const iconZoomIn = document.createElement('i');
-        iconZoomIn.className = "fa fa-search-plus";
-        buttonZoomIn.appendChild(iconZoomIn);
-        buttonZoomIn.addEventListener("click", (e) => { this.view.increaseZoom(lastRenderId); this.view.render(); });
-        const buttonZoomOut = document.createElement('button');
-        buttonZoomOut.className = "btn btn-outline-danger";
-        const iconZoomOut = document.createElement('i');
-        iconZoomOut.className = "fa fa-search-minus";
-        buttonZoomOut.appendChild(iconZoomOut);
-        buttonZoomOut.addEventListener("click", (e) => { this.view.decreaseZoom(lastRenderId); this.view.render(); });
-        const buttonUp = document.createElement('button');
-        buttonUp.className = "btn btn-outline-primary";
-        buttonUp.innerHTML = "up";
-        buttonUp.addEventListener("click", (e) => { this.view.setPositionY(lastRenderId, -10); this.view.render(); });
-        const buttonLeft = document.createElement('button');
-        buttonLeft.className = "btn btn-outline-primary";
-        buttonLeft.innerHTML = "left";
-        buttonLeft.addEventListener("click", (e) => { this.view.setPositionX(lastRenderId, -10); this.view.render(); });
-        const buttonDown = document.createElement('button');
-        buttonDown.className = "btn btn-outline-primary";
-        buttonDown.innerHTML = "down";
-        buttonDown.addEventListener("click", (e) => { this.view.setPositionY(lastRenderId, 10); this.view.render(); });
-        const buttonRight = document.createElement('button');
-        buttonRight.className = "btn btn-outline-primary";
-        buttonRight.innerHTML = "right";
-        buttonRight.addEventListener("click", (e) => { this.view.setPositionX(lastRenderId, 10); this.view.render(); });
-        lastRender[lastRenderId].appendChild(buttonZoomIn);
-        lastRender[lastRenderId].appendChild(buttonZoomOut);
-        lastRender[lastRenderId].appendChild(buttonUp);
-        lastRender[lastRenderId].appendChild(buttonDown);
-        lastRender[lastRenderId].appendChild(buttonLeft);
-        lastRender[lastRenderId].appendChild(buttonRight);
-    }
 }
 exports.EventListener = EventListener;
 
@@ -193,7 +153,7 @@ class SVGRender {
         this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
-        col.className = "col";
+        col.className = "col d-flex flex-column-reverse align-items-start";
         container.appendChild(col);
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute('style', 'border: 1px solid blue');
@@ -251,7 +211,7 @@ class CanvasRender {
         this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
-        col.className = "col";
+        col.className = "col d-flex flex-column-reverse align-items-start";
         container.appendChild(col);
         const canvas = document.createElement('canvas');
         canvas.setAttribute('style', 'border: 1px solid red');
@@ -392,9 +352,11 @@ class ViewController {
         this.doc = doc;
         this.renders = new Array();
         this.renders.push(factory.createRender());
+        this.createViewportTools();
     }
     addRender(factory) {
         this.renders.push(factory.createRender());
+        this.createViewportTools();
         this.render();
     }
     increaseZoom(idRender) {
@@ -413,6 +375,63 @@ class ViewController {
         for (const render of this.renders) {
             this.doc.draw(render);
         }
+    }
+    createViewportTools() {
+        const lastRender = document.querySelectorAll("[id=renders] > .col");
+        const lastRenderId = lastRender.length - 1;
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = "viewport-tools";
+        buttonContainer.appendChild(this.createZoomTools(lastRenderId));
+        buttonContainer.appendChild(this.createTranslateTools(lastRenderId));
+        lastRender[lastRenderId].appendChild(buttonContainer);
+    }
+    createZoomTools(lastRenderId) {
+        const zoomContainer = document.createElement('div');
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = "btn-group";
+        const buttonZoomIn = document.createElement('button');
+        buttonZoomIn.className = "btn btn-dark";
+        const iconZoomIn = document.createElement('i');
+        iconZoomIn.className = "fas fa-search-plus";
+        buttonZoomIn.appendChild(iconZoomIn);
+        buttonZoomIn.addEventListener("click", (e) => { this.increaseZoom(lastRenderId); this.render(); });
+        const buttonZoomOut = document.createElement('button');
+        buttonZoomOut.className = "btn btn-dark";
+        const iconZoomOut = document.createElement('i');
+        iconZoomOut.className = "fa fa-search-minus";
+        buttonZoomOut.appendChild(iconZoomOut);
+        buttonZoomOut.addEventListener("click", (e) => { this.decreaseZoom(lastRenderId); this.render(); });
+        buttonGroup.appendChild(buttonZoomIn);
+        buttonGroup.appendChild(buttonZoomOut);
+        zoomContainer.appendChild(buttonGroup);
+        return zoomContainer;
+    }
+    createTranslateTools(lastRenderId) {
+        const translateContainer = document.createElement('div');
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = "btn-group";
+        const buttonUp = document.createElement('button');
+        buttonUp.className = "btn btn-dark";
+        buttonUp.innerHTML = "up";
+        buttonUp.addEventListener("click", (e) => { this.setPositionY(lastRenderId, -10); this.render(); });
+        const buttonLeft = document.createElement('button');
+        buttonLeft.className = "btn btn-dark";
+        buttonLeft.innerHTML = "left";
+        buttonLeft.addEventListener("click", (e) => { this.setPositionX(lastRenderId, -10); this.render(); });
+        const buttonDown = document.createElement('button');
+        buttonDown.className = "btn btn-dark";
+        buttonDown.innerHTML = "down";
+        buttonDown.addEventListener("click", (e) => { this.setPositionY(lastRenderId, 10); this.render(); });
+        const buttonRight = document.createElement('button');
+        buttonRight.className = "btn btn-dark";
+        buttonRight.innerHTML = "right";
+        buttonRight.addEventListener("click", (e) => { this.setPositionX(lastRenderId, 10); this.render(); });
+        buttonGroup.appendChild(buttonLeft);
+        buttonGroup.appendChild(buttonUp);
+        buttonGroup.appendChild(buttonDown);
+        buttonGroup.appendChild(buttonRight);
+        translateContainer.appendChild(buttonGroup);
+        return translateContainer;
     }
 }
 exports.ViewController = ViewController;
