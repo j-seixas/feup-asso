@@ -1,39 +1,47 @@
 import { SimpleDrawDocument } from './document'
-import { Render, SVGRender, CanvasRender } from './render';
+import { Render, SVGRender, CanvasRender } from './render'
 
-export class ViewsController {
+export interface RenderFactory {
+    createRender(): Render
+}
+
+export class SVGFactory implements RenderFactory {
+    createRender(): Render {
+        return new SVGRender()
+    }
+}
+
+export class CanvasFactory implements RenderFactory {
+    createRender(): Render {
+        return new CanvasRender()
+    }
+}
+
+export class ViewController {
     renders = new Array<Render>()
 
-    constructor(public doc: SimpleDrawDocument) {
-        this.renders.push(new SVGRender())
+    constructor(public doc: SimpleDrawDocument, public factory: RenderFactory) {
+        this.renders.push(factory.createRender())
     }
 
-    addRender(render: Render) {
-        this.renders.push(render)
+    addRender(factory: RenderFactory) {
+        this.renders.push(factory.createRender())
         this.render()
     }
 
-    createSVG() {
-        return new SVGRender()
-    }
-
-    createCanvas() {
-        return new CanvasRender()
-    }
-
-    increaseZoom(idRender: number){
+    increaseZoom(idRender: number) {
         this.renders[idRender].increaseZoom()
     }
 
-    decreaseZoom(idRender: number){
+    decreaseZoom(idRender: number) {
         this.renders[idRender].decreaseZoom()
     }
 
-    setPositionX(idRender: number, n: number){
+    setPositionX(idRender: number, n: number) {
         this.renders[idRender].setX(n)
     }
 
-    setPositionY(idRender: number, n: number){
+    setPositionY(idRender: number, n: number) {
         this.renders[idRender].setY(n)
     }
 

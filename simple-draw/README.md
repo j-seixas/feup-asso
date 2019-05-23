@@ -31,6 +31,8 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 Identification of the main problems, design patterns and solutions.
 
+[**INSERT DIAGRAM HERE:** how files communicate and stuff, how everything is connected]
+
 ### Factory Method
 
 **Problem:** Develop a simple graphical editor to draw different objects, such as rectangles and circles.
@@ -199,13 +201,77 @@ export interface Render {
 
 One of this project's requirements is for documents to be rendered both in SVG or HTMLCanvas. For this reason, two renderers were created: **SVGRender** and **CanvasRender**. Each one of these classes extends the **Render** class.
 
-### Factory Method
+### Abstract Factory
 
 **Problem:** Add different views of the same model.
 
 #### Solution
 
-(unsure, ask in class)
+Abstract Factory is a creational design pattern that lets you produce families of related objects without specifying their concrete classes.
+
+In this case, there's only one family of related products, the **Render**. This pattern suggests declaring interfaces for each distinct product of the product family, so the **Render will be an interface**. Then, there are two variants of this family: **SVGRender and CanvasRender class**. These classes implement the Render interface.
+
+```javascript
+export interface Render {
+    draw(...objs: Array<Shape>): void
+}
+
+export class SVGRender implements Render {
+    draw(...objs: Array<Shape>): void
+    // Draw svg render
+}
+
+export class CanvasRender implements Render {
+    draw(...objs: Array<Shape>): void
+    // Draw canvas render
+}
+```
+
+The next move is to declare the Abstract Factory - **RenderFactory** - an interface with a list of creation methods for all products that are part of the product family. These methods must return abstract render types. For each variant of a product family, we create a separate factory class based on the RenderFactory interface. A factory is a class that returns products of a particular kind.
+
+```javascript
+export interface RenderFactory {
+    createRender(): Render
+}
+
+export class SVGFactory implements RenderFactory {
+    createRender(): Render {
+        return new SVGRender()
+    }
+}
+
+export class CanvasFactory implements RenderFactory {
+    createRender(): Render {
+        return new CanvasRender()
+    }
+}
+```
+
+When launching the application, the **ViewController** class is initialized with a type of **RenderFactory**, we decided to use the SVG as default. Then, when adding new renders to the application the same method is used!
+
+```javascript
+export class ViewController {
+    renders = new Array<Render>()
+
+    constructor(public doc: SimpleDrawDocument, public factory: RenderFactory) {
+        this.renders.push(factory.createRender())
+    }
+
+    addRender(factory: RenderFactory) {
+        this.renders.push(factory.createRender())
+        this.render()
+    }
+}
+```
+
+This pattern makes it easier when adding new products or families of products to the program, so you don’t have to change existing code! In this case, adding a new type of render would be very simple.
+
+### Observer
+
+**Problem:** All views should update automatically on change.
+
+#### Solution
+
 
 
 ### Model-View-Controller (MVC)

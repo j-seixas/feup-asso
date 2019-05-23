@@ -1,9 +1,9 @@
 import { SimpleDrawDocument } from './document'
-import { ViewsController } from './view'
+import { ViewController, SVGFactory, CanvasFactory } from './view'
 
 export class EventListener {
     doc: SimpleDrawDocument
-    view: ViewsController
+    view: ViewController
     undoButton: HTMLElement
     redoButton: HTMLElement
     rectangleButton: HTMLElement
@@ -11,7 +11,7 @@ export class EventListener {
     canvasButton: HTMLElement
     svgButton: HTMLElement
 
-    constructor(doc: SimpleDrawDocument, view: ViewsController) {
+    constructor(doc: SimpleDrawDocument, view: ViewController) {
         this.doc = doc
         this.view = view
 
@@ -35,13 +35,13 @@ export class EventListener {
 
         this.canvasButton = <HTMLElement>document.getElementById('create-canvas')
         this.canvasButton.addEventListener("click", (e: Event) => {
-            this.view.addRender(this.view.createCanvas())
+            this.view.addRender(new CanvasFactory())
             this.createViewportTools()
         })
         
         this.svgButton = <HTMLElement>document.getElementById('create-svg')
         this.svgButton.addEventListener("click", (e: Event) => {
-            this.view.addRender(this.view.createSVG())
+            this.view.addRender(new SVGFactory())
             this.createViewportTools()
         })
     }

@@ -96,6 +96,7 @@ exports.SimpleDrawDocument = SimpleDrawDocument;
 },{"./actions":1,"./undo":7}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const view_1 = require("./view");
 class EventListener {
     constructor(doc, view) {
         this.doc = doc;
@@ -116,12 +117,12 @@ class EventListener {
         this.circleButton.addEventListener("click", (e) => this.drawCircle());
         this.canvasButton = document.getElementById('create-canvas');
         this.canvasButton.addEventListener("click", (e) => {
-            this.view.addRender(this.view.createCanvas());
+            this.view.addRender(new view_1.CanvasFactory());
             this.createViewportTools();
         });
         this.svgButton = document.getElementById('create-svg');
         this.svgButton.addEventListener("click", (e) => {
-            this.view.addRender(this.view.createSVG());
+            this.view.addRender(new view_1.SVGFactory());
             this.createViewportTools();
         });
     }
@@ -181,7 +182,7 @@ class EventListener {
 }
 exports.EventListener = EventListener;
 
-},{}],4:[function(require,module,exports){
+},{"./view":8}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -298,7 +299,7 @@ const document_1 = require("./document");
 const view_1 = require("./view");
 const events_1 = require("./events");
 const doc = new document_1.SimpleDrawDocument();
-const view = new view_1.ViewsController(doc);
+const view = new view_1.ViewController(doc, new view_1.SVGFactory());
 const eventListener = new events_1.EventListener(doc, view);
 const c1 = doc.createCircle(50, 50, 30);
 const r1 = doc.createRectangle(10, 10, 80, 80);
@@ -374,21 +375,28 @@ exports.UndoManager = UndoManager;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
-class ViewsController {
-    constructor(doc) {
-        this.doc = doc;
-        this.renders = new Array();
-        this.renders.push(new render_1.SVGRender());
-    }
-    addRender(render) {
-        this.renders.push(render);
-        this.render();
-    }
-    createSVG() {
+class SVGFactory {
+    createRender() {
         return new render_1.SVGRender();
     }
-    createCanvas() {
+}
+exports.SVGFactory = SVGFactory;
+class CanvasFactory {
+    createRender() {
         return new render_1.CanvasRender();
+    }
+}
+exports.CanvasFactory = CanvasFactory;
+class ViewController {
+    constructor(doc, factory) {
+        this.doc = doc;
+        this.factory = factory;
+        this.renders = new Array();
+        this.renders.push(factory.createRender());
+    }
+    addRender(factory) {
+        this.renders.push(factory.createRender());
+        this.render();
     }
     increaseZoom(idRender) {
         this.renders[idRender].increaseZoom();
@@ -408,6 +416,6 @@ class ViewsController {
         }
     }
 }
-exports.ViewsController = ViewsController;
+exports.ViewController = ViewController;
 
 },{"./render":4}]},{},[5]);

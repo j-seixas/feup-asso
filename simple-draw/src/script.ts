@@ -1,9 +1,9 @@
 import { SimpleDrawDocument } from './document'
-import { ViewsController } from './view'
+import { ViewController, SVGFactory } from './view'
 import { EventListener } from './events'
 
 const doc = new SimpleDrawDocument()
-const view = new ViewsController(doc)
+const view = new ViewController(doc, new SVGFactory())
 const eventListener = new EventListener(doc, view)
 
 const c1 = doc.createCircle(50, 50, 30)
