@@ -3,21 +3,21 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
 class CreateShapeAction {
-    constructor(doc, shape) {
-        this.doc = doc;
+    constructor(layer, shape) {
+        this.layer = layer;
         this.shape = shape;
     }
     do() {
-        this.doc.add(this.shape);
+        this.layer.add(this.shape);
         return this.shape;
     }
     undo() {
-        this.doc.objects = this.doc.objects.filter(o => o !== this.shape);
+        this.layer.objects = this.layer.objects.filter(obj => obj !== this.shape);
     }
 }
 class CreateCircleAction extends CreateShapeAction {
-    constructor(doc, x, y, radius) {
-        super(doc, new shape_1.Circle(x, y, radius));
+    constructor(layer, x, y, radius) {
+        super(layer, new shape_1.Circle(x, y, radius));
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -25,8 +25,8 @@ class CreateCircleAction extends CreateShapeAction {
 }
 exports.CreateCircleAction = CreateCircleAction;
 class CreateRectangleAction extends CreateShapeAction {
-    constructor(doc, x, y, width, height) {
-        super(doc, new shape_1.Rectangle(x, y, width, height));
+    constructor(layer, x, y, width, height) {
+        super(layer, new shape_1.Rectangle(x, y, width, height));
         this.x = x;
         this.y = y;
         this.width = width;
@@ -35,8 +35,8 @@ class CreateRectangleAction extends CreateShapeAction {
 }
 exports.CreateRectangleAction = CreateRectangleAction;
 class TranslateAction {
-    constructor(doc, shape, xd, yd) {
-        this.doc = doc;
+    constructor(layer, shape, xd, yd) {
+        this.layer = layer;
         this.shape = shape;
         this.xd = xd;
         this.yd = yd;
@@ -54,15 +54,19 @@ class TranslateAction {
 }
 exports.TranslateAction = TranslateAction;
 
-},{"./shape":6}],2:[function(require,module,exports){
+},{"./shape":7}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const layer_1 = require("./layer");
 const actions_1 = require("./actions");
 const undo_1 = require("./undo");
 class SimpleDrawDocument {
-    constructor() {
-        this.objects = new Array();
+    constructor(numLayers) {
         this.undoManager = new undo_1.UndoManager();
+        this.layers = new Array();
+        for (let i = 0; i < numLayers; i++) {
+            this.layers.push(new layer_1.Layer("Layer " + i, 10, 10));
+        }
     }
     undo() {
         this.undoManager.undo();
@@ -71,29 +75,22 @@ class SimpleDrawDocument {
         this.undoManager.redo();
     }
     draw(render) {
-        // this.objects.forEach(o => o.draw(ctx))
-        render.draw(...this.objects);
-    }
-    add(r) {
-        this.objects.push(r);
+        render.draw(...this.layers);
     }
     do(a) {
         this.undoManager.onActionDone(a);
         return a.do();
     }
-    createRectangle(x, y, width, height) {
-        return this.do(new actions_1.CreateRectangleAction(this, x, y, width, height));
+    createRectangle(x, y, width, height, layer) {
+        return this.do(new actions_1.CreateRectangleAction(this.layers[layer], x, y, width, height));
     }
-    createCircle(x, y, radius) {
-        return this.do(new actions_1.CreateCircleAction(this, x, y, radius));
-    }
-    translate(s, xd, yd) {
-        return this.do(new actions_1.TranslateAction(this, s, xd, yd));
+    createCircle(x, y, radius, layer) {
+        return this.do(new actions_1.CreateCircleAction(this.layers[layer], x, y, radius));
     }
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
 
-},{"./actions":1,"./undo":7}],3:[function(require,module,exports){
+},{"./actions":1,"./layer":4,"./undo":8}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const view_1 = require("./view");
@@ -112,9 +109,9 @@ class EventListener {
             this.view.render();
         });
         this.rectangleButton = document.getElementById('create-rectangle');
-        this.rectangleButton.addEventListener("click", (e) => this.drawRectangle());
+        this.rectangleButton.addEventListener("click", (e) => this.createRectangle());
         this.circleButton = document.getElementById('create-circle');
-        this.circleButton.addEventListener("click", (e) => this.drawCircle());
+        this.circleButton.addEventListener("click", (e) => this.createCircle());
         this.canvasButton = document.getElementById('create-canvas');
         this.canvasButton.addEventListener("click", (e) => {
             this.view.addRender(new view_1.CanvasFactory());
@@ -124,25 +121,45 @@ class EventListener {
             this.view.addRender(new view_1.SVGFactory());
         });
     }
-    drawRectangle() {
+    createRectangle() {
         var xPosition = parseInt(document.getElementById('input-rect-x').value);
         var yPosition = parseInt(document.getElementById('input-rect-y').value);
         var heigth = parseInt(document.getElementById('input-rect-h').value);
         var width = parseInt(document.getElementById('input-rect-w').value);
-        this.doc.createRectangle(xPosition, yPosition, width, heigth);
+        var layer = parseInt(document.getElementById('input-rect-layer').value);
+        this.doc.createRectangle(xPosition, yPosition, width, heigth, layer);
         this.view.render();
     }
-    drawCircle() {
+    createCircle() {
         var xPosition = parseInt(document.getElementById('input-circle-x').value);
         var yPosition = parseInt(document.getElementById('input-circle-y').value);
-        var r = parseInt(document.getElementById('input-circle-r').value);
-        this.doc.createCircle(xPosition, yPosition, r);
+        var radius = parseInt(document.getElementById('input-circle-r').value);
+        var layer = parseInt(document.getElementById('input-circle-layer').value);
+        this.doc.createCircle(xPosition, yPosition, radius, layer);
         this.view.render();
     }
 }
 exports.EventListener = EventListener;
 
-},{"./view":8}],4:[function(require,module,exports){
+},{"./view":9}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const shape_1 = require("./shape");
+class Layer extends shape_1.Shape {
+    constructor(name, x, y) {
+        super(x, y);
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.objects = new Array();
+    }
+    add(shape) {
+        this.objects.push(shape);
+    }
+}
+exports.Layer = Layer;
+
+},{"./shape":7}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -153,13 +170,16 @@ class SVGRender {
         this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
-        col.className = "col d-flex flex-column-reverse align-items-start";
+        col.className = "col d-flex flex-row-reverse justify-content-end";
+        const div = document.createElement('div');
+        div.className = "render d-flex flex-column-reverse align-items-start";
+        col.appendChild(div);
         container.appendChild(col);
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute('style', 'border: 1px solid blue');
         this.svg.setAttribute('width', '550');
         this.svg.setAttribute('height', '550');
-        col.appendChild(this.svg);
+        div.appendChild(this.svg);
     }
     increaseZoom() {
         this.zoom *= 2;
@@ -173,32 +193,34 @@ class SVGRender {
     setY(y) {
         this.positionY += y;
     }
-    draw(...objs) {
+    draw(...layers) {
         this.svg.innerHTML = "";
-        for (const shape of objs) {
-            if (shape instanceof shape_1.Rectangle) {
-                const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                e.setAttribute('style', 'stroke: black; fill: transparent');
-                const x = (shape.x + this.positionX) * this.zoom;
-                e.setAttribute('x', x.toString());
-                const y = (shape.y + this.positionY) * this.zoom;
-                e.setAttribute('y', y.toString());
-                const w = shape.width * this.zoom;
-                e.setAttribute('width', w.toString());
-                const h = shape.height * this.zoom;
-                e.setAttribute('height', h.toString());
-                this.svg.appendChild(e);
-            }
-            else if (shape instanceof shape_1.Circle) {
-                const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                e.setAttribute('style', 'stroke: black; fill: transparent');
-                const x = (shape.x + this.positionX) * this.zoom;
-                e.setAttribute('cx', x.toString());
-                const y = (shape.y + this.positionY) * this.zoom;
-                e.setAttribute('cy', y.toString());
-                const r = shape.radius * this.zoom;
-                e.setAttribute('r', r.toString());
-                this.svg.appendChild(e);
+        for (const layer of layers) {
+            for (const shape of layer.objects) {
+                if (shape instanceof shape_1.Rectangle) {
+                    const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    e.setAttribute('style', 'stroke: black; fill: tomato');
+                    const x = (shape.x + this.positionX) * this.zoom;
+                    e.setAttribute('x', x.toString());
+                    const y = (shape.y + this.positionY) * this.zoom;
+                    e.setAttribute('y', y.toString());
+                    const w = shape.width * this.zoom;
+                    e.setAttribute('width', w.toString());
+                    const h = shape.height * this.zoom;
+                    e.setAttribute('height', h.toString());
+                    this.svg.appendChild(e);
+                }
+                else if (shape instanceof shape_1.Circle) {
+                    const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    e.setAttribute('style', 'stroke: black; fill: orange');
+                    const x = (shape.x + this.positionX) * this.zoom;
+                    e.setAttribute('cx', x.toString());
+                    const y = (shape.y + this.positionY) * this.zoom;
+                    e.setAttribute('cy', y.toString());
+                    const r = shape.radius * this.zoom;
+                    e.setAttribute('r', r.toString());
+                    this.svg.appendChild(e);
+                }
             }
         }
     }
@@ -252,23 +274,23 @@ class CanvasRender {
 }
 exports.CanvasRender = CanvasRender;
 
-},{"./shape":6}],5:[function(require,module,exports){
+},{"./shape":7}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
 const view_1 = require("./view");
 const events_1 = require("./events");
-const doc = new document_1.SimpleDrawDocument();
+const doc = new document_1.SimpleDrawDocument(4);
 const view = new view_1.ViewController(doc, new view_1.SVGFactory());
 const eventListener = new events_1.EventListener(doc, view);
-const c1 = doc.createCircle(50, 50, 30);
-const r1 = doc.createRectangle(10, 10, 80, 80);
-/* const r2 = sdd.createRectangle(30, 30, 40, 40) */
+const c1 = doc.createCircle(100, 50, 30, 1);
+const r1 = doc.createRectangle(10, 10, 80, 80, 0);
+const r2 = doc.createRectangle(30, 60, 80, 40, 2);
 /* const s1 = sdd.createSelection(c1, r1, r2)
 sdd.translate(s1, 10, 10) */
 view.render();
 
-},{"./document":2,"./events":3,"./view":8}],6:[function(require,module,exports){
+},{"./document":2,"./events":3,"./view":9}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Shape {
@@ -302,7 +324,7 @@ class Circle extends Shape {
 }
 exports.Circle = Circle;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {
@@ -331,7 +353,7 @@ class UndoManager {
 }
 exports.UndoManager = UndoManager;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
@@ -353,6 +375,7 @@ class ViewController {
         this.renders = new Array();
         this.renders.push(factory.createRender());
         this.createViewportTools();
+        this.createLayers();
     }
     addRender(factory) {
         this.renders.push(factory.createRender());
@@ -377,7 +400,7 @@ class ViewController {
         }
     }
     createViewportTools() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col");
+        const lastRender = document.querySelectorAll("[id=renders] > .col .render");
         const lastRenderId = lastRender.length - 1;
         const buttonContainer = document.createElement('div');
         buttonContainer.className = "viewport-tools";
@@ -433,7 +456,38 @@ class ViewController {
         translateContainer.appendChild(buttonGroup);
         return translateContainer;
     }
+    createLayers() {
+        const lastRender = document.querySelectorAll("[id=renders] > .col");
+        const lastRenderId = lastRender.length - 1;
+        const layerContainer = document.createElement('div');
+        layerContainer.className = "layers";
+        const title = document.createElement('h3');
+        title.innerText = "Layers";
+        const groupContainer = document.createElement('div');
+        groupContainer.className = "text-left";
+        const group = document.createElement('h5');
+        group.innerText = "Group 1";
+        groupContainer.appendChild(this.createCheckbox("Group 1"));
+        groupContainer.appendChild(this.createCheckbox("Rectangle 1"));
+        groupContainer.appendChild(this.createCheckbox("Circle 1"));
+        layerContainer.appendChild(title);
+        layerContainer.appendChild(groupContainer);
+        lastRender[lastRenderId].appendChild(layerContainer);
+    }
+    createCheckbox(labelText) {
+        const checkbox = document.createElement('div');
+        checkbox.className = "form-check";
+        const input = document.createElement('input');
+        input.className = "form-check-input";
+        input.type = "checkbox";
+        const label = document.createElement('label');
+        label.className = "form-check-label";
+        label.innerText = labelText;
+        checkbox.appendChild(input);
+        checkbox.appendChild(label);
+        return checkbox;
+    }
 }
 exports.ViewController = ViewController;
 
-},{"./render":4}]},{},[5]);
+},{"./render":5}]},{},[6]);

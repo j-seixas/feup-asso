@@ -23,6 +23,7 @@ export class ViewController {
     constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
         this.renders.push(factory.createRender())
         this.createViewportTools()
+        this.createLayers()
     }
 
     addRender(factory: RenderFactory) {
@@ -54,7 +55,7 @@ export class ViewController {
     }
 
     createViewportTools() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col")
+        const lastRender = document.querySelectorAll("[id=renders] > .col .render")
         const lastRenderId = lastRender.length - 1
 
         const buttonContainer = document.createElement('div')
@@ -130,5 +131,45 @@ export class ViewController {
         translateContainer.appendChild(buttonGroup)
 
         return translateContainer
+    }
+
+    createLayers() {
+        const lastRender = document.querySelectorAll("[id=renders] > .col")
+        const lastRenderId = lastRender.length - 1
+
+        const layerContainer = document.createElement('div')
+        layerContainer.className = "layers"
+
+        const title = document.createElement('h3')
+        title.innerText = "Layers"
+
+        const groupContainer = document.createElement('div')
+        groupContainer.className = "text-left"
+        const group = document.createElement('h5')
+        group.innerText = "Group 1"
+
+        groupContainer.appendChild(this.createCheckbox("Group 1"))
+        groupContainer.appendChild(this.createCheckbox("Rectangle 1"))
+        groupContainer.appendChild(this.createCheckbox("Circle 1"))
+
+        layerContainer.appendChild(title)
+        layerContainer.appendChild(groupContainer)
+        lastRender[lastRenderId].appendChild(layerContainer)
+    }
+
+    createCheckbox(labelText: string) {
+        const checkbox = document.createElement('div')
+        checkbox.className = "form-check"
+        const input = document.createElement('input')
+        input.className = "form-check-input"
+        input.type = "checkbox"
+        const label = document.createElement('label')
+        label.className = "form-check-label"
+        label.innerText = labelText
+
+        checkbox.appendChild(input)
+        checkbox.appendChild(label)
+
+        return checkbox
     }
 }

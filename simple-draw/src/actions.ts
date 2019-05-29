@@ -1,5 +1,5 @@
 import { Shape, Circle, Rectangle } from './shape'
-import { SimpleDrawDocument } from './document'
+import { Layer } from './layer'
 
 export interface Action<T> {
     do(): T
@@ -7,27 +7,27 @@ export interface Action<T> {
 }
 
 abstract class CreateShapeAction<S extends Shape> implements Action<S> {
-    constructor(private doc: SimpleDrawDocument, public readonly shape: S) { }
+    constructor(private layer: Layer, public readonly shape: S) { }
 
     do(): S {
-        this.doc.add(this.shape)
+        this.layer.add(this.shape)
         return this.shape
     }
 
     undo() {
-        this.doc.objects = this.doc.objects.filter(o => o !== this.shape)
+        this.layer.objects = this.layer.objects.filter(obj => obj !== this.shape)
     }
 }
 
 export class CreateCircleAction extends CreateShapeAction<Circle> {
-    constructor(doc: SimpleDrawDocument, private x: number, private y: number, private radius: number) {
-        super(doc, new Circle(x, y, radius))
+    constructor(layer: Layer, private x: number, private y: number, private radius: number) {
+        super(layer, new Circle(x, y, radius))
     }
 }
 
 export class CreateRectangleAction extends CreateShapeAction<Rectangle> {
-    constructor(doc: SimpleDrawDocument, private x: number, private y: number, private width: number, private height: number) {
-        super(doc, new Rectangle(x, y, width, height))
+    constructor(layer: Layer, private x: number, private y: number, private width: number, private height: number) {
+        super(layer, new Rectangle(x, y, width, height))
     }
 }
 
@@ -35,7 +35,7 @@ export class TranslateAction implements Action<void> {
     oldX: number
     oldY: number
 
-    constructor(private doc: SimpleDrawDocument, public shape: Shape, private xd: number, private yd: number) { }
+    constructor(private layer: Layer, public shape: Shape, private xd: number, private yd: number) { }
 
     do(): void {
         this.oldX = this.shape.x
@@ -46,6 +46,6 @@ export class TranslateAction implements Action<void> {
     undo() {
         this.shape.x = this.oldX
         this.shape.y = this.oldY
-       // this.shape.translate(-this.xd, -this.yd)
+        // this.shape.translate(-this.xd, -this.yd)
     }
 }

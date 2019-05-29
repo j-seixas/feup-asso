@@ -1,4 +1,5 @@
 import { Shape, Circle, Rectangle } from "./shape"
+import { Layer } from "./layer"
 
 export interface Render {
     zoom: number
@@ -25,14 +26,17 @@ export class SVGRender implements Render {
         var container = <HTMLElement>document.getElementById('renders')
 
         const col = document.createElement('div')
-        col.className = "col d-flex flex-column-reverse align-items-start"
+        col.className = "col d-flex flex-row-reverse justify-content-end"
+        const div = document.createElement('div')
+        div.className = "render d-flex flex-column-reverse align-items-start"
+        col.appendChild(div)
         container.appendChild(col)
 
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
         this.svg.setAttribute('style', 'border: 1px solid blue')
         this.svg.setAttribute('width', '550')
         this.svg.setAttribute('height', '550')
-        col.appendChild(this.svg)
+        div.appendChild(this.svg)
     }
 
     increaseZoom(): void {
@@ -51,33 +55,36 @@ export class SVGRender implements Render {
         this.positionY += y
     }
 
-    draw(...objs: Array<Shape>): void {
+    draw(...layers: Array<Layer>): void {
         this.svg.innerHTML = ""
-        for (const shape of objs) {
-            if (shape instanceof Rectangle) {
-                const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
-                e.setAttribute('style', 'stroke: black; fill: transparent')
-                const x = (shape.x + this.positionX) * this.zoom
-                e.setAttribute('x', x.toString())
-                const y = (shape.y + this.positionY) * this.zoom
-                e.setAttribute('y', y.toString())
-                const w = shape.width * this.zoom
-                e.setAttribute('width', w.toString())
-                const h = shape.height * this.zoom
-                e.setAttribute('height', h.toString())
-                this.svg.appendChild(e)
-            } else if (shape instanceof Circle) {
-                const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                e.setAttribute('style', 'stroke: black; fill: transparent')
-                const x = (shape.x + this.positionX) * this.zoom
-                e.setAttribute('cx', x.toString())
-                const y = (shape.y + this.positionY) * this.zoom
-                e.setAttribute('cy', y.toString())
-                const r = shape.radius * this.zoom
-                e.setAttribute('r', r.toString())
-                this.svg.appendChild(e)
+        for (const layer of layers) {
+            for (const shape of layer.objects) {
+                if (shape instanceof Rectangle) {
+                    const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+                    e.setAttribute('style', 'stroke: black; fill: tomato')
+                    const x = (shape.x + this.positionX) * this.zoom
+                    e.setAttribute('x', x.toString())
+                    const y = (shape.y + this.positionY) * this.zoom
+                    e.setAttribute('y', y.toString())
+                    const w = shape.width * this.zoom
+                    e.setAttribute('width', w.toString())
+                    const h = shape.height * this.zoom
+                    e.setAttribute('height', h.toString())
+                    this.svg.appendChild(e)
+                } else if (shape instanceof Circle) {
+                    const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+                    e.setAttribute('style', 'stroke: black; fill: orange')
+                    const x = (shape.x + this.positionX) * this.zoom
+                    e.setAttribute('cx', x.toString())
+                    const y = (shape.y + this.positionY) * this.zoom
+                    e.setAttribute('cy', y.toString())
+                    const r = shape.radius * this.zoom
+                    e.setAttribute('r', r.toString())
+                    this.svg.appendChild(e)
+                }
             }
         }
+
     }
 }
 

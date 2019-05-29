@@ -28,10 +28,10 @@ export class EventListener {
         })
 
         this.rectangleButton = <HTMLElement>document.getElementById('create-rectangle')
-        this.rectangleButton.addEventListener("click", (e: Event) => this.drawRectangle())
+        this.rectangleButton.addEventListener("click", (e: Event) => this.createRectangle())
 
         this.circleButton = <HTMLElement>document.getElementById('create-circle')
-        this.circleButton.addEventListener("click", (e: Event) => this.drawCircle())
+        this.circleButton.addEventListener("click", (e: Event) => this.createCircle())
 
         this.canvasButton = <HTMLElement>document.getElementById('create-canvas')
         this.canvasButton.addEventListener("click", (e: Event) => {
@@ -44,22 +44,24 @@ export class EventListener {
         })
     }
 
-    drawRectangle() {
+    createRectangle() {
         var xPosition = parseInt((<HTMLInputElement>document.getElementById('input-rect-x')).value)
         var yPosition = parseInt((<HTMLInputElement>document.getElementById('input-rect-y')).value)
         var heigth = parseInt((<HTMLInputElement>document.getElementById('input-rect-h')).value)
         var width = parseInt((<HTMLInputElement>document.getElementById('input-rect-w')).value)
+        var layer = parseInt((<HTMLInputElement>document.getElementById('input-rect-layer')).value)
 
-        this.doc.createRectangle(xPosition, yPosition, width, heigth)
+        this.doc.createRectangle(xPosition, yPosition, width, heigth, layer)
         this.view.render()
     }
 
-    drawCircle() {
+    createCircle() {
         var xPosition = parseInt((<HTMLInputElement>document.getElementById('input-circle-x')).value)
         var yPosition = parseInt((<HTMLInputElement>document.getElementById('input-circle-y')).value)
-        var r = parseInt((<HTMLInputElement>document.getElementById('input-circle-r')).value)
+        var radius = parseInt((<HTMLInputElement>document.getElementById('input-circle-r')).value)
+        var layer = parseInt((<HTMLInputElement>document.getElementById('input-circle-layer')).value)
 
-        this.doc.createCircle(xPosition, yPosition, r)
+        this.doc.createCircle(xPosition, yPosition, radius, layer)
         this.view.render()
     }
 }
