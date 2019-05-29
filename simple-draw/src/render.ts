@@ -84,7 +84,6 @@ export class SVGRender implements Render {
                 }
             }
         }
-
     }
 }
 
@@ -101,14 +100,17 @@ export class CanvasRender implements Render {
         var container = <HTMLElement>document.getElementById('renders')
 
         const col = document.createElement('div')
-        col.className = "col d-flex flex-column-reverse align-items-start"
+        col.className = "col d-flex flex-row-reverse justify-content-end"
+        const div = document.createElement('div')
+        div.className = "render d-flex flex-column-reverse align-items-start"
+        col.appendChild(div)
         container.appendChild(col)
 
         const canvas = document.createElement('canvas')
         canvas.setAttribute('style', 'border: 1px solid red')
         canvas.setAttribute('width', '550')
         canvas.setAttribute('height', '550')
-        col.appendChild(canvas)
+        div.appendChild(canvas)
 
         this.ctx = canvas.getContext('2d')
     }
@@ -129,18 +131,24 @@ export class CanvasRender implements Render {
         this.positionY += y
     }
 
-    draw(...objs: Array<Shape>): void {
+    draw(...layers: Array<Layer>): void {
         this.ctx.clearRect(0, 0, 550, 550)
         this.ctx.save()
         this.ctx.scale(this.zoom, this.zoom)
-        for (const shape of objs) {
-            if (shape instanceof Circle) {
-                this.ctx.beginPath()
-                this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI)
-                this.ctx.stroke()
-                this.ctx.closePath()
-            } else if (shape instanceof Rectangle) {
-                this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
+        for (const layer of layers) {
+            for (const shape of layer.objects) {
+                if (shape instanceof Circle) {
+                    this.ctx.beginPath()
+                    this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI)
+                    this.ctx.fillStyle = "orange";
+                    this.ctx.fill()
+                    this.ctx.stroke()
+                    this.ctx.closePath()
+                } else if (shape instanceof Rectangle) {
+                    this.ctx.fillStyle = "tomato";
+                    this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
+                    this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
+                }
             }
         }
         this.ctx.restore()

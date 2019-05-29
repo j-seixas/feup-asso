@@ -23,7 +23,7 @@ export class ViewController {
     constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
         this.renders.push(factory.createRender())
         this.createViewportTools()
-        this.createLayers()
+        //this.createLayers()
     }
 
     addRender(factory: RenderFactory) {
