@@ -26,17 +26,14 @@ export class SVGRender implements Render {
         var container = <HTMLElement>document.getElementById('renders')
 
         const col = document.createElement('div')
-        col.className = "col d-flex flex-row-reverse justify-content-end"
-        const div = document.createElement('div')
-        div.className = "render d-flex flex-column-reverse align-items-start"
-        col.appendChild(div)
+        col.className = "col render d-flex flex-column-reverse align-items-center"
         container.appendChild(col)
 
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
         this.svg.setAttribute('style', 'border: 1px solid blue')
         this.svg.setAttribute('width', '550')
         this.svg.setAttribute('height', '550')
-        div.appendChild(this.svg)
+        col.appendChild(this.svg)
     }
 
     increaseZoom(): void {
@@ -101,17 +98,14 @@ export class CanvasRender implements Render {
         var container = <HTMLElement>document.getElementById('renders')
 
         const col = document.createElement('div')
-        col.className = "col d-flex flex-row-reverse justify-content-end"
-        const div = document.createElement('div')
-        div.className = "render d-flex flex-column-reverse align-items-start"
-        col.appendChild(div)
+        col.className = "col render d-flex flex-column-reverse align-items-center"
         container.appendChild(col)
 
         const canvas = document.createElement('canvas')
         canvas.setAttribute('style', 'border: 1px solid red')
         canvas.setAttribute('width', '550')
         canvas.setAttribute('height', '550')
-        div.appendChild(canvas)
+        col.appendChild(canvas)
 
         this.ctx = canvas.getContext('2d')
     }

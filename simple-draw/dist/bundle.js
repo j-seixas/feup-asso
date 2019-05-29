@@ -101,11 +101,13 @@ class EventListener {
         this.undoButton = document.getElementById('undo');
         this.undoButton.addEventListener("click", (e) => {
             this.doc.undo();
+            this.view.setLayers();
             this.view.render();
         });
         this.redoButton = document.getElementById('redo');
         this.redoButton.addEventListener("click", (e) => {
             this.doc.redo();
+            this.view.setLayers();
             this.view.render();
         });
         this.rectangleButton = document.getElementById('create-rectangle');
@@ -172,16 +174,13 @@ class SVGRender {
         this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
-        col.className = "col d-flex flex-row-reverse justify-content-end";
-        const div = document.createElement('div');
-        div.className = "render d-flex flex-column-reverse align-items-start";
-        col.appendChild(div);
+        col.className = "col render d-flex flex-column-reverse align-items-center";
         container.appendChild(col);
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.setAttribute('style', 'border: 1px solid blue');
         this.svg.setAttribute('width', '550');
         this.svg.setAttribute('height', '550');
-        div.appendChild(this.svg);
+        col.appendChild(this.svg);
     }
     increaseZoom() {
         this.zoom *= 2;
@@ -236,16 +235,13 @@ class CanvasRender {
         this.positionY = 0;
         var container = document.getElementById('renders');
         const col = document.createElement('div');
-        col.className = "col d-flex flex-row-reverse justify-content-end";
-        const div = document.createElement('div');
-        div.className = "render d-flex flex-column-reverse align-items-start";
-        col.appendChild(div);
+        col.className = "col render d-flex flex-column-reverse align-items-center";
         container.appendChild(col);
         const canvas = document.createElement('canvas');
         canvas.setAttribute('style', 'border: 1px solid red');
         canvas.setAttribute('width', '550');
         canvas.setAttribute('height', '550');
-        div.appendChild(canvas);
+        col.appendChild(canvas);
         this.ctx = canvas.getContext('2d');
     }
     increaseZoom() {
@@ -388,13 +384,12 @@ class ViewController {
         this.doc = doc;
         this.renders = new Array();
         this.renders.push(factory.createRender());
+        this.setLayers();
         this.createViewportTools();
-        this.createLayers();
     }
     addRender(factory) {
         this.renders.push(factory.createRender());
         this.createViewportTools();
-        this.createLayers();
         this.render();
     }
     increaseZoom(idRender) {
@@ -409,20 +404,13 @@ class ViewController {
     setPositionY(idRender, n) {
         this.renders[idRender].setY(n);
     }
-    setLayers() {
-        var groupContainer = document.getElementsByClassName('layer-container');
-        for (const group of groupContainer) {
-            group.innerHTML = "";
-            this.getLayers(group);
-        }
-    }
     render() {
         for (const render of this.renders) {
             this.doc.draw(render);
         }
     }
     createViewportTools() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col .render");
+        const lastRender = document.querySelectorAll("[id=renders] > .render");
         const lastRenderId = lastRender.length - 1;
         const buttonContainer = document.createElement('div');
         buttonContainer.className = "viewport-tools";
@@ -478,23 +466,11 @@ class ViewController {
         translateContainer.appendChild(buttonGroup);
         return translateContainer;
     }
-    createLayers() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col");
-        const lastRenderId = lastRender.length - 1;
-        const layerContainer = document.createElement('div');
-        layerContainer.className = "layers";
-        const title = document.createElement('h5');
-        title.innerText = "Layers";
-        const groupContainer = document.createElement('div');
-        groupContainer.className = "layer-container text-left";
-        layerContainer.appendChild(title);
-        layerContainer.appendChild(groupContainer);
-        this.getLayers(groupContainer);
-        lastRender[lastRenderId].appendChild(layerContainer);
-    }
-    getLayers(groupContainer) {
+    setLayers() {
+        const layerContainer = document.getElementById('layer-container');
+        layerContainer.innerHTML = "";
         for (let i = 0; i < this.doc.layers.length; i++) {
-            groupContainer.appendChild(this.createLayer(this.doc.layers[i], i + 1));
+            layerContainer.appendChild(this.createLayer(this.doc.layers[i], i + 1));
         }
     }
     createLayer(layer, id) {

@@ -4,7 +4,7 @@ export class UndoManager<S, A extends UndoableAction<S>> {
   doStack = new Array<A>();
   undoStack = new Array<A>();
 
-  undo() {
+  undo(): void {
     if (this.doStack.length > 0) {
       const a1 = this.doStack.pop();
       a1.undo();
@@ -12,7 +12,7 @@ export class UndoManager<S, A extends UndoableAction<S>> {
     }
   }
 
-  redo() {
+  redo(): void {
     if (this.undoStack.length > 0) {
       const a1 = this.undoStack.pop();
       a1.do();

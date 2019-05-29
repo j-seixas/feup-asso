@@ -18,12 +18,14 @@ export class EventListener {
         this.undoButton = <HTMLElement>document.getElementById('undo')
         this.undoButton.addEventListener("click", (e: Event) => {
             this.doc.undo()
+            this.view.setLayers()
             this.view.render()
         })
 
         this.redoButton = <HTMLElement>document.getElementById('redo')
         this.redoButton.addEventListener("click", (e: Event) => {
             this.doc.redo()
+            this.view.setLayers()
             this.view.render()
         })
 
@@ -44,7 +46,7 @@ export class EventListener {
         })
     }
 
-    createRectangle() {
+    createRectangle(): void {
         var xPosition = parseInt((<HTMLInputElement>document.getElementById('input-rect-x')).value)
         var yPosition = parseInt((<HTMLInputElement>document.getElementById('input-rect-y')).value)
         var heigth = parseInt((<HTMLInputElement>document.getElementById('input-rect-h')).value)
@@ -56,7 +58,7 @@ export class EventListener {
         this.view.render()
     }
 
-    createCircle() {
+    createCircle(): void {
         var xPosition = parseInt((<HTMLInputElement>document.getElementById('input-circle-x')).value)
         var yPosition = parseInt((<HTMLInputElement>document.getElementById('input-circle-y')).value)
         var radius = parseInt((<HTMLInputElement>document.getElementById('input-circle-r')).value)

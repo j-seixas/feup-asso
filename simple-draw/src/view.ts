@@ -24,49 +24,40 @@ export class ViewController {
 
     constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
         this.renders.push(factory.createRender())
+        this.setLayers()
         this.createViewportTools()
-        this.createLayers()
     }
 
-    addRender(factory: RenderFactory) {
+    addRender(factory: RenderFactory): void {
         this.renders.push(factory.createRender())
         this.createViewportTools()
-        this.createLayers()
         this.render()
     }
 
-    increaseZoom(idRender: number) {
+    increaseZoom(idRender: number): void {
         this.renders[idRender].increaseZoom()
     }
 
-    decreaseZoom(idRender: number) {
+    decreaseZoom(idRender: number): void {
         this.renders[idRender].decreaseZoom()
     }
 
-    setPositionX(idRender: number, n: number) {
+    setPositionX(idRender: number, n: number): void {
         this.renders[idRender].setX(n)
     }
 
-    setPositionY(idRender: number, n: number) {
+    setPositionY(idRender: number, n: number): void {
         this.renders[idRender].setY(n)
     }
 
-    setLayers() {
-        var groupContainer = document.getElementsByClassName('layer-container')
-        for (const group of groupContainer) {
-            group.innerHTML = ""
-            this.getLayers(group)
-        }
-    }
-
-    render() {
+    render(): void {
         for (const render of this.renders) {
             this.doc.draw(render)
         }
     }
 
-    createViewportTools() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col .render")
+    createViewportTools(): void {
+        const lastRender = document.querySelectorAll("[id=renders] > .render")
         const lastRenderId = lastRender.length - 1
 
         const buttonContainer = document.createElement('div')
@@ -78,7 +69,7 @@ export class ViewController {
         lastRender[lastRenderId].appendChild(buttonContainer)
     }
 
-    createZoomTools(lastRenderId: number) {
+    createZoomTools(lastRenderId: number): Element {
         const zoomContainer = document.createElement('div')
 
         const buttonGroup = document.createElement('div')
@@ -109,7 +100,7 @@ export class ViewController {
         return zoomContainer
     }
 
-    createTranslateTools(lastRenderId: number) {
+    createTranslateTools(lastRenderId: number): Element {
         const translateContainer = document.createElement('div')
 
         const buttonGroup = document.createElement('div')
@@ -144,38 +135,22 @@ export class ViewController {
         return translateContainer
     }
 
-    createLayers() {
-        const lastRender = document.querySelectorAll("[id=renders] > .col")
-        const lastRenderId = lastRender.length - 1
-
-        const layerContainer = document.createElement('div')
-        layerContainer.className = "layers"
-        const title = document.createElement('h5')
-        title.innerText = "Layers"
-
-        const groupContainer = document.createElement('div')
-        groupContainer.className = "layer-container text-left"
-
-        layerContainer.appendChild(title)
-        layerContainer.appendChild(groupContainer)
-        this.getLayers(groupContainer)
-        lastRender[lastRenderId].appendChild(layerContainer)
-    }
-
-    getLayers(groupContainer: Element) {
+    setLayers(): void {
+        const layerContainer = document.getElementById('layer-container')
+        layerContainer.innerHTML = ""
         for (let i = 0; i < this.doc.layers.length; i++) {
-            groupContainer.appendChild(this.createLayer(this.doc.layers[i], i + 1))
+            layerContainer.appendChild(this.createLayer(this.doc.layers[i], i + 1))
         }
     }
 
-    createLayer(layer: Layer, id: number) {
+    createLayer(layer: Layer, id: number): Element {
         const div = document.createElement('div')
         div.appendChild(this.createCheckbox(layer, id))
         layer.objects.forEach(object => div.appendChild(this.createCheckbox(object)))
         return div
     }
 
-    createCheckbox(shape: Shape, id?: number) {
+    createCheckbox(shape: Shape, id?: number): Element {
         const checkbox = document.createElement('div')
         const input = document.createElement('input')
         input.className = "form-check-input"
