@@ -15,7 +15,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 * [x] Extensible with different objects (triangles, arrows...);
 * [ ] Extensible with new tools (rotate, translate, grid...);
 * [ ] Drag to select multiple objects;
-* [ ] Document layers (with compositing strategies).
+* [x] Document layers (with compositing strategies).
 
 ## Advanced Functionalities
 
@@ -265,6 +265,65 @@ export class ViewController {
 ```
 
 This pattern makes it easier when adding new products or families of products to the program, so you don’t have to change existing code! In this case, adding a new type of render would be very simple.
+
+### Composite
+
+**Problem:** Document layers: group graphical objects.
+
+#### Solution
+
+The Composite pattern is a structural design pattern that lets you compose objects into tree structures and then work with these structures as if they were individual objects. Basically, it lets clients treat the individual objects in a uniform manner.
+
+In this case, the pattern was used to define groups of shapes called **layers**. So, the class **Layer** was created, it extends **Shape** and encapsulates objects of type shape.
+
+```javascript
+export class Layer extends Shape {
+
+    objects = new Array<Shape>()
+
+    constructor(public name: string, public x: number, public y: number) {
+        super(x, y)
+    }
+
+    add(shape: Shape): void {
+        this.objects.push(shape)
+    }
+}
+```
+
+This pattern allows associating shapes with other shapes, which will be very useful when moving multiple shapes at once. By now, it is possible to hide layers and/or objects! For this to work, it was necessary to change the code from many modules.
+
+Previously, the **SimpleDrawDocument** class had an array of shapes. By implementing the composite pattern, this array has been replaced with an array of layers. Each layer contains an array of shapes. When rendering the document, we go layer by layer.
+
+Some of the major changes can be seen below.
+
+```javascript
+export class SimpleDrawDocument {
+  undoManager = new UndoManager()
+  layers = new Array<Layer>()
+
+  constructor(numLayers: number) {
+    // Set layer array
+  }
+
+  draw(render: Render): void {
+    render.draw(...this.layers)
+  }
+}
+
+abstract class CreateShapeAction<S extends Shape> implements Action<S> {
+    constructor(private layer: Layer, public readonly shape: S) { }
+
+    do(): S {
+        this.layer.add(this.shape)
+        return this.shape
+    }
+
+    undo() {
+        this.layer.objects = this.layer.objects.filter(obj => obj !== this.shape)
+    }
+}
+```
 
 ### Observer
 
