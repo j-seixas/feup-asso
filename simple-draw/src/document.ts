@@ -32,11 +32,11 @@ export class SimpleDrawDocument {
   }
 
   createRectangle(x: number, y: number, width: number, height: number, layer: number): Shape {
-    return this.do(new CreateRectangleAction(this.layers[layer], x, y, width, height))
+    return this.do(new CreateRectangleAction(this.layers[layer - 1], x, y, width, height))
   }
 
   createCircle(x: number, y: number, radius: number, layer: number): Shape {
-    return this.do(new CreateCircleAction(this.layers[layer], x, y, radius))
+    return this.do(new CreateCircleAction(this.layers[layer - 1], x, y, radius))
   }
 
   /*   translate(s: Shape, xd: number, yd: number): void {

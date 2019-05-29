@@ -1,4 +1,6 @@
 import { SimpleDrawDocument } from './document'
+import { Shape } from './shape'
+import { Layer } from './layer'
 import { Render, SVGRender, CanvasRender } from './render'
 
 export interface RenderFactory {
@@ -23,12 +25,13 @@ export class ViewController {
     constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
         this.renders.push(factory.createRender())
         this.createViewportTools()
-        //this.createLayers()
+        this.createLayers()
     }
 
     addRender(factory: RenderFactory) {
         this.renders.push(factory.createRender())
         this.createViewportTools()
+        this.createLayers()
         this.render()
     }
 
@@ -46,6 +49,14 @@ export class ViewController {
 
     setPositionY(idRender: number, n: number) {
         this.renders[idRender].setY(n)
+    }
+
+    setLayers() {
+        var groupContainer = document.getElementsByClassName('layer-container')
+        for (const group of groupContainer) {
+            group.innerHTML = ""
+            this.getLayers(group)
+        }
     }
 
     render() {
@@ -139,33 +150,54 @@ export class ViewController {
 
         const layerContainer = document.createElement('div')
         layerContainer.className = "layers"
-
-        const title = document.createElement('h3')
+        const title = document.createElement('h5')
         title.innerText = "Layers"
 
         const groupContainer = document.createElement('div')
-        groupContainer.className = "text-left"
-        const group = document.createElement('h5')
-        group.innerText = "Group 1"
-
-        groupContainer.appendChild(this.createCheckbox("Group 1"))
-        groupContainer.appendChild(this.createCheckbox("Rectangle 1"))
-        groupContainer.appendChild(this.createCheckbox("Circle 1"))
+        groupContainer.className = "layer-container text-left"
 
         layerContainer.appendChild(title)
         layerContainer.appendChild(groupContainer)
+        this.getLayers(groupContainer)
         lastRender[lastRenderId].appendChild(layerContainer)
     }
 
-    createCheckbox(labelText: string) {
+    getLayers(groupContainer: Element) {
+        for (let i = 0; i < this.doc.layers.length; i++) {
+            groupContainer.appendChild(this.createLayer(this.doc.layers[i], i + 1))
+        }
+    }
+
+    createLayer(layer: Layer, id: number) {
+        const div = document.createElement('div')
+        div.appendChild(this.createCheckbox(layer, id))
+        layer.objects.forEach(object => div.appendChild(this.createCheckbox(object)))
+        return div
+    }
+
+    createCheckbox(shape: Shape, id?: number) {
         const checkbox = document.createElement('div')
-        checkbox.className = "form-check"
         const input = document.createElement('input')
         input.className = "form-check-input"
         input.type = "checkbox"
+        input.checked = true
+        input.addEventListener("change", (e: Event) => {
+            if (input.checked)
+                shape.visible = true
+            else shape.visible = false
+            this.render()
+        })
+
         const label = document.createElement('label')
         label.className = "form-check-label"
-        label.innerText = labelText
+
+        if (shape.constructor.name === "Layer") {
+            checkbox.className = "form-check heading"
+            label.innerText = "Layer " + id
+        } else {
+            checkbox.className = "form-check"
+            label.innerText = shape.constructor.name
+        }
 
         checkbox.appendChild(input)
         checkbox.appendChild(label)

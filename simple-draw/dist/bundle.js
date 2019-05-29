@@ -82,10 +82,10 @@ class SimpleDrawDocument {
         return a.do();
     }
     createRectangle(x, y, width, height, layer) {
-        return this.do(new actions_1.CreateRectangleAction(this.layers[layer], x, y, width, height));
+        return this.do(new actions_1.CreateRectangleAction(this.layers[layer - 1], x, y, width, height));
     }
     createCircle(x, y, radius, layer) {
-        return this.do(new actions_1.CreateCircleAction(this.layers[layer], x, y, radius));
+        return this.do(new actions_1.CreateCircleAction(this.layers[layer - 1], x, y, radius));
     }
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
@@ -128,6 +128,7 @@ class EventListener {
         var width = parseInt(document.getElementById('input-rect-w').value);
         var layer = parseInt(document.getElementById('input-rect-layer').value);
         this.doc.createRectangle(xPosition, yPosition, width, heigth, layer);
+        this.view.setLayers();
         this.view.render();
     }
     createCircle() {
@@ -136,6 +137,7 @@ class EventListener {
         var radius = parseInt(document.getElementById('input-circle-r').value);
         var layer = parseInt(document.getElementById('input-circle-layer').value);
         this.doc.createCircle(xPosition, yPosition, radius, layer);
+        this.view.setLayers();
         this.view.render();
     }
 }
@@ -196,32 +198,33 @@ class SVGRender {
     draw(...layers) {
         this.svg.innerHTML = "";
         for (const layer of layers) {
-            for (const shape of layer.objects) {
-                if (shape instanceof shape_1.Rectangle) {
-                    const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                    e.setAttribute('style', 'stroke: black; fill: tomato');
-                    const x = (shape.x + this.positionX) * this.zoom;
-                    e.setAttribute('x', x.toString());
-                    const y = (shape.y + this.positionY) * this.zoom;
-                    e.setAttribute('y', y.toString());
-                    const w = shape.width * this.zoom;
-                    e.setAttribute('width', w.toString());
-                    const h = shape.height * this.zoom;
-                    e.setAttribute('height', h.toString());
-                    this.svg.appendChild(e);
+            if (layer.visible)
+                for (const shape of layer.objects) {
+                    if (shape instanceof shape_1.Rectangle && shape.visible) {
+                        const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                        e.setAttribute('style', 'stroke: black; fill: tomato');
+                        const x = (shape.x + this.positionX) * this.zoom;
+                        e.setAttribute('x', x.toString());
+                        const y = (shape.y + this.positionY) * this.zoom;
+                        e.setAttribute('y', y.toString());
+                        const w = shape.width * this.zoom;
+                        e.setAttribute('width', w.toString());
+                        const h = shape.height * this.zoom;
+                        e.setAttribute('height', h.toString());
+                        this.svg.appendChild(e);
+                    }
+                    else if (shape instanceof shape_1.Circle && shape.visible) {
+                        const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        e.setAttribute('style', 'stroke: black; fill: orange');
+                        const x = (shape.x + this.positionX) * this.zoom;
+                        e.setAttribute('cx', x.toString());
+                        const y = (shape.y + this.positionY) * this.zoom;
+                        e.setAttribute('cy', y.toString());
+                        const r = shape.radius * this.zoom;
+                        e.setAttribute('r', r.toString());
+                        this.svg.appendChild(e);
+                    }
                 }
-                else if (shape instanceof shape_1.Circle) {
-                    const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                    e.setAttribute('style', 'stroke: black; fill: orange');
-                    const x = (shape.x + this.positionX) * this.zoom;
-                    e.setAttribute('cx', x.toString());
-                    const y = (shape.y + this.positionY) * this.zoom;
-                    e.setAttribute('cy', y.toString());
-                    const r = shape.radius * this.zoom;
-                    e.setAttribute('r', r.toString());
-                    this.svg.appendChild(e);
-                }
-            }
         }
     }
 }
@@ -262,21 +265,22 @@ class CanvasRender {
         this.ctx.save();
         this.ctx.scale(this.zoom, this.zoom);
         for (const layer of layers) {
-            for (const shape of layer.objects) {
-                if (shape instanceof shape_1.Circle) {
-                    this.ctx.beginPath();
-                    this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI);
-                    this.ctx.fillStyle = "orange";
-                    this.ctx.fill();
-                    this.ctx.stroke();
-                    this.ctx.closePath();
+            if (layer.visible)
+                for (const shape of layer.objects) {
+                    if (shape instanceof shape_1.Circle && shape.visible) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI);
+                        this.ctx.fillStyle = "orange";
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        this.ctx.closePath();
+                    }
+                    else if (shape instanceof shape_1.Rectangle && shape.visible) {
+                        this.ctx.fillStyle = "tomato";
+                        this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
+                        this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
+                    }
                 }
-                else if (shape instanceof shape_1.Rectangle) {
-                    this.ctx.fillStyle = "tomato";
-                    this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
-                    this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
-                }
-            }
         }
         this.ctx.restore();
     }
@@ -290,11 +294,11 @@ const document_1 = require("./document");
 const view_1 = require("./view");
 const events_1 = require("./events");
 const doc = new document_1.SimpleDrawDocument(4);
+const c1 = doc.createCircle(100, 50, 30, 2);
+const r1 = doc.createRectangle(10, 10, 80, 80, 2);
+const r2 = doc.createRectangle(30, 60, 80, 40, 3);
 const view = new view_1.ViewController(doc, new view_1.SVGFactory());
 const eventListener = new events_1.EventListener(doc, view);
-const c1 = doc.createCircle(100, 50, 30, 1);
-const r1 = doc.createRectangle(10, 10, 80, 80, 0);
-const r2 = doc.createRectangle(30, 60, 80, 40, 2);
 /* const s1 = sdd.createSelection(c1, r1, r2)
 sdd.translate(s1, 10, 10) */
 view.render();
@@ -306,6 +310,7 @@ class Shape {
     constructor(x, y) {
         this.x = x;
         this.y = y;
+        this.visible = true;
     }
     translate(xd, yd) {
         this.x += xd;
@@ -384,11 +389,12 @@ class ViewController {
         this.renders = new Array();
         this.renders.push(factory.createRender());
         this.createViewportTools();
-        //this.createLayers()
+        this.createLayers();
     }
     addRender(factory) {
         this.renders.push(factory.createRender());
         this.createViewportTools();
+        this.createLayers();
         this.render();
     }
     increaseZoom(idRender) {
@@ -402,6 +408,13 @@ class ViewController {
     }
     setPositionY(idRender, n) {
         this.renders[idRender].setY(n);
+    }
+    setLayers() {
+        var groupContainer = document.getElementsByClassName('layer-container');
+        for (const group of groupContainer) {
+            group.innerHTML = "";
+            this.getLayers(group);
+        }
     }
     render() {
         for (const render of this.renders) {
@@ -470,28 +483,49 @@ class ViewController {
         const lastRenderId = lastRender.length - 1;
         const layerContainer = document.createElement('div');
         layerContainer.className = "layers";
-        const title = document.createElement('h3');
+        const title = document.createElement('h5');
         title.innerText = "Layers";
         const groupContainer = document.createElement('div');
-        groupContainer.className = "text-left";
-        const group = document.createElement('h5');
-        group.innerText = "Group 1";
-        groupContainer.appendChild(this.createCheckbox("Group 1"));
-        groupContainer.appendChild(this.createCheckbox("Rectangle 1"));
-        groupContainer.appendChild(this.createCheckbox("Circle 1"));
+        groupContainer.className = "layer-container text-left";
         layerContainer.appendChild(title);
         layerContainer.appendChild(groupContainer);
+        this.getLayers(groupContainer);
         lastRender[lastRenderId].appendChild(layerContainer);
     }
-    createCheckbox(labelText) {
+    getLayers(groupContainer) {
+        for (let i = 0; i < this.doc.layers.length; i++) {
+            groupContainer.appendChild(this.createLayer(this.doc.layers[i], i + 1));
+        }
+    }
+    createLayer(layer, id) {
+        const div = document.createElement('div');
+        div.appendChild(this.createCheckbox(layer, id));
+        layer.objects.forEach(object => div.appendChild(this.createCheckbox(object)));
+        return div;
+    }
+    createCheckbox(shape, id) {
         const checkbox = document.createElement('div');
-        checkbox.className = "form-check";
         const input = document.createElement('input');
         input.className = "form-check-input";
         input.type = "checkbox";
+        input.checked = true;
+        input.addEventListener("change", (e) => {
+            if (input.checked)
+                shape.visible = true;
+            else
+                shape.visible = false;
+            this.render();
+        });
         const label = document.createElement('label');
         label.className = "form-check-label";
-        label.innerText = labelText;
+        if (shape.constructor.name === "Layer") {
+            checkbox.className = "form-check heading";
+            label.innerText = "Layer " + id;
+        }
+        else {
+            checkbox.className = "form-check";
+            label.innerText = shape.constructor.name;
+        }
         checkbox.appendChild(input);
         checkbox.appendChild(label);
         return checkbox;

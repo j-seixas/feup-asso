@@ -1,4 +1,7 @@
 export abstract class Shape {
+    
+    visible = true
+
     constructor(public x: number, public y: number) { }
 
     translate(xd: number, yd: number): void {

@@ -40,8 +40,20 @@ main {
     width: 550px;
 }
 
-.layers{
-    background-color: #e6e6e6;
-    padding: 0 1em;
+.layers {
+    background-color: #343a40;
+    color: white;
+    border-radius: 4px;
+    padding: 0.5em 1em 0 1em;
     margin-right: 1em;
+
+    .heading {
+        font-size: 1.1em;
+        font-weight: 700;
+        margin-top: 1em;
+    }
+
+    input {
+        cursor: pointer;
+    }
 }

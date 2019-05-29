@@ -52,6 +52,7 @@ export class EventListener {
         var layer = parseInt((<HTMLInputElement>document.getElementById('input-rect-layer')).value)
 
         this.doc.createRectangle(xPosition, yPosition, width, heigth, layer)
+        this.view.setLayers()
         this.view.render()
     }
 
@@ -62,6 +63,7 @@ export class EventListener {
         var layer = parseInt((<HTMLInputElement>document.getElementById('input-circle-layer')).value)
 
         this.doc.createCircle(xPosition, yPosition, radius, layer)
+        this.view.setLayers()
         this.view.render()
     }
 }
