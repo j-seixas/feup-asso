@@ -129,7 +129,7 @@ class EventListener {
         var heigth = parseInt(document.getElementById('input-rect-h').value);
         var width = parseInt(document.getElementById('input-rect-w').value);
         var layer = parseInt(document.getElementById('input-rect-layer').value);
-        this.doc.createRectangle(xPosition, yPosition, width, heigth, layer);
+        this.doc.createRectangle(xPosition, yPosition, Math.abs(width), Math.abs(heigth), layer);
         this.view.setLayers();
         this.view.render();
     }
@@ -138,7 +138,7 @@ class EventListener {
         var yPosition = parseInt(document.getElementById('input-circle-y').value);
         var radius = parseInt(document.getElementById('input-circle-r').value);
         var layer = parseInt(document.getElementById('input-circle-layer').value);
-        this.doc.createCircle(xPosition, yPosition, radius, layer);
+        this.doc.createCircle(xPosition, yPosition, Math.abs(radius), layer);
         this.view.setLayers();
         this.view.render();
     }
@@ -180,6 +180,17 @@ class SVGRender {
         this.svg.setAttribute('style', 'border: 1px solid blue');
         this.svg.setAttribute('width', '550');
         this.svg.setAttribute('height', '550');
+        this.svg.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            console.log(e.currentTarget);
+            const svgElem = e.currentTarget;
+            var pt = svgElem.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            var svgP = pt.matrixTransform(svgElem.getScreenCTM().inverse());
+            console.log(svgP.x / this.zoom - this.positionX, svgP.y / this.zoom - this.positionY);
+            // alert(this.selectionStartX + " : " + this.selectionStartY)
+        });
         col.appendChild(this.svg);
     }
     increaseZoom() {
@@ -307,6 +318,7 @@ class Shape {
         this.x = x;
         this.y = y;
         this.visible = true;
+        this.selected = false;
     }
     translate(xd, yd) {
         this.x += xd;

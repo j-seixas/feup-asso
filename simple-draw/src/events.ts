@@ -53,7 +53,7 @@ export class EventListener {
         var width = parseInt((<HTMLInputElement>document.getElementById('input-rect-w')).value)
         var layer = parseInt((<HTMLInputElement>document.getElementById('input-rect-layer')).value)
 
-        this.doc.createRectangle(xPosition, yPosition, width, heigth, layer)
+        this.doc.createRectangle(xPosition, yPosition, Math.abs(width), Math.abs(heigth), layer)
         this.view.setLayers()
         this.view.render()
     }
@@ -64,7 +64,7 @@ export class EventListener {
         var radius = parseInt((<HTMLInputElement>document.getElementById('input-circle-r')).value)
         var layer = parseInt((<HTMLInputElement>document.getElementById('input-circle-layer')).value)
 
-        this.doc.createCircle(xPosition, yPosition, radius, layer)
+        this.doc.createCircle(xPosition, yPosition, Math.abs(radius), layer)
         this.view.setLayers()
         this.view.render()
     }

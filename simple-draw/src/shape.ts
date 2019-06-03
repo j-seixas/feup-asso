@@ -1,6 +1,7 @@
 export abstract class Shape {
     
     visible = true
+    selected = false
 
     constructor(public x: number, public y: number) { }
 

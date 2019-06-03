@@ -18,6 +18,10 @@ export class SVGRender implements Render {
     zoom: number
     positionX: number
     positionY: number
+    selectionStartX: number
+    selectionStartY: number
+    selectionEndX: number
+    selectionEndY: number
 
     constructor() {
         this.zoom = 1
@@ -33,8 +37,21 @@ export class SVGRender implements Render {
         this.svg.setAttribute('style', 'border: 1px solid blue')
         this.svg.setAttribute('width', '550')
         this.svg.setAttribute('height', '550')
+        this.svg.addEventListener("mousedown", (e: MouseEvent) => {
+            e.preventDefault()
+            console.log(e.currentTarget)
+            const svgElem = <SVGSVGElement>e.currentTarget
+            var pt = svgElem.createSVGPoint();
+            
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            var svgP = pt.matrixTransform(svgElem.getScreenCTM().inverse());
+            console.log(svgP.x / this.zoom - this.positionX, svgP.y / this.zoom - this.positionY)
+            // alert(this.selectionStartX + " : " + this.selectionStartY)
+        })
         col.appendChild(this.svg)
     }
+
 
     increaseZoom(): void {
         this.zoom *= 2
