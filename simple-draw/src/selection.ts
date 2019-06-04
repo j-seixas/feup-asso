@@ -1,6 +1,5 @@
 import { Layer } from './layer';
 import { Shape, Rectangle, Circle } from './shape';
-import { SimpleDrawDocument } from './document'
 import { ViewController } from 'view';
 
 export class Selection {

@@ -14,7 +14,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 * [ ] Support persistence in multiple formats (TXT, XML, BIN);
 * [x] Extensible with different objects (triangles, arrows...);
 * [ ] Extensible with new tools (rotate, translate, grid...);
-* [ ] Drag to select multiple objects;
+* [x] Drag to select multiple objects;
 * [x] Document layers (with compositing strategies).
 
 ## Advanced Functionalities
@@ -331,6 +331,42 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 
 #### Solution
 
+
+### Singleton
+
+**Problem:** A single selection of multiple objects in the document, that can be obtained globally (in the render's `eventListeners` and in the `ViewController`).
+
+#### Solution
+
+````typescript
+export class Selection {
+    private static instance: Selection
+    selectedObjects = Array<Shape>()
+
+    // some private vars
+
+    private constructor() {
+
+    }
+
+    static getInstance(): Selection {
+        if (!Selection.instance)
+            Selection.instance = new Selection()
+        return Selection.instance
+    }
+````
+
+Example of the call to the `newSelection` in `SVGRender` (in `CanvasRender` is similar)
+````typescript
+this.svg.addEventListener('mousedown', (e: MouseEvent) => {
+    // get start position of the selection rectangle
+})
+this.svg.addEventListener('mouseup', (e: MouseEvent) => {
+    //get end position of the selection rectangle
+
+    Selection.getInstance().newSelection(this.selectionStartX, this.selectionStartY, this.selectionEndX, this.selectionEndY)
+})
+````
 
 
 ### Model-View-Controller (MVC)
