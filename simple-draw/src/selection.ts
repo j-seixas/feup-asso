@@ -1,55 +1,69 @@
 import { Layer } from './layer';
 import { Shape, Rectangle, Circle } from './shape';
-import { throws } from 'assert';
+import { SimpleDrawDocument } from './document'
+import { ViewController } from 'view';
 
 export class Selection {
     private static instance: Selection
-    selectedObjects: Array<Shape>
+    selectedObjects = Array<Shape>()
 
+    private view: ViewController
     private x: number
     private y: number
     private width: number
     private height: number
+    private layers: Array<Layer>
 
     private constructor() {
 
     }
 
     static getInstance(): Selection {
-        if(!Selection.instance)
+        if (!Selection.instance)
             Selection.instance = new Selection()
         return Selection.instance
     }
 
-    newSelection(x: number, y: number, width: number, height: number, layers: Array<Layer>) {
+    newSelection(x1: number, y1: number, x2: number, y2: number) {
         this.clearSelection()
-        this.x = x
-        this.y = y
-        this.width = width
-        this.height = height
 
-        for (const layer of layers) {
+        this.x = x1 > x2 ? x2 : x1
+        this.y = y1 > y2 ? y2 : y1
+        this.width = Math.abs(x1 - x2)
+        this.height = Math.abs(y1 - y2)
+
+        console.log('selection', this.x, this.y, this.width, this.height)
+
+        if (!this.view)
+            return
+
+        for (const layer of this.layers) {
             if (layer.visible) {
                 for (const shape of layer.objects) {
-                    if (this.isInside(shape))
+                    if (this.isInside(shape)) {
+                        this.selectedObjects.push(shape)
                         shape.selected = true;
+                    }
                 }
             }
         }
+        this.view.render()
     }
 
     clearSelection(): void {
-        for(const shape of this.selectedObjects)
+        for (const shape of this.selectedObjects) {
             shape.selected = false
-        
+            console.log('is now false')
+        }
+
         this.selectedObjects = new Array<Shape>()
     }
 
     isInside(shape: Shape): boolean {
         if (shape instanceof Rectangle && shape.visible) {
-            return !(this.x + this.width < shape.x &&
-                this.x > shape.x + shape.width &&
-                this.y + this.height < shape.y &&
+            return !(this.x + this.width < shape.x ||
+                this.x > shape.x + shape.width ||
+                this.y + this.height < shape.y ||
                 this.y > shape.y + shape.height)
 
         } else if (shape instanceof Circle && shape.visible) {
@@ -71,6 +85,9 @@ export class Selection {
         return false;
     }
 
-
+    setView(view: ViewController) {
+        this.view = view
+        this.layers = this.view.doc.layers
+    }
 
 }

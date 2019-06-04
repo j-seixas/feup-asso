@@ -54,7 +54,7 @@ class TranslateAction {
 }
 exports.TranslateAction = TranslateAction;
 
-},{"./shape":7}],2:[function(require,module,exports){
+},{"./shape":8}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const layer_1 = require("./layer");
@@ -90,7 +90,7 @@ class SimpleDrawDocument {
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
 
-},{"./actions":1,"./layer":4,"./undo":8}],3:[function(require,module,exports){
+},{"./actions":1,"./layer":4,"./undo":9}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const view_1 = require("./view");
@@ -145,7 +145,7 @@ class EventListener {
 }
 exports.EventListener = EventListener;
 
-},{"./view":9}],4:[function(require,module,exports){
+},{"./view":10}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -163,10 +163,11 @@ class Layer extends shape_1.Shape {
 }
 exports.Layer = Layer;
 
-},{"./shape":7}],5:[function(require,module,exports){
+},{"./shape":8}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
+const selection_1 = require("./selection");
 class SVGRender {
     constructor() {
         this.zoom = 1;
@@ -180,18 +181,29 @@ class SVGRender {
         this.svg.setAttribute('style', 'border: 1px solid blue');
         this.svg.setAttribute('width', '550');
         this.svg.setAttribute('height', '550');
-        this.svg.addEventListener("mousedown", (e) => {
-            e.preventDefault();
+        this.svg.addEventListener('mousedown', (e) => {
             console.log(e.currentTarget);
             const svgElem = e.currentTarget;
             var pt = svgElem.createSVGPoint();
             pt.x = e.clientX;
             pt.y = e.clientY;
             var svgP = pt.matrixTransform(svgElem.getScreenCTM().inverse());
-            console.log(svgP.x / this.zoom - this.positionX, svgP.y / this.zoom - this.positionY);
-            // alert(this.selectionStartX + " : " + this.selectionStartY)
+            this.selectionStartX = svgP.x / this.zoom - this.positionX;
+            this.selectionStartY = svgP.y / this.zoom - this.positionY;
+        });
+        this.svg.addEventListener('mouseup', (e) => {
+            const svgElem = e.currentTarget;
+            var pt = svgElem.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            var svgP = pt.matrixTransform(svgElem.getScreenCTM().inverse());
+            this.selectionEndX = svgP.x / this.zoom - this.positionX;
+            this.selectionEndY = svgP.y / this.zoom - this.positionY;
+            selection_1.Selection.getInstance().newSelection(this.selectionStartX, this.selectionStartY, this.selectionEndX, this.selectionEndY);
         });
         col.appendChild(this.svg);
+    }
+    mouseDown(e) {
     }
     increaseZoom() {
         this.zoom *= 2;
@@ -212,7 +224,7 @@ class SVGRender {
                 for (const shape of layer.objects) {
                     if (shape instanceof shape_1.Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                        e.setAttribute('style', 'stroke: black; fill: tomato');
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato');
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('x', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -225,7 +237,7 @@ class SVGRender {
                     }
                     else if (shape instanceof shape_1.Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        e.setAttribute('style', 'stroke: black; fill: orange');
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: orange');
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('cx', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -294,7 +306,7 @@ class CanvasRender {
 }
 exports.CanvasRender = CanvasRender;
 
-},{"./shape":7}],6:[function(require,module,exports){
+},{"./selection":7,"./shape":8}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
@@ -310,7 +322,76 @@ const eventListener = new events_1.EventListener(doc, view);
 sdd.translate(s1, 10, 10) */
 view.render();
 
-},{"./document":2,"./events":3,"./view":9}],7:[function(require,module,exports){
+},{"./document":2,"./events":3,"./view":10}],7:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const shape_1 = require("./shape");
+class Selection {
+    constructor() {
+        this.selectedObjects = Array();
+    }
+    static getInstance() {
+        if (!Selection.instance)
+            Selection.instance = new Selection();
+        return Selection.instance;
+    }
+    newSelection(x1, y1, x2, y2) {
+        this.clearSelection();
+        this.x = x1 > x2 ? x2 : x1;
+        this.y = y1 > y2 ? y2 : y1;
+        this.width = Math.abs(x1 - x2);
+        this.height = Math.abs(y1 - y2);
+        console.log('selection', this.x, this.y, this.width, this.height);
+        if (!this.view)
+            return;
+        for (const layer of this.layers) {
+            if (layer.visible) {
+                for (const shape of layer.objects) {
+                    if (this.isInside(shape)) {
+                        this.selectedObjects.push(shape);
+                        shape.selected = true;
+                    }
+                }
+            }
+        }
+        this.view.render();
+    }
+    clearSelection() {
+        for (const shape of this.selectedObjects) {
+            shape.selected = false;
+            console.log('is now false');
+        }
+        this.selectedObjects = new Array();
+    }
+    isInside(shape) {
+        if (shape instanceof shape_1.Rectangle && shape.visible) {
+            return !(this.x + this.width < shape.x ||
+                this.x > shape.x + shape.width ||
+                this.y + this.height < shape.y ||
+                this.y > shape.y + shape.height);
+        }
+        else if (shape instanceof shape_1.Circle && shape.visible) {
+            const distX = Math.abs(shape.x - this.x);
+            const distY = Math.abs(shape.y - this.y);
+            if (distX > (this.width / 2 + shape.radius) ||
+                distY > (this.height / 2 + shape.radius))
+                return false;
+            if (distX <= this.width / 2 ||
+                distY <= this.height / 2)
+                return true;
+            return Math.pow(distX - this.width / 2, 2) + Math.pow(distY - this.height / 2, 2)
+                <= Math.pow(shape.radius, 2);
+        }
+        return false;
+    }
+    setView(view) {
+        this.view = view;
+        this.layers = this.view.doc.layers;
+    }
+}
+exports.Selection = Selection;
+
+},{"./shape":8}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Shape {
@@ -346,7 +427,7 @@ class Circle extends Shape {
 }
 exports.Circle = Circle;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {
@@ -375,10 +456,11 @@ class UndoManager {
 }
 exports.UndoManager = UndoManager;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
+const selection_1 = require("./selection");
 class SVGFactory {
     createRender() {
         return new render_1.SVGRender();
@@ -398,6 +480,7 @@ class ViewController {
         this.renders.push(factory.createRender());
         this.setLayers();
         this.createViewportTools();
+        selection_1.Selection.getInstance().setView(this);
     }
     addRender(factory) {
         this.renders.push(factory.createRender());
@@ -521,4 +604,4 @@ class ViewController {
 }
 exports.ViewController = ViewController;
 
-},{"./render":5}]},{},[6]);
+},{"./render":5,"./selection":7}]},{},[6]);

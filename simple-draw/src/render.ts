@@ -1,5 +1,6 @@
 import { Shape, Circle, Rectangle } from "./shape"
 import { Layer } from "./layer"
+import { Selection } from './selection'
 
 export interface Render {
     zoom: number
@@ -37,21 +38,37 @@ export class SVGRender implements Render {
         this.svg.setAttribute('style', 'border: 1px solid blue')
         this.svg.setAttribute('width', '550')
         this.svg.setAttribute('height', '550')
-        this.svg.addEventListener("mousedown", (e: MouseEvent) => {
-            e.preventDefault()
+        this.svg.addEventListener('mousedown', (e: MouseEvent) => {
             console.log(e.currentTarget)
+
             const svgElem = <SVGSVGElement>e.currentTarget
             var pt = svgElem.createSVGPoint();
-            
             pt.x = e.clientX;
             pt.y = e.clientY;
             var svgP = pt.matrixTransform(svgElem.getScreenCTM().inverse());
-            console.log(svgP.x / this.zoom - this.positionX, svgP.y / this.zoom - this.positionY)
-            // alert(this.selectionStartX + " : " + this.selectionStartY)
+
+            this.selectionStartX = svgP.x / this.zoom - this.positionX
+            this.selectionStartY = svgP.y / this.zoom - this.positionY
+        })
+        this.svg.addEventListener('mouseup', (e: MouseEvent) => {
+
+            const svgElem = <SVGSVGElement>e.currentTarget
+            var pt = svgElem.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            var svgP = pt.matrixTransform(svgElem.getScreenCTM().inverse());
+
+            this.selectionEndX = svgP.x / this.zoom - this.positionX
+            this.selectionEndY = svgP.y / this.zoom - this.positionY
+
+            Selection.getInstance().newSelection(this.selectionStartX, this.selectionStartY, this.selectionEndX, this.selectionEndY)
         })
         col.appendChild(this.svg)
     }
 
+    mouseDown(e: MouseEvent): void {
+
+    }
 
     increaseZoom(): void {
         this.zoom *= 2
@@ -76,7 +93,7 @@ export class SVGRender implements Render {
                 for (const shape of layer.objects) {
                     if (shape instanceof Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
-                        e.setAttribute('style', 'stroke: black; fill: tomato')
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('x', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
@@ -88,7 +105,7 @@ export class SVGRender implements Render {
                         this.svg.appendChild(e)
                     } else if (shape instanceof Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                        e.setAttribute('style', 'stroke: black; fill: orange')
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: orange')
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('cx', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom

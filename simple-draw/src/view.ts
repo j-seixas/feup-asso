@@ -2,6 +2,7 @@ import { SimpleDrawDocument } from './document'
 import { Shape } from './shape'
 import { Layer } from './layer'
 import { Render, SVGRender, CanvasRender } from './render'
+import { Selection } from './selection'
 
 export interface RenderFactory {
     createRender(): Render
@@ -26,6 +27,7 @@ export class ViewController {
         this.renders.push(factory.createRender())
         this.setLayers()
         this.createViewportTools()
+        Selection.getInstance().setView(this);
     }
 
     addRender(factory: RenderFactory): void {
