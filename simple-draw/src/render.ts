@@ -6,6 +6,10 @@ export interface Render {
     zoom: number
     positionX: number
     positionY: number
+    selectionStartX: number
+    selectionStartY: number
+    selectionEndX: number
+    selectionEndY: number
     draw(...objs: Array<Shape>): void
 
     increaseZoom(): void
@@ -24,6 +28,7 @@ export class SVGRender implements Render {
     selectionEndX: number
     selectionEndY: number
 
+
     constructor() {
         this.zoom = 1
         this.positionX = 0
@@ -39,7 +44,6 @@ export class SVGRender implements Render {
         this.svg.setAttribute('width', '550')
         this.svg.setAttribute('height', '550')
         this.svg.addEventListener('mousedown', (e: MouseEvent) => {
-            console.log(e.currentTarget)
 
             const svgElem = <SVGSVGElement>e.currentTarget
             var pt = svgElem.createSVGPoint();
@@ -124,6 +128,10 @@ export class CanvasRender implements Render {
     zoom: number
     positionX: number
     positionY: number
+    selectionStartX: number
+    selectionStartY: number
+    selectionEndX: number
+    selectionEndY: number
 
     constructor() {
         this.zoom = 1
@@ -139,6 +147,24 @@ export class CanvasRender implements Render {
         canvas.setAttribute('style', 'border: 1px solid red')
         canvas.setAttribute('width', '550')
         canvas.setAttribute('height', '550')
+        canvas.addEventListener('mousedown', (e: MouseEvent) => {
+
+            const canvasElem = <HTMLElement>e.currentTarget
+            const rect = canvasElem.getBoundingClientRect();
+
+            this.selectionStartX = (e.clientX - rect.left) / this.zoom - this.positionX
+            this.selectionStartY = (e.clientY - rect.top) / this.zoom - this.positionY
+        })
+        canvas.addEventListener('mouseup', (e: MouseEvent) => {
+
+            const canvasElem = <HTMLElement>e.currentTarget
+            const rect = canvasElem.getBoundingClientRect();
+
+            this.selectionEndX = (e.clientX - rect.left) / this.zoom - this.positionX
+            this.selectionEndY = (e.clientY - rect.top) / this.zoom - this.positionY
+
+            Selection.getInstance().newSelection(this.selectionStartX, this.selectionStartY, this.selectionEndX, this.selectionEndY)
+        })
         col.appendChild(canvas)
 
         this.ctx = canvas.getContext('2d')
@@ -170,13 +196,15 @@ export class CanvasRender implements Render {
                     if (shape instanceof Circle && shape.visible) {
                         this.ctx.beginPath()
                         this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI)
-                        this.ctx.fillStyle = "orange";
+                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "orange";
                         this.ctx.fill()
+                        this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.stroke()
                         this.ctx.closePath()
                     } else if (shape instanceof Rectangle && shape.visible) {
-                        this.ctx.fillStyle = "tomato";
+                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "tomato";
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
+                        this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
                     }
                 }

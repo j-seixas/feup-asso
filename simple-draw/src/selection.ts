@@ -32,8 +32,6 @@ export class Selection {
         this.width = Math.abs(x1 - x2)
         this.height = Math.abs(y1 - y2)
 
-        console.log('selection', this.x, this.y, this.width, this.height)
-
         if (!this.view)
             return
 
@@ -51,10 +49,9 @@ export class Selection {
     }
 
     clearSelection(): void {
-        for (const shape of this.selectedObjects) {
+        for (const shape of this.selectedObjects) 
             shape.selected = false
-            console.log('is now false')
-        }
+        
 
         this.selectedObjects = new Array<Shape>()
     }
