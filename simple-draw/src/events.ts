@@ -1,10 +1,12 @@
 import { SimpleDrawDocument } from './document'
 import { ViewController, SVGFactory, CanvasFactory } from './view'
 import { FileExporter, ConsolePrinter } from './export';
+import { ExportFactory, FileFormat } from './exportFactory';
 
 export class EventListener {
     doc: SimpleDrawDocument
     view: ViewController
+    fileExporter: ExportFactory
     export: FileExporter
     undoButton: HTMLElement
     redoButton: HTMLElement
@@ -15,10 +17,11 @@ export class EventListener {
     exportXmlButton: HTMLElement
     exportTextButton: HTMLElement
 
-    constructor(doc: SimpleDrawDocument, view: ViewController) {
+
+    constructor(doc: SimpleDrawDocument, view: ViewController, fileExporter: ExportFactory) {
         this.doc = doc
         this.view = view
-
+        this.fileExporter = fileExporter
 
         this.undoButton = <HTMLElement>document.getElementById('undo')
         this.undoButton.addEventListener("click", (e: Event) => {
@@ -36,10 +39,7 @@ export class EventListener {
 
         this.exportTextButton = <HTMLElement>document.getElementById('export-text')
         this.exportTextButton.addEventListener("click", (e: Event) => {
-            this.export = new ConsolePrinter()
-            this.export.CreateFileHeader()
-            this.export.CreateFileContent(this.doc.layers)
-            this.export.CreateFileFooter()
+            fileExporter.ExportFile(FileFormat.Console, this.doc.layers)         
         })
 
         this.exportXmlButton = <HTMLElement>document.getElementById('export-xml')

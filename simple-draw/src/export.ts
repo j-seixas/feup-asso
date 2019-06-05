@@ -1,6 +1,8 @@
 import { Layer, } from './layer'
 import { Shape, Circle, Rectangle} from './shape';
 
+
+
 export interface FileExporter{
     CreateFileHeader(): void
     CreateFileContent(layers: Array<Layer>): void

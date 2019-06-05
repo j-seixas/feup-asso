@@ -54,7 +54,7 @@ class TranslateAction {
 }
 exports.TranslateAction = TranslateAction;
 
-},{"./shape":9}],2:[function(require,module,exports){
+},{"./shape":10}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const layer_1 = require("./layer");
@@ -90,15 +90,16 @@ class SimpleDrawDocument {
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
 
-},{"./actions":1,"./layer":5,"./undo":10}],3:[function(require,module,exports){
+},{"./actions":1,"./layer":6,"./undo":11}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const view_1 = require("./view");
-const export_1 = require("./export");
+const exportFactory_1 = require("./exportFactory");
 class EventListener {
-    constructor(doc, view) {
+    constructor(doc, view, fileExporter) {
         this.doc = doc;
         this.view = view;
+        this.fileExporter = fileExporter;
         this.undoButton = document.getElementById('undo');
         this.undoButton.addEventListener("click", (e) => {
             this.doc.undo();
@@ -113,10 +114,7 @@ class EventListener {
         });
         this.exportTextButton = document.getElementById('export-text');
         this.exportTextButton.addEventListener("click", (e) => {
-            this.export = new export_1.ConsolePrinter();
-            this.export.CreateFileHeader();
-            this.export.CreateFileContent(this.doc.layers);
-            this.export.CreateFileFooter();
+            fileExporter.ExportFile(exportFactory_1.FileFormat.Console, this.doc.layers);
         });
         this.exportXmlButton = document.getElementById('export-xml');
         this.exportXmlButton.addEventListener("click", (e) => {
@@ -157,7 +155,7 @@ class EventListener {
 }
 exports.EventListener = EventListener;
 
-},{"./export":4,"./view":11}],4:[function(require,module,exports){
+},{"./exportFactory":5,"./view":12}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -171,10 +169,10 @@ class ConsolePrinter {
             if (layer.visible) {
                 for (const shape of layer.objects) {
                     if (shape instanceof shape_1.Rectangle) {
-                        console.log('Rectangle', shape.x, shape.y);
+                        console.log('Rectangle', shape.x, shape.y, shape.width, shape.height);
                     }
                     if (shape instanceof shape_1.Circle) {
-                        console.log('Circle', shape.x, shape.y);
+                        console.log('Circle', shape.x, shape.y, shape.radius);
                     }
                 }
             }
@@ -185,7 +183,32 @@ class ConsolePrinter {
 }
 exports.ConsolePrinter = ConsolePrinter;
 
-},{"./shape":9}],5:[function(require,module,exports){
+},{"./shape":10}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const export_1 = require("./export");
+var FileFormat;
+(function (FileFormat) {
+    FileFormat[FileFormat["Console"] = 0] = "Console";
+    FileFormat[FileFormat["Txt"] = 1] = "Txt";
+    FileFormat[FileFormat["Xml"] = 2] = "Xml";
+})(FileFormat = exports.FileFormat || (exports.FileFormat = {}));
+class ExportFactory {
+    constructor() {
+        this.outputTypes = new Map();
+        this.outputTypes.set(FileFormat.Console, new export_1.ConsolePrinter());
+    }
+    ExportFile(format, layers) {
+        console.log('inside factory');
+        let exporter = this.outputTypes.get(format);
+        exporter.CreateFileHeader();
+        exporter.CreateFileContent(layers);
+        exporter.CreateFileFooter();
+    }
+}
+exports.ExportFactory = ExportFactory;
+
+},{"./export":4}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -203,7 +226,7 @@ class Layer extends shape_1.Shape {
 }
 exports.Layer = Layer;
 
-},{"./shape":9}],6:[function(require,module,exports){
+},{"./shape":10}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -360,23 +383,25 @@ class CanvasRender {
 }
 exports.CanvasRender = CanvasRender;
 
-},{"./selection":8,"./shape":9}],7:[function(require,module,exports){
+},{"./selection":9,"./shape":10}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
 const view_1 = require("./view");
 const events_1 = require("./events");
+const exportFactory_1 = require("./exportFactory");
 const doc = new document_1.SimpleDrawDocument(4);
 const c1 = doc.createCircle(100, 50, 30, 2);
 const r1 = doc.createRectangle(10, 10, 80, 80, 2);
 const r2 = doc.createRectangle(30, 60, 80, 40, 3);
 const view = new view_1.ViewController(doc, new view_1.SVGFactory());
-const eventListener = new events_1.EventListener(doc, view);
+const fileExporter = new exportFactory_1.ExportFactory();
+const eventListener = new events_1.EventListener(doc, view, fileExporter);
 /* const s1 = sdd.createSelection(c1, r1, r2)
 sdd.translate(s1, 10, 10) */
 view.render();
 
-},{"./document":2,"./events":3,"./view":11}],8:[function(require,module,exports){
+},{"./document":2,"./events":3,"./exportFactory":5,"./view":12}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -442,7 +467,7 @@ class Selection {
 }
 exports.Selection = Selection;
 
-},{"./shape":9}],9:[function(require,module,exports){
+},{"./shape":10}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Shape {
@@ -478,7 +503,7 @@ class Circle extends Shape {
 }
 exports.Circle = Circle;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {
@@ -507,7 +532,7 @@ class UndoManager {
 }
 exports.UndoManager = UndoManager;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
@@ -655,4 +680,4 @@ class ViewController {
 }
 exports.ViewController = ViewController;
 
-},{"./render":6,"./selection":8}]},{},[7]);
+},{"./render":7,"./selection":9}]},{},[8]);
