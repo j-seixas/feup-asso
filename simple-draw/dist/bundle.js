@@ -54,7 +54,7 @@ class TranslateAction {
 }
 exports.TranslateAction = TranslateAction;
 
-},{"./shape":8}],2:[function(require,module,exports){
+},{"./shape":9}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const layer_1 = require("./layer");
@@ -90,10 +90,11 @@ class SimpleDrawDocument {
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
 
-},{"./actions":1,"./layer":4,"./undo":9}],3:[function(require,module,exports){
+},{"./actions":1,"./layer":5,"./undo":10}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const view_1 = require("./view");
+const export_1 = require("./export");
 class EventListener {
     constructor(doc, view) {
         this.doc = doc;
@@ -109,6 +110,17 @@ class EventListener {
             this.doc.redo();
             this.view.setLayers();
             this.view.render();
+        });
+        this.exportTextButton = document.getElementById('export-text');
+        this.exportTextButton.addEventListener("click", (e) => {
+            this.export = new export_1.ConsolePrinter();
+            this.export.CreateFileHeader();
+            this.export.CreateFileContent(this.doc.layers);
+            this.export.CreateFileFooter();
+        });
+        this.exportXmlButton = document.getElementById('export-xml');
+        this.exportXmlButton.addEventListener("click", (e) => {
+            console.debug("i'm handling xml");
         });
         this.rectangleButton = document.getElementById('create-rectangle');
         this.rectangleButton.addEventListener("click", (e) => this.createRectangle());
@@ -145,7 +157,35 @@ class EventListener {
 }
 exports.EventListener = EventListener;
 
-},{"./view":10}],4:[function(require,module,exports){
+},{"./export":4,"./view":11}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const shape_1 = require("./shape");
+class ConsolePrinter {
+    CreateFileHeader() {
+    }
+    CreateFileContent(layers) {
+        console.log("inside console printer class");
+        for (const layer of layers) {
+            console.log(layer.name);
+            if (layer.visible) {
+                for (const shape of layer.objects) {
+                    if (shape instanceof shape_1.Rectangle) {
+                        console.log('Rectangle', shape.x, shape.y);
+                    }
+                    if (shape instanceof shape_1.Circle) {
+                        console.log('Circle', shape.x, shape.y);
+                    }
+                }
+            }
+        }
+    }
+    CreateFileFooter() {
+    }
+}
+exports.ConsolePrinter = ConsolePrinter;
+
+},{"./shape":9}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -163,7 +203,7 @@ class Layer extends shape_1.Shape {
 }
 exports.Layer = Layer;
 
-},{"./shape":8}],5:[function(require,module,exports){
+},{"./shape":9}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -320,7 +360,7 @@ class CanvasRender {
 }
 exports.CanvasRender = CanvasRender;
 
-},{"./selection":7,"./shape":8}],6:[function(require,module,exports){
+},{"./selection":8,"./shape":9}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
@@ -336,7 +376,7 @@ const eventListener = new events_1.EventListener(doc, view);
 sdd.translate(s1, 10, 10) */
 view.render();
 
-},{"./document":2,"./events":3,"./view":10}],7:[function(require,module,exports){
+},{"./document":2,"./events":3,"./view":11}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -402,7 +442,7 @@ class Selection {
 }
 exports.Selection = Selection;
 
-},{"./shape":8}],8:[function(require,module,exports){
+},{"./shape":9}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Shape {
@@ -438,7 +478,7 @@ class Circle extends Shape {
 }
 exports.Circle = Circle;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {
@@ -467,7 +507,7 @@ class UndoManager {
 }
 exports.UndoManager = UndoManager;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
@@ -615,4 +655,4 @@ class ViewController {
 }
 exports.ViewController = ViewController;
 
-},{"./render":5,"./selection":7}]},{},[6]);
+},{"./render":6,"./selection":8}]},{},[7]);

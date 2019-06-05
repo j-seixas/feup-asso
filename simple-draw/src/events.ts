@@ -1,19 +1,24 @@
 import { SimpleDrawDocument } from './document'
 import { ViewController, SVGFactory, CanvasFactory } from './view'
+import { FileExporter, ConsolePrinter } from './export';
 
 export class EventListener {
     doc: SimpleDrawDocument
     view: ViewController
+    export: FileExporter
     undoButton: HTMLElement
     redoButton: HTMLElement
     rectangleButton: HTMLElement
     circleButton: HTMLElement
     canvasButton: HTMLElement
     svgButton: HTMLElement
+    exportXmlButton: HTMLElement
+    exportTextButton: HTMLElement
 
     constructor(doc: SimpleDrawDocument, view: ViewController) {
         this.doc = doc
         this.view = view
+
 
         this.undoButton = <HTMLElement>document.getElementById('undo')
         this.undoButton.addEventListener("click", (e: Event) => {
@@ -27,6 +32,19 @@ export class EventListener {
             this.doc.redo()
             this.view.setLayers()
             this.view.render()
+        })
+
+        this.exportTextButton = <HTMLElement>document.getElementById('export-text')
+        this.exportTextButton.addEventListener("click", (e: Event) => {
+            this.export = new ConsolePrinter()
+            this.export.CreateFileHeader()
+            this.export.CreateFileContent(this.doc.layers)
+            this.export.CreateFileFooter()
+        })
+
+        this.exportXmlButton = <HTMLElement>document.getElementById('export-xml')
+        this.exportXmlButton.addEventListener("click", (e: Event) => {
+            console.debug("i'm handling xml")     
         })
 
         this.rectangleButton = <HTMLElement>document.getElementById('create-rectangle')
