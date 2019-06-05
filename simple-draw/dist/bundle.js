@@ -120,7 +120,8 @@ class EventListener {
         });
         this.exportXmlButton = document.getElementById('export-xml');
         this.exportXmlButton.addEventListener("click", (e) => {
-            console.debug("i'm handling xml");
+            let stringToReturn = fileExporter.ExportFile(exportFactory_1.FileFormat.Xml, this.doc.layers);
+            this.DownloadFile(stringToReturn, exportFactory_1.FileFormat.Xml);
         });
         this.rectangleButton = document.getElementById('create-rectangle');
         this.rectangleButton.addEventListener("click", (e) => this.createRectangle());
@@ -155,7 +156,14 @@ class EventListener {
         this.view.render();
     }
     DownloadFile(text, format) {
-        var file = new File([text], "simpleDraw.txt", { type: "text/plain;charset=utf-8" });
+        var file;
+        var fileName = "simpleDraw." + exportFactory_1.FileFormat[format];
+        if (format === exportFactory_1.FileFormat.Txt) {
+            file = new File([text], fileName, { type: "text/plain;charset=utf-8" });
+        }
+        else if (format === exportFactory_1.FileFormat.Xml) {
+            file = new File([text], fileName, { type: "text/xml;charset=utf-8" });
+        }
         file_saver_1.saveAs(file);
     }
 }
@@ -202,7 +210,7 @@ class TextFileExporter {
                         this.textToReturn += 'Rectangle ' + shape.x + ' ' + shape.y + ' ' + shape.width + ' ' + shape.height + '\n';
                     }
                     if (shape instanceof shape_1.Circle) {
-                        this.textToReturn += 'Circle ' + ' ' + shape.x + ' ' + ' ' + shape.y + ' ' + shape.radius + "\n";
+                        this.textToReturn += 'Circle ' + ' ' + shape.x + ' ' + shape.y + ' ' + shape.radius + "\n";
                     }
                 }
             }
@@ -215,6 +223,43 @@ class TextFileExporter {
     }
 }
 exports.TextFileExporter = TextFileExporter;
+class XmlFileExporter {
+    CreateFileHeader() {
+        this.textToReturn = "";
+        this.textToReturn += `<?xml version="1.0" encoding="UTF-8"?>`;
+    }
+    CreateFileContent(layers) {
+        for (const layer of layers) {
+            if (layer.visible) {
+                this.textToReturn += "<Layer name='" + layer.name + "'>\n";
+                for (const shape of layer.objects) {
+                    if (shape instanceof shape_1.Rectangle) {
+                        this.textToReturn += "<Rectangle>";
+                        this.textToReturn += "<x>" + shape.x + "</x>";
+                        this.textToReturn += "<y>" + shape.y + "</y>";
+                        this.textToReturn += "<width>" + shape.width + "</width>";
+                        this.textToReturn += "<height>" + shape.height + "</height>";
+                        this.textToReturn += "</Rectangle>";
+                    }
+                    if (shape instanceof shape_1.Circle) {
+                        this.textToReturn += "<Circle>";
+                        this.textToReturn += "<x>" + shape.x + "</x>";
+                        this.textToReturn += "<y>" + shape.y + "</y>";
+                        this.textToReturn += "<radius>" + shape.radius + "</radius>";
+                        this.textToReturn += "</Circle>";
+                    }
+                }
+                this.textToReturn += "</Layer>";
+            }
+        }
+    }
+    CreateFileFooter() {
+    }
+    DownloadFile() {
+        return this.textToReturn;
+    }
+}
+exports.XmlFileExporter = XmlFileExporter;
 
 },{"./shape":10}],5:[function(require,module,exports){
 "use strict";
@@ -231,6 +276,7 @@ class ExportFactory {
         this.outputTypes = new Map();
         this.outputTypes.set(FileFormat.Console, new export_1.ConsolePrinter());
         this.outputTypes.set(FileFormat.Txt, new export_1.TextFileExporter());
+        this.outputTypes.set(FileFormat.Xml, new export_1.XmlFileExporter());
     }
     ExportFile(format, layers) {
         let exporter = this.outputTypes.get(format);

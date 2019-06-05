@@ -73,5 +73,50 @@ export class TextFileExporter implements FileExporter {
         return this.textToReturn
     }
 
+}
+    export class XmlFileExporter implements FileExporter {
+        textToReturn: string
+    
+        CreateFileHeader() {
+            this.textToReturn = ""
+            this.textToReturn += `<?xml version="1.0" encoding="UTF-8"?>`
+        }
+    
+        CreateFileContent(layers: Array<Layer>) {
+            for (const layer of layers) {
+              
+                if (layer.visible) {
+                    this.textToReturn += "<Layer name='" + layer.name + "'>\n"
+                    for (const shape of layer.objects) {
+                        if (shape instanceof Rectangle) {
+                            this.textToReturn += "<Rectangle>"
+                            this.textToReturn += "<x>" + shape.x + "</x>"
+                            this.textToReturn += "<y>" + shape.y + "</y>"
+                            this.textToReturn += "<width>" + shape.width + "</width>"
+                            this.textToReturn += "<height>" + shape.height + "</height>"
+                            this.textToReturn += "</Rectangle>"
+                        }
+                        if (shape instanceof Circle) {
+                            this.textToReturn += "<Circle>"
+                            this.textToReturn += "<x>" + shape.x + "</x>"
+                            this.textToReturn += "<y>" + shape.y + "</y>"
+                            this.textToReturn += "<radius>" + shape.radius + "</radius>"
+                            this.textToReturn += "</Circle>"
+                        }
+                    }
+                    this.textToReturn += "</Layer>"
+                }
+            }
+        }
+    
+        CreateFileFooter() {
+    
+        }
+    
+        DownloadFile()
+        {
+            return this.textToReturn
+        }
+
     
 }

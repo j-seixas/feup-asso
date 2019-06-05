@@ -46,7 +46,8 @@ export class EventListener {
 
         this.exportXmlButton = <HTMLElement>document.getElementById('export-xml')
         this.exportXmlButton.addEventListener("click", (e: Event) => {
-            console.debug("i'm handling xml")     
+            let stringToReturn = fileExporter.ExportFile(FileFormat.Xml, this.doc.layers)
+            this.DownloadFile(stringToReturn,FileFormat.Xml)  
         })
 
         this.rectangleButton = <HTMLElement>document.getElementById('create-rectangle')
@@ -90,7 +91,15 @@ export class EventListener {
     }
 
     DownloadFile(text: string, format: FileFormat) {
-        var file = new File([text], "simpleDraw.txt", {type: "text/plain;charset=utf-8"});
+        var file;
+        var fileName =  "simpleDraw." + FileFormat[format]
+
+        if(format === FileFormat.Txt){
+            file = new File([text], fileName, {type: "text/plain;charset=utf-8"});
+        }
+        else if(format === FileFormat.Xml){
+            file = new File([text], fileName, {type: "text/xml;charset=utf-8"});
+        }
         saveAs(file);
     }
 }

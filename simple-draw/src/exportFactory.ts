@@ -1,4 +1,4 @@
-import { FileExporter, ConsolePrinter, TextFileExporter } from "./export";
+import { FileExporter, ConsolePrinter, TextFileExporter, XmlFileExporter } from "./export";
 import { Layer } from "./layer";
 
 
@@ -15,6 +15,7 @@ export class ExportFactory {
     constructor() {
         this.outputTypes.set(FileFormat.Console, new ConsolePrinter())
         this.outputTypes.set(FileFormat.Txt, new TextFileExporter())
+        this.outputTypes.set(FileFormat.Xml, new XmlFileExporter())
     }
 
     ExportFile(format: FileFormat, layers: Array<Layer>){
