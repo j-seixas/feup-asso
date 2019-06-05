@@ -2,6 +2,7 @@ import { SimpleDrawDocument } from './document'
 import { ViewController, SVGFactory, CanvasFactory } from './view'
 import { FileExporter, ConsolePrinter } from './export';
 import { ExportFactory, FileFormat } from './exportFactory';
+import { saveAs } from 'file-saver';
 
 export class EventListener {
     doc: SimpleDrawDocument
@@ -39,7 +40,8 @@ export class EventListener {
 
         this.exportTextButton = <HTMLElement>document.getElementById('export-text')
         this.exportTextButton.addEventListener("click", (e: Event) => {
-            fileExporter.ExportFile(FileFormat.Console, this.doc.layers)         
+            let stringToReturn = fileExporter.ExportFile(FileFormat.Txt, this.doc.layers)
+            this.DownloadFile(stringToReturn,FileFormat.Txt)    
         })
 
         this.exportXmlButton = <HTMLElement>document.getElementById('export-xml')
@@ -85,5 +87,10 @@ export class EventListener {
         this.doc.createCircle(xPosition, yPosition, Math.abs(radius), layer)
         this.view.setLayers()
         this.view.render()
+    }
+
+    DownloadFile(text: string, format: FileFormat) {
+        var file = new File([text], "simpleDraw.txt", {type: "text/plain;charset=utf-8"});
+        saveAs(file);
     }
 }

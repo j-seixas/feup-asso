@@ -1,4 +1,4 @@
-import { FileExporter, ConsolePrinter } from "./export";
+import { FileExporter, ConsolePrinter, TextFileExporter } from "./export";
 import { Layer } from "./layer";
 
 
@@ -14,14 +14,15 @@ export class ExportFactory {
 
     constructor() {
         this.outputTypes.set(FileFormat.Console, new ConsolePrinter())
+        this.outputTypes.set(FileFormat.Txt, new TextFileExporter())
     }
 
     ExportFile(format: FileFormat, layers: Array<Layer>){
-        console.log('inside factory')
         let exporter = this.outputTypes.get(format)
         exporter.CreateFileHeader()
         exporter.CreateFileContent(layers)
         exporter.CreateFileFooter()
+        return exporter.DownloadFile()
     }
 
 }
