@@ -11,7 +11,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 ## Functionalities
 
 * [x] Documents are rendered both in SVG or HTMLCanvas;
-* [ ] Support persistence in multiple formats (TXT, XML, BIN);
+* [x] Support persistence in multiple formats (TXT, XML, BIN...);
 * [x] Extensible with different objects (triangles, arrows...);
 * [ ] Extensible with new tools (rotate, translate, grid...);
 * [x] Drag to select multiple objects;
@@ -368,10 +368,41 @@ this.svg.addEventListener('mouseup', (e: MouseEvent) => {
 })
 ````
 
-
 ### Model-View-Controller (MVC)
 TODO 
 
 **Problem:** 
 
 #### Solution
+
+---
+
+## Questions For The Design Review
+
+1. Does the architecture satisfy the requirements?
+
+**Answer:** ...
+
+2. Is effective modularity achieved?
+
+**Answer:** ...
+
+3. Are interfaces defined for modules and external system elements?
+
+**Answer:** ...
+
+4. Is the structure of the data and its organisation consistent with the domain of the requirements?
+
+**Answer:** ...
+
+5. Is the structure of the data consistent with the requirements?
+
+**Answer:** ...
+
+6. Has maintainability been considered?
+
+**Answer:** ...
+
+7. Have quality factors been explicitly assessed?
+
+**Answer:** ...
