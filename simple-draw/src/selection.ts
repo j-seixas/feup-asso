@@ -51,7 +51,6 @@ export class Selection {
         for (const shape of this.selectedObjects) 
             shape.selected = false
         
-
         this.selectedObjects = new Array<Shape>()
     }
 

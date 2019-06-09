@@ -334,9 +334,14 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 
 ### Singleton
 
-**Problem:** A single selection of multiple objects in the document, that can be obtained globally (in the render's `eventListeners` and in the `ViewController`).
+**Problem:** Drag to select multiple objects.
 
 #### Solution
+The singleton pattern is a software design pattern that restricts the instantiation of a class to one object. This is useful when exactly one object is needed to coordinate actions across the system. 
+
+In this specific case, we want a single selection of multiple objects in the document, that can be obtained globally (in the render's `eventListeners` and in the `ViewController`).
+
+Here we have the `Selection` class that has a private constructor to make sure that nobody makes a new instance. To get the existing instance or to create the one instance, simply call the method `getInstance()` that creates one if none exists and returns the instance.
 
 ````typescript
 export class Selection {
@@ -356,6 +361,8 @@ export class Selection {
     }
 ````
 
+In order to selected the multiple objects we added `eventListener`s in the Viewports in order to drag the mouse and make a rectangular selection. These `eventListener`s call the `Selection`'s function `newSelection`.
+
 Example of the call to the `newSelection` in `SVGRender` (in `CanvasRender` is similar)
 ````typescript
 this.svg.addEventListener('mousedown', (e: MouseEvent) => {
@@ -366,6 +373,51 @@ this.svg.addEventListener('mouseup', (e: MouseEvent) => {
 
     Selection.getInstance().newSelection(this.selectionStartX, this.selectionStartY, this.selectionEndX, this.selectionEndY)
 })
+````
+
+Here it's our implementation of the `newSelection` function. We first clear the previous selection, then we take the values of x and y of two points and make a rectangle selection with them. Next, we loop the layers to see if the objects (shapes) are inside of the rectangle (fully or part of it) and we set the variable `selected` inside the `Shape` to `true`
+````typescript
+newSelection(x1: number, y1: number, x2: number, y2: number) {
+    this.clearSelection()
+
+    this.x = x1 > x2 ? x2 : x1
+    this.y = y1 > y2 ? y2 : y1
+    this.width = Math.abs(x1 - x2)
+    this.height = Math.abs(y1 - y2)
+
+    if (!this.view)
+        return
+
+    for (const layer of this.layers) {
+        if (layer.visible) {
+            for (const shape of layer.objects) {
+                if (this.isInside(shape)) {
+                    this.selectedObjects.push(shape)
+                    shape.selected = true;
+                }
+            }
+        }
+    }
+    this.view.render()
+}
+
+clearSelection(): void {
+    for (const shape of this.selectedObjects) 
+        shape.selected = false
+    
+
+    this.selectedObjects = new Array<Shape>()
+}
+````
+
+To make the selection visible, we added a different color to the objects in the `Render`'s method `draw`, making use of the variable `selected`.
+````typescript
+    draw(...layers: Array<Layer>): void {
+    
+        // ... some conditions and irrelevant code for this goes here
+        if (shape instanceof Rectangle && shape.visible) {
+            const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+            e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
 ````
 
 ### Model-View-Controller (MVC)
