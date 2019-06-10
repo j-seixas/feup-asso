@@ -50,8 +50,8 @@ export class ViewController {
         const buttonContainer = document.createElement('div')
         buttonContainer.className = "viewport-tools"
 
-        buttonContainer.appendChild(new Zoom(this).createTool(lastRenderId));
-        buttonContainer.appendChild(new Translate(this).createTool(lastRenderId));
+        buttonContainer.appendChild(new Zoom(this.renders[lastRenderId], this.doc).createTool());
+        buttonContainer.appendChild(new Translate(this.renders[lastRenderId], this.doc).createTool());
 
         lastRender[lastRenderId].appendChild(buttonContainer)
     }

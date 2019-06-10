@@ -1,21 +1,22 @@
-import { ViewController } from './view'
+import { SimpleDrawDocument } from 'document';
+import { Render } from 'render';
 
 export abstract class Tool {
-    constructor(protected controller: ViewController){}
+    constructor(protected render: Render, protected doc: SimpleDrawDocument){}
     abstract createTool(lastRenderId: number): Element;
 }
 
 export class Zoom extends Tool {
 
-    increaseZoom(idRender: number): void {
-        this.controller.renders[idRender].increaseZoom()
+    increaseZoom(): void {
+        this.render.increaseZoom()
     }
 
-    decreaseZoom(idRender: number): void {
-        this.controller.renders[idRender].decreaseZoom()
+    decreaseZoom(): void {
+        this.render.decreaseZoom()
     }
 
-    createTool(lastRenderId: number): Element {
+    createTool(): Element {
         const zoomContainer = document.createElement('div')
 
         const buttonGroup = document.createElement('div')
@@ -28,7 +29,7 @@ export class Zoom extends Tool {
         iconZoomIn.className = "fas fa-search-plus"
         buttonZoomIn.appendChild(iconZoomIn)
 
-        buttonZoomIn.addEventListener("click", (e: Event) => { this.increaseZoom(lastRenderId); this.controller.render() })
+        buttonZoomIn.addEventListener("click", (e: Event) => { this.increaseZoom(); this.doc.draw(this.render) })
 
         const buttonZoomOut = document.createElement('button')
         buttonZoomOut.className = "btn btn-dark"
@@ -37,7 +38,7 @@ export class Zoom extends Tool {
         iconZoomOut.className = "fa fa-search-minus"
         buttonZoomOut.appendChild(iconZoomOut)
 
-        buttonZoomOut.addEventListener("click", (e: Event) => { this.decreaseZoom(lastRenderId); this.controller.render() })
+        buttonZoomOut.addEventListener("click", (e: Event) => { this.decreaseZoom(); this.doc.draw(this.render) })
 
         buttonGroup.appendChild(buttonZoomIn)
         buttonGroup.appendChild(buttonZoomOut)
@@ -49,15 +50,15 @@ export class Zoom extends Tool {
 
 export class Translate extends Tool {
 
-    setPositionX(idRender: number, n: number): void {
-        this.controller.renders[idRender].setX(n)
+    setPositionX(n: number): void {
+        this.render.setX(n)
     }
 
-    setPositionY(idRender: number, n: number): void {
-        this.controller.renders[idRender].setY(n)
+    setPositionY(n: number): void {
+        this.render.setY(n)
     }
 
-    createTool(lastRenderId: number): Element {
+    createTool(): Element {
         const translateContainer = document.createElement('div')
 
         const buttonGroup = document.createElement('div')
@@ -66,22 +67,22 @@ export class Translate extends Tool {
         const buttonUp = document.createElement('button')
         buttonUp.className = "btn btn-dark"
         buttonUp.innerHTML = "up"
-        buttonUp.addEventListener("click", (e: Event) => { this.setPositionY(lastRenderId, -10); this.controller.render() })
+        buttonUp.addEventListener("click", (e: Event) => { this.setPositionY(-10); this.doc.draw(this.render) })
 
         const buttonLeft = document.createElement('button')
         buttonLeft.className = "btn btn-dark"
         buttonLeft.innerHTML = "left"
-        buttonLeft.addEventListener("click", (e: Event) => { this.setPositionX(lastRenderId, -10); this.controller.render() })
+        buttonLeft.addEventListener("click", (e: Event) => { this.setPositionX(-10); this.doc.draw(this.render) })
 
         const buttonDown = document.createElement('button')
         buttonDown.className = "btn btn-dark"
         buttonDown.innerHTML = "down"
-        buttonDown.addEventListener("click", (e: Event) => { this.setPositionY(lastRenderId, 10); this.controller.render() })
+        buttonDown.addEventListener("click", (e: Event) => { this.setPositionY(10); this.doc.draw(this.render) })
 
         const buttonRight = document.createElement('button')
         buttonRight.className = "btn btn-dark"
         buttonRight.innerHTML = "right"
-        buttonRight.addEventListener("click", (e: Event) => { this.setPositionX(lastRenderId, 10); this.controller.render() })
+        buttonRight.addEventListener("click", (e: Event) => { this.setPositionX(10); this.doc.draw(this.render) })
 
         buttonGroup.appendChild(buttonLeft)
         buttonGroup.appendChild(buttonUp)
