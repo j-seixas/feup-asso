@@ -349,7 +349,7 @@ export class Selection {
 
     // some private variables
 
-    private constructor() {...}
+    private constructor() {}
 
     static getInstance(): Selection {
         if (!Selection.instance)
@@ -359,9 +359,10 @@ export class Selection {
 }
 ````
 
-In order to selected the multiple objects we added `eventListener`s in the Viewports in order to drag the mouse and make a rectangular selection. These `eventListener`s call the `Selection`'s function `newSelection`.
+In order to select the multiple objects, we added event listeners to the viewports. This was necessary so that we could drag the mouse and make a rectangular selection. The event listeners call the function `newSelection` in the `Selection` class.
 
-Example of the call to the `newSelection` in `SVGRender` (in `CanvasRender` is similar)
+Example of a call to the `newSelection` in `SVGRender` (in `CanvasRender` is similar):
+
 ````typescript
 this.svg.addEventListener('mousedown', (e: MouseEvent) => {
     // get start position of the selection rectangle
@@ -373,7 +374,9 @@ this.svg.addEventListener('mouseup', (e: MouseEvent) => {
 })
 ````
 
-Here it's our implementation of the `newSelection` function. We first clear the previous selection, then we take the values of x and y of two points and make a rectangle selection with them. Next, we loop the layers to see if the objects (shapes) are inside of the rectangle (fully or part of it) and we set the variable `selected` inside the `Shape` to `true`
+The following code shows the implementation of `newSelection`. First, the previous selection is cleared, then the values of x and y of two points are taken and a rectangle selection is made with them.
+Next, the array of layers is examined to detect if the objects (shapes) are inside of the rectangle (fully or part of it). Finally, the shape's variable `selected` is set to `true`.
+
 ````typescript
 newSelection(x1: number, y1: number, x2: number, y2: number) {
     this.clearSelection()
@@ -403,19 +406,20 @@ clearSelection(): void {
     for (const shape of this.selectedObjects) 
         shape.selected = false
     
-
     this.selectedObjects = new Array<Shape>()
 }
 ````
 
-To make the selection visible, we added a different color to the objects in the `Render`'s method `draw`, making use of the variable `selected`.
+To make the selection visible, a different color is assigned to the objects in the method `draw` of the `Render` class, making use of the variable `selected`.
+
 ````typescript
-    draw(...layers: Array<Layer>): void {
-    
-        // ... some conditions and irrelevant code for this goes here
-        if (shape instanceof Rectangle && shape.visible) {
-            const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
-            e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
+draw(...layers: Array<Layer>): void {
+    // ... some conditions and unnecessary code for this pattern
+
+    if (shape instanceof Rectangle && shape.visible) {
+        const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
+}
 ````
 
 ### Factory Method
@@ -424,18 +428,10 @@ To make the selection visible, we added a different color to the objects in the 
 
 #### Solution
 
-First problem that we had to solve, is to create architecture working with different sources of data. Data is generally focused on the same goals, but it can be achieved in a lot of ways. To support possibility of create outputs We decided to use factory pattern - with map conntecting enum(representing file format) and instance of class handling export in that format. That instance should implement specified interface.
+The first problem that needed to be solved was to create an architecture working with different sources of data. Data is generally focused on the same goals, but it can be achieved in a lot of ways. To support the possibility of creating outputs we decided to use factory pattern. The `FileFormat` enum holds all the file formats available. The `ExportFactory` class handles the exportation of the document in one of those formats.
 
-```javascript
-
-export interface FileExporter {
-    CreateFileHeader(): void
-    CreateFileContent(layers: Array<Layer>): void
-    CreateFileFooter(): void
-    DownloadFile(): string
-}
-
-export enum FileFormat{
+```typescript
+export enum FileFormat {
     Console,
     Txt,
     Xml
@@ -460,22 +456,33 @@ export class ExportFactory {
 }
 ```
 
+Then, the `FileExporter` interface declares methods that all types of file exportation must implement.
+
+```typescript
+export interface FileExporter {
+    CreateFileHeader(): void
+    CreateFileContent(layers: Array<Layer>): void
+    CreateFileFooter(): void
+    DownloadFile(): string
+}
+```
+
 ### Facade
 
 **Problem:** SimpleDraw supports exporting of created view (with layers) in different format types, such as XML, console, txt and bin. 
 
 #### Solution
 
-The factory created above includes also small implementation of facade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
+The factory created above also includes a small implementation of the facade pattern. Using factory user invokes only `ExportFile` method, and he doesn't have to know which methods are invoked inside. It's not necessary to know that creating file contains create of header, content, and footer (it can happen when we want to use HTML for example). The response contains only fully created file.
 
-```javascript
-  ExportFile(format: FileFormat, layers: Array<Layer>){
-        let exporter = this.outputTypes.get(format)
-        exporter.CreateFileHeader()
-        exporter.CreateFileContent(layers)
-        exporter.CreateFileFooter()
-        return exporter.DownloadFile()
-		}
+```typescript
+ExportFile (format: FileFormat, layers: Array<Layer>) {
+    let exporter = this.outputTypes.get(format)
+    exporter.CreateFileHeader()
+    exporter.CreateFileContent(layers)
+    exporter.CreateFileFooter()
+    return exporter.DownloadFile()
+}
 ```
 
 ### State
@@ -484,33 +491,34 @@ The factory created above includes also small implementation of facade pattern. 
 
 #### Solution 
 
-That problem can be easly solved using state. We can be on two states - normal, which means that our views are going to be created in standard way, and second one - backgrounded. It's only about names, but this second name is representing different state, and in result different style. State is placed in abstract class, which contain only one method used to change state of style. In this moment this class is handling only two states, but there is no any problem to extend this enum with additional states and just pass value through the parameter of method.
+That problem can be quickly solved by using the state pattern. The viewport can be rendered in two styles:
+* `normal`: Which means that the views are going to be created in the standard way.
+* `backgrounded`: Which means that the views are going to be created in a different style. In this case, with a different border and background color.
 
+The state is placed in the abstract class `RenderStyler`, which includes only one method used to change the state of style: `RenderStyle`. At this moment this class is handling only two states, but there is no problem to extend this enum with additional states and just pass a value through the parameter of the method.
 
-````javascript
-export enum RenderStyle{
+````typescript
+export enum RenderStyle {
     Normal, Backgrounded
 }
 
-export abstract class RenderStyler{
+export abstract class RenderStyler {
     static style: RenderStyle
 
-    static changeStyle(){
-        if(RenderStyler.style === RenderStyle.Normal){
+    static changeStyle() {
+        if (RenderStyler.style === RenderStyle.Normal) {
             RenderStyler.style = RenderStyle.Backgrounded
         }
-        else if(RenderStyler.style === RenderStyle.Backgrounded){
+        else if (RenderStyler.style === RenderStyle.Backgrounded) {
             RenderStyler.style = RenderStyle.Normal
         }
     }
 }
-
 ````
 
-In this step we also had to extend factories with this class, to get access to current state. If state is backgrounded factories are setting up style with colored background.
+In this step, we had to extend factories with this class to get access to the current state. If the state is **backgrounded** factories are setting up style with a colored background.
 
-
-````javascript
+````typescript
 export class SVGRender extends RenderStyler implements Render {...}
 export class CanvasRender extends RenderStyler implements Render {...}
 ````
