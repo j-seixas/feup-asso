@@ -2,6 +2,23 @@ import { Shape, Circle, Rectangle } from "./shape"
 import { Layer } from "./layer"
 import { Selection } from './selection'
 
+export enum RenderStyle{
+    Normal, Backgrounded
+}
+
+export abstract class RenderStyler{
+    static style: RenderStyle
+
+    static changeStyle(){
+        if(RenderStyler.style === RenderStyle.Normal){
+            RenderStyler.style = RenderStyle.Backgrounded
+        }
+        else if(RenderStyler.style === RenderStyle.Backgrounded){
+            RenderStyler.style = RenderStyle.Normal
+        }
+    }
+}
+
 export interface Render {
     zoom: number
     positionX: number
@@ -18,7 +35,7 @@ export interface Render {
     setY(y: number): void
 }
 
-export class SVGRender implements Render {
+export class SVGRender extends RenderStyler implements Render {
     svg: SVGElement
     zoom: number
     positionX: number
@@ -30,6 +47,7 @@ export class SVGRender implements Render {
 
 
     constructor() {
+        super();
         this.zoom = 1
         this.positionX = 0
         this.positionY = 0
@@ -40,7 +58,12 @@ export class SVGRender implements Render {
         container.appendChild(col)
 
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-        this.svg.setAttribute('style', 'border: 1px solid blue')
+        if(RenderStyler.style === RenderStyle.Normal){
+            this.svg.setAttribute('style', 'border: 1px solid blue')
+        }
+        else if(RenderStyler.style === RenderStyle.Backgrounded){
+            this.svg.setAttribute('style', 'border: 5px solid green; background-color: rgb(50, 115, 220); ')
+        }
         this.svg.setAttribute('width', '550')
         this.svg.setAttribute('height', '550')
         this.svg.addEventListener('mousedown', (e: MouseEvent) => {
@@ -123,7 +146,7 @@ export class SVGRender implements Render {
     }
 }
 
-export class CanvasRender implements Render {
+export class CanvasRender extends RenderStyler implements Render {
     ctx: CanvasRenderingContext2D
     zoom: number
     positionX: number
@@ -134,6 +157,7 @@ export class CanvasRender implements Render {
     selectionEndY: number
 
     constructor() {
+        super();
         this.zoom = 1
         this.positionX = 0
         this.positionY = 0
@@ -144,7 +168,12 @@ export class CanvasRender implements Render {
         container.appendChild(col)
 
         const canvas = document.createElement('canvas')
-        canvas.setAttribute('style', 'border: 1px solid red')
+        if(RenderStyler.style === RenderStyle.Normal){
+            canvas.setAttribute('style', 'border: 1px solid red')
+        }
+        else if(RenderStyle.Backgrounded === RenderStyle.Backgrounded){
+            canvas.setAttribute('style', 'border: 5px solid yellow; background-color: #05ffb0;')
+        }
         canvas.setAttribute('width', '550')
         canvas.setAttribute('height', '550')
         canvas.addEventListener('mousedown', (e: MouseEvent) => {

@@ -3,6 +3,7 @@ import { ViewController, SVGFactory, CanvasFactory } from './view'
 import { FileExporter, ConsolePrinter } from './export';
 import { ExportFactory, FileFormat } from './exportFactory';
 import { saveAs } from 'file-saver';
+import { RenderStyle } from './render';
 
 export class EventListener {
     doc: SimpleDrawDocument
@@ -17,6 +18,7 @@ export class EventListener {
     svgButton: HTMLElement
     exportXmlButton: HTMLElement
     exportTextButton: HTMLElement
+    changeStyleButton: HTMLElement
 
 
     constructor(doc: SimpleDrawDocument, view: ViewController, fileExporter: ExportFactory) {
@@ -50,6 +52,19 @@ export class EventListener {
             this.DownloadFile(stringToReturn,FileFormat.Xml)  
         })
 
+        this.changeStyleButton = <HTMLElement>document.getElementById('change-style')
+        this.changeStyleButton.addEventListener("click", (e: Event) => {
+            this.view.changeState()
+            console.debug(this.view.styler.style)
+            if(this.view.styler.style=== RenderStyle.Backgrounded){
+                this.changeStyleButton.style.backgroundColor = 'red'
+            }
+            else if(this.view.styler.style=== RenderStyle.Normal){
+                this.changeStyleButton.style.backgroundColor = ''
+            }
+            
+        })
+        
         this.rectangleButton = <HTMLElement>document.getElementById('create-rectangle')
         this.rectangleButton.addEventListener("click", (e: Event) => this.createRectangle())
 

@@ -21,7 +21,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 * [x] Multiple views (viewports) of the same model;
 * [x] Viewport tools (translate, zoom);
-* [ ] Different view styles per viewport (wireframe, color);
+* [x] Different view styles per viewport (wireframe, color);
 * [ ] Two interaction modes: point-n-click and REPLs;
 * [x] Support (un)limited Undo / Redo of all operations.
 
@@ -476,6 +476,7 @@ Factory created above includes also small implementation of facade pattern. Usin
         exporter.CreateFileContent(layers)
         exporter.CreateFileFooter()
         return exporter.DownloadFile()
+		}
 ```
 
 

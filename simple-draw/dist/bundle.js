@@ -96,7 +96,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const view_1 = require("./view");
 const exportFactory_1 = require("./exportFactory");
 const file_saver_1 = require("file-saver");
-const fs_1 = require("fs");
+const render_1 = require("./render");
 class EventListener {
     constructor(doc, view, fileExporter) {
         this.doc = doc;
@@ -116,15 +116,24 @@ class EventListener {
         });
         this.exportTextButton = document.getElementById('export-text');
         this.exportTextButton.addEventListener("click", (e) => {
-            // let stringToReturn = fileExporter.ExportFile(FileFormat.Txt, this.doc.layers)
-            // this.DownloadFile(stringToReturn,FileFormat.Txt)    
-            let data = fs_1.readFileSync('D:\SimpleDraw(2).txt');
-            console.log(data);
+            let stringToReturn = fileExporter.ExportFile(exportFactory_1.FileFormat.Txt, this.doc.layers);
+            this.DownloadFile(stringToReturn, exportFactory_1.FileFormat.Txt);
         });
         this.exportXmlButton = document.getElementById('export-xml');
         this.exportXmlButton.addEventListener("click", (e) => {
             let stringToReturn = fileExporter.ExportFile(exportFactory_1.FileFormat.Xml, this.doc.layers);
             this.DownloadFile(stringToReturn, exportFactory_1.FileFormat.Xml);
+        });
+        this.changeStyleButton = document.getElementById('change-style');
+        this.changeStyleButton.addEventListener("click", (e) => {
+            this.view.changeState();
+            console.debug(this.view.styler.style);
+            if (this.view.styler.style === render_1.RenderStyle.Backgrounded) {
+                this.changeStyleButton.style.backgroundColor = 'red';
+            }
+            else if (this.view.styler.style === render_1.RenderStyle.Normal) {
+                this.changeStyleButton.style.backgroundColor = '';
+            }
         });
         this.rectangleButton = document.getElementById('create-rectangle');
         this.rectangleButton.addEventListener("click", (e) => this.createRectangle());
@@ -172,7 +181,7 @@ class EventListener {
 }
 exports.EventListener = EventListener;
 
-},{"./exportFactory":5,"./view":13,"file-saver":15,"fs":14}],4:[function(require,module,exports){
+},{"./exportFactory":5,"./render":7,"./view":13,"file-saver":14}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
@@ -275,7 +284,6 @@ var FileFormat;
     FileFormat[FileFormat["Xml"] = 2] = "Xml";
 })(FileFormat = exports.FileFormat || (exports.FileFormat = {}));
 class ExportFactory {
-    //inputTypes = new Map<FileFormat, FileImporter>();
     constructor() {
         this.outputTypes = new Map();
         this.outputTypes.set(FileFormat.Console, new export_1.ConsolePrinter());
@@ -315,8 +323,25 @@ exports.Layer = Layer;
 Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
 const selection_1 = require("./selection");
-class SVGRender {
+var RenderStyle;
+(function (RenderStyle) {
+    RenderStyle[RenderStyle["Normal"] = 0] = "Normal";
+    RenderStyle[RenderStyle["Backgrounded"] = 1] = "Backgrounded";
+})(RenderStyle = exports.RenderStyle || (exports.RenderStyle = {}));
+class RenderStyler {
+    static changeStyle() {
+        if (RenderStyler.style === RenderStyle.Normal) {
+            RenderStyler.style = RenderStyle.Backgrounded;
+        }
+        else if (RenderStyler.style === RenderStyle.Backgrounded) {
+            RenderStyler.style = RenderStyle.Normal;
+        }
+    }
+}
+exports.RenderStyler = RenderStyler;
+class SVGRender extends RenderStyler {
     constructor() {
+        super();
         this.zoom = 1;
         this.positionX = 0;
         this.positionY = 0;
@@ -325,7 +350,12 @@ class SVGRender {
         col.className = "col render d-flex flex-column-reverse align-items-center";
         container.appendChild(col);
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this.svg.setAttribute('style', 'border: 1px solid blue');
+        if (RenderStyler.style === RenderStyle.Normal) {
+            this.svg.setAttribute('style', 'border: 1px solid blue');
+        }
+        else if (RenderStyler.style === RenderStyle.Backgrounded) {
+            this.svg.setAttribute('style', 'border: 5px solid green; background-color: rgb(50, 115, 220); ');
+        }
         this.svg.setAttribute('width', '550');
         this.svg.setAttribute('height', '550');
         this.svg.addEventListener('mousedown', (e) => {
@@ -397,8 +427,9 @@ class SVGRender {
     }
 }
 exports.SVGRender = SVGRender;
-class CanvasRender {
+class CanvasRender extends RenderStyler {
     constructor() {
+        super();
         this.zoom = 1;
         this.positionX = 0;
         this.positionY = 0;
@@ -407,7 +438,12 @@ class CanvasRender {
         col.className = "col render d-flex flex-column-reverse align-items-center";
         container.appendChild(col);
         const canvas = document.createElement('canvas');
-        canvas.setAttribute('style', 'border: 1px solid red');
+        if (RenderStyler.style === RenderStyle.Normal) {
+            canvas.setAttribute('style', 'border: 1px solid red');
+        }
+        else if (RenderStyle.Backgrounded === RenderStyle.Backgrounded) {
+            canvas.setAttribute('style', 'border: 5px solid yellow; background-color: #05ffb0;');
+        }
         canvas.setAttribute('width', '550');
         canvas.setAttribute('height', '550');
         canvas.addEventListener('mousedown', (e) => {
@@ -715,10 +751,15 @@ class ViewController {
     constructor(doc, factory) {
         this.doc = doc;
         this.renders = new Array();
+        this.styler = render_1.RenderStyler;
+        this.styler.style = render_1.RenderStyle.Normal;
         this.renders.push(factory.createRender());
         this.setLayers();
         this.createViewportTools();
         selection_1.Selection.getInstance().setView(this);
+    }
+    changeState() {
+        this.styler.changeStyle();
     }
     addRender(factory) {
         this.renders.push(factory.createRender());
@@ -783,8 +824,6 @@ class ViewController {
 exports.ViewController = ViewController;
 
 },{"./render":7,"./selection":9,"./tools":11}],14:[function(require,module,exports){
-
-},{}],15:[function(require,module,exports){
 (function (global){
 (function(a,b){if("function"==typeof define&&define.amd)define([],b);else if("undefined"!=typeof exports)b();else{b(),a.FileSaver={exports:{}}.exports}})(this,function(){"use strict";function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Deprecated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(b,c,d){var e=new XMLHttpRequest;e.open("GET",b),e.responseType="blob",e.onload=function(){a(e.response,c,d)},e.onerror=function(){console.error("could not download file")},e.send()}function d(a){var b=new XMLHttpRequest;b.open("HEAD",a,!1);try{b.send()}catch(a){}return 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"))}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b)}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof global&&global.global===global?global:void 0,a=f.saveAs||("object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href)},4E4),setTimeout(function(){e(j)},0))}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i)})}}:function(a,b,d,e){if(e=e||open("","_blank"),e&&(e.document.title=e.document.body.innerText="downloading..."),"string"==typeof a)return c(a,b,d);var g="application/octet-stream"===a.type,h=/constructor/i.test(f.HTMLElement)||f.safari,i=/CriOS\/[\d]+/.test(navigator.userAgent);if((i||g&&h)&&"object"==typeof FileReader){var j=new FileReader;j.onloadend=function(){var a=j.result;a=i?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),e?e.location.href=a:location=a,e=null},j.readAsDataURL(a)}else{var k=f.URL||f.webkitURL,l=k.createObjectURL(a);e?e.location=l:location.href=l,e=null,setTimeout(function(){k.revokeObjectURL(l)},4E4)}});f.saveAs=a.saveAs=a,"undefined"!=typeof module&&(module.exports=a)});
 

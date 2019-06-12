@@ -1,7 +1,7 @@
 import { SimpleDrawDocument } from './document'
 import { Shape } from './shape'
 import { Layer } from './layer'
-import { Render, SVGRender, CanvasRender } from './render'
+import { Render, SVGRender, CanvasRender, RenderStyle, RenderStyler } from './render'
 import { Selection } from './selection'
 import { Zoom, Translate } from './tools'
 
@@ -23,12 +23,18 @@ export class CanvasFactory implements RenderFactory {
 
 export class ViewController {
     renders = new Array<Render>()
+    styler = RenderStyler
 
     constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
+        this.styler.style = RenderStyle.Normal
         this.renders.push(factory.createRender())
         this.setLayers()
         this.createViewportTools()
         Selection.getInstance().setView(this);
+    }
+
+    changeState(){
+        this.styler.changeStyle()
     }
 
     addRender(factory: RenderFactory): void {
