@@ -536,28 +536,34 @@ TODO
 
 1. Does the architecture satisfy the requirements?
 
-**Answer:** ...
+**Answer:** All operations described in the requirements can be achieved, so it should meet the user's expectations.
+TODO: maybe talk about MVC?
 
 2. Is effective modularity achieved?
 
-**Answer:** ...
+**Answer:** Yes. As an example, you can ignore creating new viewports focusing only on one and the rest of the functionalities will work. The same experiment will also work with the rest of the collateral tasks. Also, deleting supporting output formats would not change the behavior of application - these modules can be easily excluded from the project.
 
 3. Are interfaces defined for modules and external system elements?
 
-**Answer:** ...
+**Answer:** Yes. Functionalities are working with defined interfaces. File exporting is using FileExporter interface, which contains methods to support different file formats, and after implementation of this interface, new data source should be working without any problems. Factories are implementing RenderFactory interface with a function returning an object of type Render. This type is also an interface implemented by our render classes, and it ensures necessary methods and fields for working with shape objects. After the implementation of that interface, a new class will work with the rest of the code.
+
+TODO
+***here should be something about external tools***
 
 4. Is the structure of the data and its organisation consistent with the domain of the requirements?
 
-**Answer:** ...
+**Answer:** Our structure of data supports layers and shapes put inside these layers. It's easy to represent in export files going to external tools. Undo/Redo operations are easy to do with this structure as well as modifying the position of this object in views. It can be rendered in a different way (SVG, HTMLCanvas) which is also important in the requirements. If we create a new shape it will work with the rest of the shapes, dragging and different operations. With these arguments, we can assume that our application it's consistent with domain requirements.
 
 5. Is the structure of the data consistent with the requirements?
 
-**Answer:** ...
+**Answer:** Following the last answers. Operations considered in requirements are possible to do. Extending this with new shapes and tools is also predicted. We are not changing the existing code by adding new functionalities. In this case, we think that data is consistent with requirements.
 
 6. Has maintainability been considered?
 
-**Answer:** ...
+**Answer:** If we are considering design patterns, we are doing this mostly for two reasons. Firstly to solve our problem, secondly to make our code easier to maintain. If a developer who is going to make a modification in our system sees the implementation of a design pattern and he knows this pattern, then he will instantly know what is going on in the code. His modification is going to be faster in this case. Also, the architecture of the application is built to make adding new tools as easy as it is possible. Adding new export needs only to implement one interface and add one enum. Making a new render also needs to implement only one interface without any changes in the rest of the code. If a developer wants to support different types of views, there is only one class which he should use (extend) in his new tool.
 
 7. Have quality factors been explicitly assessed?
 
-**Answer:** ...
+**Answer:** We didn't use any tools to measure the quality of our code. We ignored taking care of the maximum count of nested conditions or loops. Using patterns is improving this quality, and also if we are going to talk about how the application works. Quality can be measured if functionalities are working properly and follow requirements.
+
+TODO: not sure if i agree with this one
