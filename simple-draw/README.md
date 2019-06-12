@@ -420,6 +420,46 @@ To make the selection visible, we added a different color to the objects in the 
             e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
 ````
 
+#### Solution
+
+### Factory
+
+First problem that we had to solve, is to create architecture working with different sources of data. Data is generally focused on the same goals, but it can be achieved in a lot of ways. To support possibility of create outputs I decided to use factory pattern - with map conntecting enum(representing file format) and instance of class handling export in that format. That instance should implement specified interface.
+
+### Fasade
+
+Factory created above includes also small implementation of fasade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
+
+Implementation of this two patterns can be checked below.
+
+
+```javascript
+
+export enum FileFormat{
+    Console,
+    Txt,
+    Xml
+}
+
+export class ExportFactory {
+    outputTypes= new Map<FileFormat, FileExporter>();
+
+    constructor() {
+        this.outputTypes.set(FileFormat.Console, new ConsolePrinter())
+        this.outputTypes.set(FileFormat.Txt, new TextFileExporter())
+        this.outputTypes.set(FileFormat.Xml, new XmlFileExporter())
+    }
+
+    ExportFile(format: FileFormat, layers: Array<Layer>){
+        let exporter = this.outputTypes.get(format)
+        exporter.CreateFileHeader()
+        exporter.CreateFileContent(layers)
+        exporter.CreateFileFooter()
+        return exporter.DownloadFile()
+    }
+}
+```
+
 ### Model-View-Controller (MVC)
 TODO 
 
