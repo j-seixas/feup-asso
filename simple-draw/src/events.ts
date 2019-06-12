@@ -55,7 +55,6 @@ export class EventListener {
         this.changeStyleButton = <HTMLElement>document.getElementById('change-style')
         this.changeStyleButton.addEventListener("click", (e: Event) => {
             this.view.changeState()
-            console.debug(this.view.styler.style)
             if(this.view.styler.style=== RenderStyle.Backgrounded){
                 this.changeStyleButton.style.backgroundColor = 'red'
             }

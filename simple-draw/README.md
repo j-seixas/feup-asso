@@ -469,7 +469,7 @@ export class ExportFactory {
 Factory created above includes also small implementation of facade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
 
 
-```
+```javascript
   ExportFile(format: FileFormat, layers: Array<Layer>){
         let exporter = this.outputTypes.get(format)
         exporter.CreateFileHeader()
@@ -478,6 +478,46 @@ Factory created above includes also small implementation of facade pattern. Usin
         return exporter.DownloadFile()
 		}
 ```
+
+**PROBLEM**
+
+Different view styles per viewport (wireframe, color);
+
+#### Solution
+
+### STATE 
+
+That problem can be easly solved using state. We can be on two states - normal, which means that our views are going to be created in standard way, and second one - backgrounded. It's only about names, but this second name is representing different state, and in result different style. State is placed in abstract class, which contain only one method used to change state of style. In this moment this class is handling only two states, but there is no any problem to extend this enum with additional states and just pass value through the parameter of method.
+
+
+````typescript
+export enum RenderStyle{
+    Normal, Backgrounded
+}
+
+export abstract class RenderStyler{
+    static style: RenderStyle
+
+    static changeStyle(){
+        if(RenderStyler.style === RenderStyle.Normal){
+            RenderStyler.style = RenderStyle.Backgrounded
+        }
+        else if(RenderStyler.style === RenderStyle.Backgrounded){
+            RenderStyler.style = RenderStyle.Normal
+        }
+    }
+}
+
+````
+
+In this step we also had to extend factories with this class, to get access to current state. If state is backgrounded factories are setting up style with colored background.
+
+
+````typescript
+export class SVGRender extends RenderStyler implements Render {...}
+export class CanvasRender extends RenderStyler implements Render {...}
+
+````
 
 
 ### Model-View-Controller (MVC)
