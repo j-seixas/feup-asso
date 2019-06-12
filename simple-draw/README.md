@@ -33,16 +33,21 @@ Identification of the main problems, design patterns and solutions.
 
 [**INSERT DIAGRAM HERE:** how files communicate and stuff, how everything is connected]
 
+### Architecture
+
+#### Model-View-Controller (MVC)
+TODO
+
 ### Factory Method
 
 **Problem:** Develop a simple graphical editor to draw different objects, such as rectangles and circles.
 
 #### Solution
 
-Firstly, the superclass *Shape* was created. It specifies all standard and generic behavior of an object and then delegates the creation details to subclasses that are supplied by the user.
-In this case, it was implemented two different shapes, subclasses of Shape: rectangle and circle.
+Firstly, the superclass `Shape` was created. It specifies all standard and generic behavior of an object and then delegates the creation details to subclasses that are supplied by the user.
+In this case, it was implemented two different shapes, subclasses of `Shape`: **rectangle and circle**.
 
-```javascript
+```typescript
 export abstract class Shape {
     constructor(public x: number, public y: number) { }
 
@@ -67,7 +72,7 @@ export class Circle extends Shape {
 
 The creation of shapes is done by creating objects by calling a factory method rather than calling a constructor, which makes future extensibility quite easier.
 
-```javascript
+```typescript
 createRectangle(x: number, y: number, width: number, height: number): Shape {
     return this.do(new CreateRectangleAction(this, x, y, width, height))
 }
@@ -77,7 +82,7 @@ createCircle(x: number, y: number, radius: number): Shape {
 }
 ```
 
-```javascript
+```typescript
 export class CreateCircleAction extends CreateShapeAction<Circle> {
     constructor(doc: SimpleDrawDocument, private x: number, private y: number, private radius: number) {
         super(doc, new Circle(x, y, radius))
@@ -101,9 +106,9 @@ Simple Draw allows you to perform multiple actions, such as creating shapes. The
 
 To implement this pattern three roles are necessary: the requester, the command and the invoker.
 
-The **SimpleDrawDocument** class is the invoker, this class receives the operations and it’s responsible for their execution. Every time we perform an operation, an action is created. For this same reason, the class **UndoManager** was created, so that it stores all the actions that were done and undone. The requester is the **Shape** class because every action is performed on it.
+The `SimpleDrawDocument` class is the **invoker**, this class receives the operations and it’s responsible for their execution. Every time we perform an operation, an **action** is created. For this same reason, the class `UndoManager` was created, so that it stores all the actions that were done and undone. The **requester** is the `Shape` class because every action is performed on it.
 
-```javascript
+```typescript
 export class SimpleDrawDocument {
   undoManager = new UndoManager()
 
@@ -122,7 +127,7 @@ export class SimpleDrawDocument {
 }
 ```
 
-```javascript
+```typescript
 type UndoableAction<S> = { do(): S; undo(): void }
 
 export class UndoManager<S, A extends UndoableAction<S>> {
@@ -152,11 +157,11 @@ export class UndoManager<S, A extends UndoableAction<S>> {
 }
 ```
 
-The **Action** class (the command) is extended and implemented by each type of action. It has two methods:
+The `Action` class **(the command)** is extended and implemented by each type of action. It has two methods:
 * *do*: execution of an action;
 * *undo*: un-execution of an action.
 
-```javascript
+```typescript
 export interface Action<T> {
     do(): T
     undo(): void
@@ -164,7 +169,7 @@ export interface Action<T> {
 ```
 
 **Create Shape Action**
-```javascript
+```typescript
 abstract class CreateShapeAction<S extends Shape> implements Action<S> {
     constructor(private doc: SimpleDrawDocument, public readonly shape: S) { }
 
@@ -180,7 +185,8 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 ```
 
 **Translate Shape Action**
-```javascript
+TODO
+```typescript
 add when working
 ```
 
@@ -191,15 +197,15 @@ add when working
 #### Solution
 
 The Strategy pattern defines a family of algorithms, encapsulates each one, and makes them interchangeable. It lets the algorithm vary depending on clients that use it.
-In order to achieve this, the **Render** class was created with a method called draw which takes care of mapping the model according to a certain renderer.
+In order to achieve this, the `Render` class was created with a method called draw which takes care of mapping the model according to a certain renderer.
 
-```javascript
+```typescript
 export interface Render {
     draw(...objs: Array<Shape>): void
 }
 ```
 
-One of this project's requirements is for documents to be rendered both in SVG or HTMLCanvas. For this reason, two renderers were created: **SVGRender** and **CanvasRender**. Each one of these classes extends the **Render** class.
+One of this project's requirements is for documents to be rendered both in SVG or HTMLCanvas. For this reason, two renderers were created: `SVGRender` and `CanvasRender`. Each one of these classes extends the `Render` class.
 
 ### Abstract Factory
 
@@ -209,9 +215,9 @@ One of this project's requirements is for documents to be rendered both in SVG o
 
 Abstract Factory is a creational design pattern that lets you produce families of related objects without specifying their concrete classes.
 
-In this case, there's only one family of related products, the **Render**. This pattern suggests declaring interfaces for each distinct product of the product family, so the **Render will be an interface**. Then, there are two variants of this family: **SVGRender and CanvasRender class**. These classes implement the Render interface.
+In this case, there's only one family of related products, the `Render`. This pattern suggests declaring interfaces for each distinct product of the product family, so the **Render will be an interface**. Then, there are two variants of this family: `SVGRender` and `CanvasRender` class. These classes implement the Render interface.
 
-```javascript
+```typescript
 export interface Render {
     draw(...objs: Array<Shape>): void
 }
@@ -227,9 +233,9 @@ export class CanvasRender implements Render {
 }
 ```
 
-The next move is to declare the Abstract Factory - **RenderFactory** - an interface with a list of creation methods for all products that are part of the product family. These methods must return abstract render types. For each variant of a product family, we create a separate factory class based on the RenderFactory interface. A factory is a class that returns products of a particular kind.
+The next move is to declare the Abstract Factory - `RenderFactory` - an interface with a list of creation methods for all products that are part of the product family. These methods must return abstract render types. For each variant of a product family, we create a separate factory class based on the `RenderFactory` interface. A factory is a class that returns products of a particular kind.
 
-```javascript
+```typescript
 export interface RenderFactory {
     createRender(): Render
 }
@@ -247,9 +253,9 @@ export class CanvasFactory implements RenderFactory {
 }
 ```
 
-When launching the application, the **ViewController** class is initialized with a type of **RenderFactory**, we decided to use the SVG as default. Then, when adding new renders to the application the same method is used!
+When launching the application, the `ViewController` class is initialized with a type of `RenderFactory`, we decided to use the SVG as default. Then, when adding new renders to the application the same method is used!
 
-```javascript
+```typescript
 export class ViewController {
     renders = new Array<Render>()
 
@@ -274,9 +280,9 @@ This pattern makes it easier when adding new products or families of products to
 
 The Composite pattern is a structural design pattern that lets you compose objects into tree structures and then work with these structures as if they were individual objects. Basically, it lets clients treat the individual objects in a uniform manner.
 
-In this case, the pattern was used to define groups of shapes called **layers**. So, the class **Layer** was created, it extends **Shape** and encapsulates objects of type shape.
+In this case, the pattern was used to define groups of shapes called **layers**. So, the class `Layer` was created, it extends `Shape` and encapsulates objects of type shape.
 
-```javascript
+```typescript
 export class Layer extends Shape {
 
     objects = new Array<Shape>()
@@ -293,11 +299,11 @@ export class Layer extends Shape {
 
 This pattern allows associating shapes with other shapes, which will be very useful when moving multiple shapes at once. By now, it is possible to hide layers and/or objects! For this to work, it was necessary to change the code from many modules.
 
-Previously, the **SimpleDrawDocument** class had an array of shapes. By implementing the composite pattern, this array has been replaced with an array of layers. Each layer contains an array of shapes. When rendering the document, we go layer by layer.
+Previously, the `SimpleDrawDocument` class had an array of shapes. By implementing the composite pattern, this array has been replaced with an array of layers. Each layer contains an array of shapes. When rendering the document, we go layer by layer.
 
 Some of the major changes can be seen below.
 
-```javascript
+```typescript
 export class SimpleDrawDocument {
   undoManager = new UndoManager()
   layers = new Array<Layer>()
@@ -325,19 +331,12 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 }
 ```
 
-### Observer
-
-**Problem:** All views should update automatically on change.
-
-#### Solution
-
-
 ### Singleton
 
 **Problem:** Drag to select multiple objects.
 
 #### Solution
-The singleton pattern is a software design pattern that restricts the instantiation of a class to one object. This is useful when exactly one object is needed to coordinate actions across the system. 
+The Singleton pattern is a software design pattern that restrains the instantiation of a class to one object. This is useful when precisely one object is required to coordinate actions across the system. 
 
 In this specific case, we want a single selection of multiple objects in the document, that can be obtained globally (in the render's `eventListeners` and in the `ViewController`).
 
@@ -348,17 +347,16 @@ export class Selection {
     private static instance: Selection
     selectedObjects = Array<Shape>()
 
-    // some private vars
+    // some private variables
 
-    private constructor() {
-
-    }
+    private constructor() {...}
 
     static getInstance(): Selection {
         if (!Selection.instance)
             Selection.instance = new Selection()
         return Selection.instance
     }
+}
 ````
 
 In order to selected the multiple objects we added `eventListener`s in the Viewports in order to drag the mouse and make a rectangular selection. These `eventListener`s call the `Selection`'s function `newSelection`.
@@ -420,13 +418,11 @@ To make the selection visible, we added a different color to the objects in the 
             e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
 ````
 
-**PROBLEM**
+### Factory Method
 
-SimpleDraw supports exporting of created view(with layers) in different format types, such as XML, console, txt, bin. 
+**Problem:** SimpleDraw supports exporting of created view (with layers) in different format types, such as XML, console, txt and bin. 
 
 #### Solution
-
-### Factory
 
 First problem that we had to solve, is to create architecture working with different sources of data. Data is generally focused on the same goals, but it can be achieved in a lot of ways. To support possibility of create outputs We decided to use factory pattern - with map conntecting enum(representing file format) and instance of class handling export in that format. That instance should implement specified interface.
 
@@ -466,8 +462,11 @@ export class ExportFactory {
 
 ### Facade
 
-Factory created above includes also small implementation of facade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
+**Problem:** SimpleDraw supports exporting of created view (with layers) in different format types, such as XML, console, txt and bin. 
 
+#### Solution
+
+The factory created above includes also small implementation of facade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
 
 ```javascript
   ExportFile(format: FileFormat, layers: Array<Layer>){
@@ -479,18 +478,16 @@ Factory created above includes also small implementation of facade pattern. Usin
 		}
 ```
 
-**PROBLEM**
+### State
 
-Different view styles per viewport (wireframe, color);
+**Problem:** Different view styles per viewport such as wireframe and color.
 
-#### Solution
-
-### STATE 
+#### Solution 
 
 That problem can be easly solved using state. We can be on two states - normal, which means that our views are going to be created in standard way, and second one - backgrounded. It's only about names, but this second name is representing different state, and in result different style. State is placed in abstract class, which contain only one method used to change state of style. In this moment this class is handling only two states, but there is no any problem to extend this enum with additional states and just pass value through the parameter of method.
 
 
-````typescript
+````javascript
 export enum RenderStyle{
     Normal, Backgrounded
 }
@@ -513,19 +510,17 @@ export abstract class RenderStyler{
 In this step we also had to extend factories with this class, to get access to current state. If state is backgrounded factories are setting up style with colored background.
 
 
-````typescript
+````javascript
 export class SVGRender extends RenderStyler implements Render {...}
 export class CanvasRender extends RenderStyler implements Render {...}
-
 ````
 
+### Observer
 
-### Model-View-Controller (MVC)
-TODO 
-
-**Problem:** 
+**Problem:** All views should update automatically on change.
 
 #### Solution
+TODO
 
 ---
 
