@@ -420,6 +420,10 @@ To make the selection visible, we added a different color to the objects in the 
             e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
 ````
 
+**PROBLEM**
+
+SimpleDraw supports exporting of created view(with layers) in different format types, such as XML, console, txt, bin. 
+
 #### Solution
 
 ### Factory
