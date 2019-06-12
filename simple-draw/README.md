@@ -428,16 +428,16 @@ SimpleDraw supports exporting of created view(with layers) in different format t
 
 ### Factory
 
-First problem that we had to solve, is to create architecture working with different sources of data. Data is generally focused on the same goals, but it can be achieved in a lot of ways. To support possibility of create outputs I decided to use factory pattern - with map conntecting enum(representing file format) and instance of class handling export in that format. That instance should implement specified interface.
-
-### Fasade
-
-Factory created above includes also small implementation of fasade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
-
-Implementation of this two patterns can be checked below.
-
+First problem that we had to solve, is to create architecture working with different sources of data. Data is generally focused on the same goals, but it can be achieved in a lot of ways. To support possibility of create outputs We decided to use factory pattern - with map conntecting enum(representing file format) and instance of class handling export in that format. That instance should implement specified interface.
 
 ```javascript
+
+export interface FileExporter {
+    CreateFileHeader(): void
+    CreateFileContent(layers: Array<Layer>): void
+    CreateFileFooter(): void
+    DownloadFile(): string
+}
 
 export enum FileFormat{
     Console,
@@ -463,6 +463,21 @@ export class ExportFactory {
     }
 }
 ```
+
+### Facade
+
+Factory created above includes also small implementation of facade pattern. Using factory user invokes only ExportFile method, and he don't have to know which methods are invoked inside. It's not necessery to know that creating file contains create of header, content and footer (it can happen when we want to use HTML for example). Response contains only fully created file.
+
+
+```
+  ExportFile(format: FileFormat, layers: Array<Layer>){
+        let exporter = this.outputTypes.get(format)
+        exporter.CreateFileHeader()
+        exporter.CreateFileContent(layers)
+        exporter.CreateFileFooter()
+        return exporter.DownloadFile()
+```
+
 
 ### Model-View-Controller (MVC)
 TODO 
