@@ -523,6 +523,125 @@ export class SVGRender extends RenderStyler implements Render {...}
 export class CanvasRender extends RenderStyler implements Render {...}
 ````
 
+### Interpreter
+
+**Problem:** Two interaction modes are required, the standard point-n-click interface and REPLs (read–eval–print loop), which involves text commands. Therefore it is needed an interpreter to understand and convert the text commands into the required actions.
+
+#### Solution
+
+The problem was solved using the Interpreter design pattern. This design pattern maps a language to a grammar, and to a hierarchical object-oriented design. It uses two types of classes representing the grammar of the expression to be interpreted, the **composite expression** classes, which the name indicates, contains the **Composite** design pattern, which means it contains other expression classes, and the **terminal expression** classes, which represent the terminal symbols/tokens of the grammar. It has also a `Context` class, which contains information of the input being processed, and is passed to all of the grammar/expression classes.
+
+In this case, we implemented several different expression classes, related to different types of commands, and variations of the same command, for example, all of the commands which started with "create" are processed by the composite expression class `CreateExp`:
+
+````typescript
+ class CreateExp implements Expression {
+    interpret(context: Context): boolean {
+        let and: Array<Expression> = [new TerminalExpression(new RegExp("^create$"))];
+        let or: Array<Expression> = [new RectangleExp(), new CircleExp()];
+        let ret : boolean = true;
+        for (const exp of and)
+            if (!exp.interpret(context)) return false;
+        for (const exp of or)
+            if (exp.interpret(context)) return true;
+        return false;
+    }
+     
+ }
+````
+
+The `interpret` method of the this class, tries to match the input being processed, which is passed by `Context`, to the derivation of the grammar which corresponds to this class, which is `CreateExp -> create RectangleExp | CircleExp`, where *create* is a terminal symbol, and *RectangleExp* and *CircleExp* are non-terminals, which the remaining input is matched recursively. If the input is matched, the method returns `true`, and the input is correctly processed, if not the class rejects the input, and returns `false`, because the input does not match this grammar rule. For example the `Command` class, which represents the root of the grammar tree, tries to match the input to all of the types of commands it knows, which include `CreateExp` for the *create* command, `RotateExp` for the *rotate* command, etc. If the input does not match any known type of command syntax, then it is rejected as incorrect:
+
+````typescript
+ class Command implements Expression {
+     interpret(context: Context): boolean {
+         let or: Array<Expression> = [new CreateExp(), new RotateExp(), new TranslateExp()];
+         for (const exp of or) {
+             if (exp.interpret(context)) return true;
+         }
+         return false;
+     }   
+ }
+ ````
+ 
+ With the **composite expression** classes, we also implemented the `TerminalExpression` class, which corresponds to specific terminal symbols, which can be specified in the creation of the class using a `RegExp` object. The class simply tests the next token in the context against the *regex* to verify if it matches, and if it matches, it stores the token in the `capture` field, so it is used later. There also is a `TerminalExpressionNumber` class, in the frequent case where the token it matches is any number:
+ 
+````typescript
+ class TerminalExpression implements Expression {
+     
+     protected capture: string;
+     constructor(private regExp: RegExp){}
+
+     interpret(context: Context): boolean {
+         return context.hasNext() && this.regExp.test(this.capture = context.getToken());
+     }
+
+ }
+ 
+ class TerminalExpressionNumber extends TerminalExpression {
+    constructor(float: boolean){
+        if (float) super(new RegExp('^[0-9]+(\.[0-9]+)?$'));
+        else super(new RegExp('^[0-9]+$'));
+    }
+
+    public getValue(): number {
+        return Number(this.capture);
+    }
+ }
+````
+
+Eventually, with the processing of the grammar, it arrives at final rules, where all the descendants are terminal symbols. In this case, the class must obtain the information from the `Context` and `TerminalExpression` classes, such as the values for the command arguments, and then when all of the input is matched successfully, it can execute the action. For example in the `RectangleExp` and `CircleExp` classes, which call the `createRectangle` and `createCircle` methods, respectively:
+
+````typescript
+ class RectangleExp implements Expression {
+     interpret(context: Context): boolean {
+        let args: Array<Expression> = [new TerminalExpression(new RegExp('^rectangle$')), new TerminalExpressionNumber(true),
+            new TerminalExpressionNumber(true), new TerminalExpressionNumber(true), new TerminalExpressionNumber(true), new TerminalExpressionNumber(false)];
+        for (const exp of args)
+            if (!exp.interpret(context)) return false;
+        let params: Array<number> = new Array<number>();
+        for (let i = 1; i < args.length; i++)
+            params.push((args[i] as TerminalExpressionNumber).getValue());
+        return (context.getDoc().createRectangle(params[0], params[1], params[2], params[3], params[4]) !== null);
+     }
+ }
+
+ class CircleExp implements Expression {
+     interpret(context: Context): boolean {
+        let args: Array<Expression> = [new TerminalExpression(new RegExp('^circle$')), new TerminalExpressionNumber(true), 
+            new TerminalExpressionNumber(true), new TerminalExpressionNumber(false)];
+        for (const exp of args)
+            if (!exp.interpret(context)) return false;
+        let params: Array<number> = new Array<number>();
+        for (let i = 1; i < args.length; i++)
+            params.push((args[i] as TerminalExpressionNumber).getValue());
+        return (context.getDoc().createCircle(params[0], params[1], params[2], params[3]) !== null);
+     }    
+}
+````
+
+Finally, there is the `Context` class. This is the class that contains the input, which is tokenized during the creation of the class. Because it is passed through all the extension classes, there should be a way to access its elements sequentially, without needing to access the data structure directly, or save the token number to access the variable. For that, we used the **Iterator** design pattern, intialized in element 0, with method to traverse the list `getToken` and `hasNext`, to check is if there are more elements left
+
+````typescript
+class Context {
+     private input : Array<string>;
+     private i : number = 0; 
+
+     constructor(cmd: string, private doc: SimpleDrawDocument) {
+        this.input = cmd.split(' ');
+     }
+
+    hasNext(): boolean {
+        return this.i < this.input.length
+    }
+
+    getToken(): string {
+        let token = this.input[this.i]
+        this.i++;
+        return token;
+    }
+ }
+````
+
 ### Observer
 
 **Problem:** All views should update automatically on change.
