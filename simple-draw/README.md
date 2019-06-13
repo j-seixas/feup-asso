@@ -549,7 +549,9 @@ In this case, we implemented several different expression classes, related to di
  }
 ````
 
-The `interpret` method of the this class, tries to match the input being processed, which is passed by `Context`, to the derivation of the grammar which corresponds to this class, which is `CreateExp -> create RectangleExp | CircleExp`, where *create* is a terminal symbol, and *RectangleExp* and *CircleExp* are non-terminals, which the remaining input is matched recursively. If the input is matched, the method returns `true`, and the input is correctly processed, if not the class rejects the input, and returns `false`, because the input does not match this grammar rule. For example the `Command` class, which represents the root of the grammar tree, tries to match the input to all of the types of commands it knows, which include `CreateExp` for the *create* command, `RotateExp` for the *rotate* command, etc. If the input does not match any known type of command syntax, then it is rejected as incorrect:
+The `interpret` method of the this class, tries to match the input being processed, which is passed by `Context`, to the derivation of the grammar which corresponds to this class, which is `CreateExp -> create RectangleExp | CircleExp`, where *create* is a terminal symbol, and *RectangleExp* and *CircleExp* are non-terminals, which the remaining input is matched recursively. If the input is matched, the method returns `true`, and the input is correctly processed, if not the class rejects the input, and returns `false`, because the input does not match this grammar rule. 
+
+For example the `Command` class, which represents the root of the grammar tree, tries to match the input to all of the types of commands it knows, which include `CreateExp` for the *create* command, `RotateExp` for the *rotate* command, etc. If the input does not match any known type of command syntax, then it is rejected as incorrect:
 
 ````typescript
  class Command implements Expression {
