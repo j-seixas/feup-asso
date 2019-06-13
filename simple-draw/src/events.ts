@@ -4,11 +4,13 @@ import { FileExporter, ConsolePrinter } from './export';
 import { ExportFactory, FileFormat } from './exportFactory';
 import { saveAs } from 'file-saver';
 import { RenderStyle } from './render';
+import { Repl } from './repl';
 
 export class EventListener {
     doc: SimpleDrawDocument
     view: ViewController
     fileExporter: ExportFactory
+    interpreter: Repl
     export: FileExporter
     undoButton: HTMLElement
     redoButton: HTMLElement
@@ -19,12 +21,14 @@ export class EventListener {
     exportXmlButton: HTMLElement
     exportTextButton: HTMLElement
     changeStyleButton: HTMLElement
+    commandInput: HTMLElement;
 
 
     constructor(doc: SimpleDrawDocument, view: ViewController, fileExporter: ExportFactory) {
         this.doc = doc
         this.view = view
         this.fileExporter = fileExporter
+        this.interpreter = new Repl(doc);
 
         this.undoButton = <HTMLElement>document.getElementById('undo')
         this.undoButton.addEventListener("click", (e: Event) => {
@@ -78,6 +82,12 @@ export class EventListener {
         this.svgButton = <HTMLElement>document.getElementById('create-svg')
         this.svgButton.addEventListener("click", (e: Event) => {
             this.view.addRender(new SVGFactory())
+        })
+
+        this.commandInput = <HTMLElement>document.getElementById('commandForm');
+        this.commandInput.addEventListener("submit", (e: Event) => {
+            console.log((event.target as HTMLInputElement).value); //eliminar
+            this.interpreter.intepretCommand((event.target as HTMLInputElement).value);
         })
     }
 
