@@ -1,14 +1,17 @@
 import { SimpleDrawDocument } from 'document';
 import { Render } from 'render';
+import { Selection } from 'selection';
 
 export abstract class Tool {
     constructor(protected render: Render, protected doc: SimpleDrawDocument){}
     abstract createTool(lastRenderId: number): Element;
+    
 }
 
 export class Zoom extends Tool {
 
     increaseZoom(): void {
+        Selection.getInstance();
         this.render.increaseZoom()
     }
 
