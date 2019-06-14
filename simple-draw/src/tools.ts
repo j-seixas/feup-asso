@@ -1,6 +1,6 @@
 import { SimpleDrawDocument } from 'document';
 import { Render } from 'render';
-import { Selection } from 'selection';
+import { Selection } from './selection';
 
 export abstract class Tool {
     constructor(protected render: Render, protected doc: SimpleDrawDocument){}

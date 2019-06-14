@@ -85,10 +85,15 @@ export class EventListener {
         })
 
         this.commandInput = <HTMLElement>document.getElementById('commandForm');
-        this.commandInput.addEventListener("submit", (e: Event) => {
-            console.log((event.target as HTMLInputElement).value); //eliminar
-            this.interpreter.intepretCommand((event.target as HTMLInputElement).value);
-        })
+        this.commandInput.addEventListener("submit", (e: Event) => { e.preventDefault(); this.runCommand()})
+    }
+
+    runCommand(): void {
+        let input : HTMLInputElement = <HTMLInputElement>document.getElementById('commandLine');
+        (<HTMLInputElement>document.getElementById('errorMessage')).hidden = this.interpreter.intepretCommand(input.value);
+        input.value = "";
+        this.view.setLayers()
+        this.view.render();
     }
 
     createRectangle(): void {

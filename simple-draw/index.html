@@ -93,7 +93,8 @@
         <form class="container" id="commandForm" >
             <div class="form-group">
                 <label for="commandLine">Enter command</label>
-                <input type="text" class="form-control" id="commandLine" placeholder="Enter command">
+                <input type="text" class="form-control" id="commandLine" aria-describedby="errorMessage" placeholder="Enter command">
+                <small id="errorMessage" class="form-text text-muted" hidden="true">Command not recognized, please check your syntax.</small>
             </div>
         </form>
     </footer>

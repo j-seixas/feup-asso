@@ -14,9 +14,12 @@ class Context {
     }
 
     getToken(): string {
-        let token = this.input[this.i]
+        return this.input[this.i];
+    }
+
+    next(): boolean {
         this.i++;
-        return token;
+        return true;
     }
 
     getDoc(): SimpleDrawDocument {
@@ -34,8 +37,9 @@ class Context {
      constructor(private regExp: RegExp){}
 
      interpret(context: Context): boolean {
-         return context.hasNext() && this.regExp.test(this.capture = context.getToken());
-     }   
+         return context.hasNext() && this.regExp.test(this.capture = context.getToken()) && context.next();
+     }
+
  }
  
  class TerminalExpressionNumber extends TerminalExpression {
@@ -58,20 +62,28 @@ class Context {
         let params: Array<number> = new Array<number>();
         for (let i = 1; i < args.length; i++)
             params.push((args[i] as TerminalExpressionNumber).getValue());
-        return (context.getDoc().createRectangle(params[0], params[1], params[2], params[3], params[4]) !== null);
+        try {
+            return context.getDoc().createRectangle(params[0], params[1], params[2], params[3], params[4]) !== null;
+        } catch (e){
+            return false;
+        }
      }
  }
 
  class CircleExp implements Expression {
      interpret(context: Context): boolean {
         let args: Array<Expression> = [new TerminalExpression(new RegExp('^circle$')), new TerminalExpressionNumber(true), 
-            new TerminalExpressionNumber(true), new TerminalExpressionNumber(false)];
+            new TerminalExpressionNumber(true), new TerminalExpressionNumber(true), new TerminalExpressionNumber(false)];
         for (const exp of args)
             if (!exp.interpret(context)) return false;
         let params: Array<number> = new Array<number>();
         for (let i = 1; i < args.length; i++)
             params.push((args[i] as TerminalExpressionNumber).getValue());
-        return (context.getDoc().createCircle(params[0], params[1], params[2], params[3]) !== null);
+        try {
+            return (context.getDoc().createCircle(params[0], params[1], params[2], params[3]) !== null);
+        } catch (e){
+        return false;
+        }
      }    
 }
 
@@ -91,14 +103,14 @@ class Context {
 
  class RotateExp implements Expression {
     interpret(context: Context): boolean {
-         throw new Error("Method not implemented.");
+         return false;
     }
      
  }
 
  class TranslateExp implements Expression {
     interpret(context: Context): boolean {
-         throw new Error("Method not implemented.");
+        return false;
     }
      
  }
@@ -110,16 +122,15 @@ class Context {
              if (exp.interpret(context)) return true;
          }
          return false;
-     }
-     
+     }   
  }
 
 export class Repl {
 
      constructor(private doc: SimpleDrawDocument) {} 
 
-     public intepretCommand(cmd: string) : void{
+     public intepretCommand(cmd: string) : boolean{
         let ctx: Context = new Context(cmd, this.doc);
-        new Command().interpret(ctx);
+        return new Command().interpret(ctx);
      }
  }
