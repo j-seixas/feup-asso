@@ -153,16 +153,11 @@ class EventListener {
     }
     runCommand() {
         let input = document.getElementById('commandLine');
-        let valid = document.getElementsByClassName('valid-feedback')[0];
         let invalid = document.getElementsByClassName('invalid-feedback')[0];
-        if (this.interpreter.intepretCommand(input.value)) {
-            valid.style.display = 'block';
+        if (this.interpreter.intepretCommand(input.value))
             invalid.style.display = 'none';
-        }
-        else {
+        else
             invalid.style.display = 'block';
-            valid.style.display = 'none';
-        }
         input.value = "";
         this.view.setLayers();
         this.view.render();
