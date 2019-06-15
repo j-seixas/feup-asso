@@ -82,7 +82,7 @@ class Context {
         try {
             return (context.getDoc().createCircle(params[0], params[1], params[2], params[3]) !== null);
         } catch (e){
-        return false;
+            return false;
         }
      }    
 }
@@ -110,7 +110,18 @@ class Context {
 
  class TranslateExp implements Expression {
     interpret(context: Context): boolean {
-        return false;
+        let and: Array<Expression> = [new TerminalExpression(new RegExp("^translate$")), new TerminalExpressionNumber(false),
+            new TerminalExpressionNumber(true), new TerminalExpressionNumber(true)];
+        for (const exp of and)
+            if (!exp.interpret(context)) return false;
+        let params: Array<number> = new Array<number>();
+        for (let i = 1; i < and.length; i++)
+                params.push((and[i] as TerminalExpressionNumber).getValue());
+        try {
+            return true;
+        } catch (e){
+            return false;
+        }
     }
      
  }
