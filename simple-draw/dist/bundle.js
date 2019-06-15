@@ -836,6 +836,21 @@ class Translate extends Tool {
     }
 }
 exports.Translate = Translate;
+class Style extends Tool {
+    createTool() {
+        var options = ["Default", "Wireframe", "Color"];
+        const select = document.createElement('select');
+        select.className = "viewport-style";
+        for (var i = 0; i < options.length; i++) {
+            var option = document.createElement("option");
+            option.value = options[i];
+            option.text = options[i];
+            select.appendChild(option);
+        }
+        return select;
+    }
+}
+exports.Style = Style;
 
 },{"./selection":10}],13:[function(require,module,exports){
 "use strict";
@@ -914,6 +929,7 @@ class ViewController {
         const buttonContainer = document.createElement('div');
         buttonContainer.className = "viewport-tools";
         buttonContainer.appendChild(new tools_1.Zoom(this.renders[lastRenderId], this.doc).createTool());
+        buttonContainer.appendChild(new tools_1.Style(this.renders[lastRenderId], this.doc).createTool());
         buttonContainer.appendChild(new tools_1.Translate(this.renders[lastRenderId], this.doc).createTool());
         lastRender[lastRenderId].appendChild(buttonContainer);
     }

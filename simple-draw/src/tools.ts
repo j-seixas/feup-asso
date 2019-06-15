@@ -95,3 +95,22 @@ export class Translate extends Tool {
         return translateContainer
     }
 }
+
+export class Style extends Tool {
+
+    createTool(): Element {
+        var options = ["Default", "Wireframe", "Color"]
+
+        const select = document.createElement('select')
+        select.className = "viewport-style"
+
+        for (var i = 0; i < options.length; i++) {
+            var option = document.createElement("option");
+            option.value = options[i];
+            option.text = options[i];
+            select.appendChild(option);
+        }
+
+        return select
+    }
+}
