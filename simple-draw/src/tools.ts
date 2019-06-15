@@ -3,9 +3,8 @@ import { Render } from 'render';
 import { Selection } from './selection';
 
 export abstract class Tool {
-    constructor(protected render: Render, protected doc: SimpleDrawDocument){}
+    constructor(protected render: Render, protected doc: SimpleDrawDocument) { }
     abstract createTool(lastRenderId: number): Element;
-    
 }
 
 export class Zoom extends Tool {
