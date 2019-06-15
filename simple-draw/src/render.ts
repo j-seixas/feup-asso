@@ -2,18 +2,18 @@ import { Shape, Circle, Rectangle } from "./shape"
 import { Layer } from "./layer"
 import { Selection } from './selection'
 
-export enum RenderStyle{
+export enum RenderStyle {
     Normal, Backgrounded
 }
 
-export abstract class RenderStyler{
+export abstract class RenderStyler {
     static style: RenderStyle
 
-    static changeStyle(){
-        if(RenderStyler.style === RenderStyle.Normal){
+    static changeStyle() {
+        if (RenderStyler.style === RenderStyle.Normal) {
             RenderStyler.style = RenderStyle.Backgrounded
         }
-        else if(RenderStyler.style === RenderStyle.Backgrounded){
+        else if (RenderStyler.style === RenderStyle.Backgrounded) {
             RenderStyler.style = RenderStyle.Normal
         }
     }
@@ -58,14 +58,14 @@ export class SVGRender extends RenderStyler implements Render {
         container.appendChild(col)
 
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-        if(RenderStyler.style === RenderStyle.Normal){
+        if (RenderStyler.style === RenderStyle.Normal) {
             this.svg.setAttribute('style', 'border: 1px solid blue')
         }
-        else if(RenderStyler.style === RenderStyle.Backgrounded){
+        else if (RenderStyler.style === RenderStyle.Backgrounded) {
             this.svg.setAttribute('style', 'border: 5px solid green; background-color: rgb(50, 115, 220); ')
         }
         this.svg.setAttribute('width', '550')
-        this.svg.setAttribute('height', '550')
+        this.svg.setAttribute('height', '500')
         this.svg.addEventListener('mousedown', (e: MouseEvent) => {
 
             const svgElem = <SVGSVGElement>e.currentTarget
@@ -120,7 +120,7 @@ export class SVGRender extends RenderStyler implements Render {
                 for (const shape of layer.objects) {
                     if (shape instanceof Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: tomato')
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey')
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('x', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
@@ -132,7 +132,7 @@ export class SVGRender extends RenderStyler implements Render {
                         this.svg.appendChild(e)
                     } else if (shape instanceof Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: orange')
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey')
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('cx', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
@@ -168,14 +168,14 @@ export class CanvasRender extends RenderStyler implements Render {
         container.appendChild(col)
 
         const canvas = document.createElement('canvas')
-        if(RenderStyler.style === RenderStyle.Normal){
+        if (RenderStyler.style === RenderStyle.Normal) {
             canvas.setAttribute('style', 'border: 1px solid red')
         }
-        else if(RenderStyle.Backgrounded === RenderStyle.Backgrounded){
+        else if (RenderStyle.Backgrounded === RenderStyle.Backgrounded) {
             canvas.setAttribute('style', 'border: 5px solid yellow; background-color: #05ffb0;')
         }
         canvas.setAttribute('width', '550')
-        canvas.setAttribute('height', '550')
+        canvas.setAttribute('height', '500')
         canvas.addEventListener('mousedown', (e: MouseEvent) => {
 
             const canvasElem = <HTMLElement>e.currentTarget
@@ -225,13 +225,13 @@ export class CanvasRender extends RenderStyler implements Render {
                     if (shape instanceof Circle && shape.visible) {
                         this.ctx.beginPath()
                         this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI)
-                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "orange";
+                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "grey";
                         this.ctx.fill()
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.stroke()
                         this.ctx.closePath()
                     } else if (shape instanceof Rectangle && shape.visible) {
-                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "tomato";
+                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "grey";
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)

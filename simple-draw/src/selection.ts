@@ -14,7 +14,6 @@ export class Selection {
     private layers: Array<Layer>
 
     private constructor() {
-
     }
 
     static getInstance(): Selection {
@@ -48,9 +47,9 @@ export class Selection {
     }
 
     clearSelection(): void {
-        for (const shape of this.selectedObjects) 
+        for (const shape of this.selectedObjects)
             shape.selected = false
-        
+
         this.selectedObjects = new Array<Shape>()
     }
 

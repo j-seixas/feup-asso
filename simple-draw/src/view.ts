@@ -3,7 +3,7 @@ import { Shape } from './shape'
 import { Layer } from './layer'
 import { Render, SVGRender, CanvasRender, RenderStyle, RenderStyler } from './render'
 import { Selection } from './selection'
-import { Zoom, Translate } from './tools'
+import { Zoom, Translate, Style } from './tools'
 
 export interface RenderFactory {
     createRender(): Render
@@ -57,6 +57,7 @@ export class ViewController {
         buttonContainer.className = "viewport-tools"
 
         buttonContainer.appendChild(new Zoom(this.renders[lastRenderId], this.doc).createTool());
+        buttonContainer.appendChild(new Style(this.renders[lastRenderId], this.doc).createTool());
         buttonContainer.appendChild(new Translate(this.renders[lastRenderId], this.doc).createTool());
 
         lastRender[lastRenderId].appendChild(buttonContainer)

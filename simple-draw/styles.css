@@ -19,6 +19,8 @@ body {
 
 main {
   margin: 1em 0; }
+  main #commandForm input {
+    width: 400px; }
   main .viewport-tools {
     padding-bottom: 1em;
     display: flex;

@@ -1,6 +1,6 @@
 import { SimpleDrawDocument } from './document'
 import { ViewController, SVGFactory, CanvasFactory } from './view'
-import { FileExporter, ConsolePrinter } from './export';
+import { FileExporter } from './export';
 import { ExportFactory, FileFormat } from './exportFactory';
 import { saveAs } from 'file-saver';
 import { RenderStyle } from './render';
@@ -47,27 +47,27 @@ export class EventListener {
         this.exportTextButton = <HTMLElement>document.getElementById('export-text')
         this.exportTextButton.addEventListener("click", (e: Event) => {
             let stringToReturn = fileExporter.ExportFile(FileFormat.Txt, this.doc.layers)
-            this.DownloadFile(stringToReturn,FileFormat.Txt)    
+            this.DownloadFile(stringToReturn, FileFormat.Txt)
         })
 
         this.exportXmlButton = <HTMLElement>document.getElementById('export-xml')
         this.exportXmlButton.addEventListener("click", (e: Event) => {
             let stringToReturn = fileExporter.ExportFile(FileFormat.Xml, this.doc.layers)
-            this.DownloadFile(stringToReturn,FileFormat.Xml)  
+            this.DownloadFile(stringToReturn, FileFormat.Xml)
         })
 
         this.changeStyleButton = <HTMLElement>document.getElementById('change-style')
         this.changeStyleButton.addEventListener("click", (e: Event) => {
             this.view.changeState()
-            if(this.view.styler.style=== RenderStyle.Backgrounded){
+            if (this.view.styler.style === RenderStyle.Backgrounded) {
                 this.changeStyleButton.style.backgroundColor = 'red'
             }
-            else if(this.view.styler.style=== RenderStyle.Normal){
+            else if (this.view.styler.style === RenderStyle.Normal) {
                 this.changeStyleButton.style.backgroundColor = ''
             }
-            
+
         })
-        
+
         this.rectangleButton = <HTMLElement>document.getElementById('create-rectangle')
         this.rectangleButton.addEventListener("click", (e: Event) => this.createRectangle())
 
@@ -85,12 +85,18 @@ export class EventListener {
         })
 
         this.commandInput = <HTMLElement>document.getElementById('commandForm');
-        this.commandInput.addEventListener("submit", (e: Event) => { e.preventDefault(); this.runCommand()})
+        this.commandInput.addEventListener("submit", (e: Event) => { e.preventDefault(); e.stopPropagation(); this.runCommand() })
     }
 
     runCommand(): void {
-        let input : HTMLInputElement = <HTMLInputElement>document.getElementById('commandLine');
-        (<HTMLInputElement>document.getElementById('errorMessage')).hidden = this.interpreter.intepretCommand(input.value);
+        let input: HTMLInputElement = <HTMLInputElement>document.getElementById('commandLine');
+        let invalid: HTMLElement = (<HTMLElement>document.getElementsByClassName('invalid-feedback')[0]);
+
+        if (this.interpreter.intepretCommand(input.value))
+            invalid.style.display = 'none';
+        else
+            invalid.style.display = 'block';
+
         input.value = "";
         this.view.setLayers()
         this.view.render();
@@ -121,13 +127,13 @@ export class EventListener {
 
     DownloadFile(text: string, format: FileFormat) {
         var file;
-        var fileName =  "simpleDraw." + FileFormat[format]
+        var fileName = "simpleDraw." + FileFormat[format]
 
-        if(format === FileFormat.Txt){
-            file = new File([text], fileName, {type: "text/plain;charset=utf-8"});
+        if (format === FileFormat.Txt) {
+            file = new File([text], fileName, { type: "text/plain;charset=utf-8" });
         }
-        else if(format === FileFormat.Xml){
-            file = new File([text], fileName, {type: "text/xml;charset=utf-8"});
+        else if (format === FileFormat.Xml) {
+            file = new File([text], fileName, { type: "text/xml;charset=utf-8" });
         }
         saveAs(file);
     }

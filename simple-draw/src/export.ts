@@ -1,6 +1,5 @@
-import { Layer, } from './layer'
-import { Shape, Circle, Rectangle } from './shape';
-
+import { Layer } from './layer'
+import { Circle, Rectangle } from './shape';
 
 export interface FileExporter {
     CreateFileHeader(): void
@@ -9,10 +8,8 @@ export interface FileExporter {
     DownloadFile(): string
 }
 
-
 export class ConsolePrinter implements FileExporter {
     CreateFileHeader() {
-
     }
 
     CreateFileContent(layers: Array<Layer>) {
@@ -32,7 +29,6 @@ export class ConsolePrinter implements FileExporter {
     }
 
     CreateFileFooter() {
-
     }
 
     DownloadFile() {
@@ -45,7 +41,6 @@ export class TextFileExporter implements FileExporter {
     textToReturn: string
 
     CreateFileHeader() {
-
     }
 
     CreateFileContent(layers: Array<Layer>) {
@@ -65,58 +60,52 @@ export class TextFileExporter implements FileExporter {
     }
 
     CreateFileFooter() {
-
     }
 
-    DownloadFile()
-    {
+    DownloadFile() {
         return this.textToReturn
     }
 
 }
-    export class XmlFileExporter implements FileExporter {
-        textToReturn: string
-    
-        CreateFileHeader() {
-            this.textToReturn = ""
-            this.textToReturn += `<?xml version="1.0" encoding="UTF-8"?>`
-        }
-    
-        CreateFileContent(layers: Array<Layer>) {
-            for (const layer of layers) {
-              
-                if (layer.visible) {
-                    this.textToReturn += "<Layer name='" + layer.name + "'>\n"
-                    for (const shape of layer.objects) {
-                        if (shape instanceof Rectangle) {
-                            this.textToReturn += "<Rectangle>"
-                            this.textToReturn += "<x>" + shape.x + "</x>"
-                            this.textToReturn += "<y>" + shape.y + "</y>"
-                            this.textToReturn += "<width>" + shape.width + "</width>"
-                            this.textToReturn += "<height>" + shape.height + "</height>"
-                            this.textToReturn += "</Rectangle>"
-                        }
-                        if (shape instanceof Circle) {
-                            this.textToReturn += "<Circle>"
-                            this.textToReturn += "<x>" + shape.x + "</x>"
-                            this.textToReturn += "<y>" + shape.y + "</y>"
-                            this.textToReturn += "<radius>" + shape.radius + "</radius>"
-                            this.textToReturn += "</Circle>"
-                        }
+export class XmlFileExporter implements FileExporter {
+    textToReturn: string
+
+    CreateFileHeader() {
+        this.textToReturn = ""
+        this.textToReturn += `<?xml version="1.0" encoding="UTF-8"?>`
+    }
+
+    CreateFileContent(layers: Array<Layer>) {
+        for (const layer of layers) {
+
+            if (layer.visible) {
+                this.textToReturn += "<Layer name='" + layer.name + "'>\n"
+                for (const shape of layer.objects) {
+                    if (shape instanceof Rectangle) {
+                        this.textToReturn += "<Rectangle>"
+                        this.textToReturn += "<x>" + shape.x + "</x>"
+                        this.textToReturn += "<y>" + shape.y + "</y>"
+                        this.textToReturn += "<width>" + shape.width + "</width>"
+                        this.textToReturn += "<height>" + shape.height + "</height>"
+                        this.textToReturn += "</Rectangle>"
                     }
-                    this.textToReturn += "</Layer>"
+                    if (shape instanceof Circle) {
+                        this.textToReturn += "<Circle>"
+                        this.textToReturn += "<x>" + shape.x + "</x>"
+                        this.textToReturn += "<y>" + shape.y + "</y>"
+                        this.textToReturn += "<radius>" + shape.radius + "</radius>"
+                        this.textToReturn += "</Circle>"
+                    }
                 }
+                this.textToReturn += "</Layer>"
             }
         }
-    
-        CreateFileFooter() {
-    
-        }
-    
-        DownloadFile()
-        {
-            return this.textToReturn
-        }
+    }
 
-    
+    CreateFileFooter() {
+    }
+
+    DownloadFile() {
+        return this.textToReturn
+    }
 }

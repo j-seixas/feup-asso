@@ -1,5 +1,5 @@
 export abstract class Shape {
-    
+
     visible = true
     selected = false
 

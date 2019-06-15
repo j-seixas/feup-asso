@@ -12,7 +12,4 @@ const view = new ViewController(doc, new SVGFactory())
 const fileExporter = new ExportFactory()
 const eventListener = new EventListener(doc, view, fileExporter)
 
-/* const s1 = sdd.createSelection(c1, r1, r2)
-sdd.translate(s1, 10, 10) */
-
 view.render()
