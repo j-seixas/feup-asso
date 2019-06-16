@@ -417,15 +417,17 @@ class SVGRender extends RenderStyler {
     }
     setStyleSvg(shape) {
         let stringToReturn = "";
-        stringToReturn += shape.selected ? 'stroke: blue; fill-opacity: 0.75;' : 'stroke:black; ';
-        if (shape.style === shape_1.ShapeStyle.Color) {
-            stringToReturn += this.setFillUpSvg(shape, "green;", "red");
+        stringToReturn += shape.selected ? 'stroke: blue;' : 'stroke:black; ';
+        if (this.shapeStyle === shape_1.ShapeStyle.Color) {
+            stringToReturn += shape.selected ? "fill-opacity: 0.75;" : "";
+            stringToReturn += this.setFillUpSvg(shape, "green; ", "red;");
         }
-        else if (shape.style === shape_1.ShapeStyle.Wireframe) {
-            stringToReturn += this.setFillUpSvg(shape, "white", "white");
+        else if (this.shapeStyle === shape_1.ShapeStyle.Wireframe) {
+            stringToReturn += this.setFillUpSvg(shape, "white; fill-opacity: 0;", "white; fill-opacity: 0;");
         }
         else {
-            stringToReturn += this.setFillUpSvg(shape, "grey", "grey");
+            stringToReturn += shape.selected ? "fill-opacity: 0.75;" : "";
+            stringToReturn += this.setFillUpSvg(shape, "grey;", "grey;");
         }
         return stringToReturn;
     }
@@ -519,13 +521,13 @@ class CanvasRender extends RenderStyler {
         }
     }
     setStyleCnvs(shape) {
-        if (shape.style === shape_1.ShapeStyle.Color) {
+        if (this.shapeStyle === shape_1.ShapeStyle.Color) {
             let color1 = shape.selected ? "rgba(0, 128, 0, 0.75)" : "rgba(0, 128, 0, 1)";
             let color2 = shape.selected ? "rgb(255, 0, 0, 0.75)" : "rgb(255, 0, 0, 1)";
             this.setFillUpCnvs(shape, color1, color2); //green / red
         }
-        else if (shape.style === shape_1.ShapeStyle.Wireframe) {
-            let color = shape.selected ? "rgba(255, 255, 255, 0.75)" : "rgba(255, 255, 255, 1)";
+        else if (this.shapeStyle === shape_1.ShapeStyle.Wireframe) {
+            let color = shape.selected ? "rgba(255, 255, 255, 0)" : "rgba(255, 255, 255, 0)";
             this.setFillUpCnvs(shape, color, color);
         }
         else {
@@ -782,14 +784,10 @@ class Shape {
         this.y = y;
         this.visible = true;
         this.selected = false;
-        this.style = ShapeStyle.Default; //"fill: grey; stroke: black"
     }
     translate(xd, yd) {
         this.x += xd;
         this.y += yd;
-    }
-    setStyle(style) {
-        this.style = style;
     }
 }
 exports.Shape = Shape;
@@ -894,13 +892,7 @@ class Translate extends Tool {
 exports.Translate = Translate;
 class Style extends Tool {
     setStyle(style) {
-        for (const layer of this.doc.layers) {
-            if (layer.visible) {
-                for (const shape of layer.objects) {
-                    shape.style = style;
-                }
-            }
-        }
+        this.render.shapeStyle = style;
     }
     createTool() {
         var options = ["Default", "Wireframe", "Color"];
