@@ -124,15 +124,15 @@ export class SVGRender extends RenderStyler implements Render {
 
     setStyleSvg(shape: Shape): string{
         let stringToReturn = ""
-        stringToReturn += shape.selected ? 'stroke: blue; fill-opacity: 0.75;'  : 'stroke:black; ' 
+        stringToReturn += shape.selected ? 'stroke: blue;'  : 'stroke:black; ' 
         if(shape.style === ShapeStyle.Color){
-            stringToReturn += this.setFillUpSvg(shape,"green;", "red")
+            stringToReturn += this.setFillUpSvg(shape,"green; fill-opacity: 0.75;", "red; fill-opacity: 0.75;")
         }
         else if(shape.style === ShapeStyle.Wireframe){
-            stringToReturn += this.setFillUpSvg(shape, "white", "white")
+            stringToReturn += this.setFillUpSvg(shape, "white; fill-opacity: 0;", "white; fill-opacity: 0;")
         }
         else{
-            stringToReturn += this.setFillUpSvg(shape, "grey", "grey")
+            stringToReturn += this.setFillUpSvg(shape, "grey; fill-opacity: 0.75;", "grey; fill-opacity: 0.75;")
         }
         
         return stringToReturn
@@ -257,7 +257,7 @@ export class CanvasRender extends RenderStyler implements Render {
             this.setFillUpCnvs(shape,color1, color2) //green / red
         }
         else if(shape.style === ShapeStyle.Wireframe){
-            let color = shape.selected ? "rgba(255, 255, 255, 0.75)" : "rgba(255, 255, 255, 1)" 
+            let color = shape.selected ? "rgba(255, 255, 255, 0)" : "rgba(255, 255, 255, 0)" 
             this.setFillUpCnvs(shape, color, color)
         }
         else{
