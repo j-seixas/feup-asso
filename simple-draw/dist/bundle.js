@@ -414,7 +414,7 @@ class SVGRender extends RenderStyler {
                 for (const shape of layer.objects) {
                     if (shape instanceof shape_1.Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey');
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' + shape.style);
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('x', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -427,7 +427,7 @@ class SVGRender extends RenderStyler {
                     }
                     else if (shape instanceof shape_1.Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey');
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' + shape.style);
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('cx', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -731,10 +731,14 @@ class Shape {
         this.y = y;
         this.visible = true;
         this.selected = false;
+        this.style = "fill: white; stroke: black";
     }
     translate(xd, yd) {
         this.x += xd;
         this.y += yd;
+    }
+    setStyle(style) {
+        this.style = style;
     }
 }
 exports.Shape = Shape;
@@ -762,6 +766,7 @@ exports.Circle = Circle;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const selection_1 = require("./selection");
+const shape_1 = require("./shape");
 class Tool {
     constructor(render, doc) {
         this.render = render;
@@ -837,6 +842,20 @@ class Translate extends Tool {
 }
 exports.Translate = Translate;
 class Style extends Tool {
+    setFillUp(firstColor, secondColor) {
+        for (const layer of this.doc.layers) {
+            if (layer.visible) {
+                for (const shape of layer.objects) {
+                    if (shape instanceof shape_1.Rectangle) {
+                        shape.setStyle("fill: " + firstColor + ";"); //'fill: green;'
+                    }
+                    if (shape instanceof shape_1.Circle) {
+                        shape.setStyle("fill: " + secondColor + ";"); //'fill: red
+                    }
+                }
+            }
+        }
+    }
     createTool() {
         var options = ["Default", "Wireframe", "Color"];
         const select = document.createElement('select');
@@ -847,12 +866,24 @@ class Style extends Tool {
             option.text = options[i];
             select.appendChild(option);
         }
+        select.addEventListener("change", (e) => {
+            if (select.value === "Color") {
+                this.setFillUp("green;", "red");
+            }
+            else if (select.value === "Wireframe") {
+                this.setFillUp("white", "white");
+            }
+            else {
+                this.setFillUp("grey", "grey");
+            }
+            this.doc.draw(this.render);
+        });
         return select;
     }
 }
 exports.Style = Style;
 
-},{"./selection":10}],13:[function(require,module,exports){
+},{"./selection":10,"./shape":11}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {

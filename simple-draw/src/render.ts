@@ -120,7 +120,7 @@ export class SVGRender extends RenderStyler implements Render {
                 for (const shape of layer.objects) {
                     if (shape instanceof Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey')
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' + shape.style)
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('x', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
@@ -132,7 +132,7 @@ export class SVGRender extends RenderStyler implements Render {
                         this.svg.appendChild(e)
                     } else if (shape instanceof Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey')
+                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' +  shape.style)
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('cx', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
