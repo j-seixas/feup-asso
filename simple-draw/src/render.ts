@@ -27,6 +27,7 @@ export interface Render {
     selectionStartY: number
     selectionEndX: number
     selectionEndY: number
+    shapeStyle: ShapeStyle
     draw(...objs: Array<Shape>): void
 
     increaseZoom(): void
@@ -36,6 +37,7 @@ export interface Render {
 }
 
 export class SVGRender extends RenderStyler implements Render {
+    shapeStyle: ShapeStyle;
     svg: SVGElement
     zoom: number
     positionX: number
@@ -125,11 +127,11 @@ export class SVGRender extends RenderStyler implements Render {
     setStyleSvg(shape: Shape): string{
         let stringToReturn = ""
         stringToReturn += shape.selected ? 'stroke: blue;'  : 'stroke:black; ' 
-        if(shape.style === ShapeStyle.Color){
+        if(this.shapeStyle === ShapeStyle.Color){
             stringToReturn += shape.selected ? "fill-opacity: 0.75;" : ""
             stringToReturn += this.setFillUpSvg(shape,"green; ", "red;")
         }
-        else if(shape.style === ShapeStyle.Wireframe){
+        else if(this.shapeStyle === ShapeStyle.Wireframe){
             stringToReturn += this.setFillUpSvg(shape, "white; fill-opacity: 0;", "white; fill-opacity: 0;")
         }
         else{
@@ -174,6 +176,7 @@ export class SVGRender extends RenderStyler implements Render {
 }
 
 export class CanvasRender extends RenderStyler implements Render {
+    shapeStyle: ShapeStyle;
     ctx: CanvasRenderingContext2D
     zoom: number
     positionX: number
@@ -252,13 +255,13 @@ export class CanvasRender extends RenderStyler implements Render {
     }
 
     setStyleCnvs(shape: Shape): void{
-
-        if(shape.style === ShapeStyle.Color){
+        
+        if(this.shapeStyle === ShapeStyle.Color){
             let color1 = shape.selected ? "rgba(0, 128, 0, 0.75)" : "rgba(0, 128, 0, 1)"
             let color2 = shape.selected ? "rgb(255, 0, 0, 0.75)" : "rgb(255, 0, 0, 1)"
             this.setFillUpCnvs(shape,color1, color2) //green / red
         }
-        else if(shape.style === ShapeStyle.Wireframe){
+        else if(this.shapeStyle === ShapeStyle.Wireframe){
             let color = shape.selected ? "rgba(255, 255, 255, 0)" : "rgba(255, 255, 255, 0)" 
             this.setFillUpCnvs(shape, color, color)
         }

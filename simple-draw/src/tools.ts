@@ -100,13 +100,7 @@ export class Translate extends Tool {
 export class Style extends Tool {
 
     setStyle (style: ShapeStyle) {
-        for (const layer of this.doc.layers) {
-            if (layer.visible) {
-                for (const shape of layer.objects) {
-                    shape.style = style
-                }
-            }
-        }
+        this.render.shapeStyle = style
     }
 
     createTool(): Element {
