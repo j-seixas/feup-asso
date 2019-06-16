@@ -1,7 +1,7 @@
 import { SimpleDrawDocument } from 'document';
 import { Render } from './render';
 import { Selection } from './selection';
-import { Rectangle, Circle } from './shape';
+import { Rectangle, Circle, ShapeStyle } from './shape';
 
 export abstract class Tool {
     constructor(protected render: Render, protected doc: SimpleDrawDocument) { }
@@ -99,16 +99,11 @@ export class Translate extends Tool {
 
 export class Style extends Tool {
 
-    setFillUp (firstColor: string, secondColor:string) {
+    setStyle (style: ShapeStyle) {
         for (const layer of this.doc.layers) {
             if (layer.visible) {
                 for (const shape of layer.objects) {
-                    if (shape instanceof Rectangle) {
-                        shape.setStyle( "fill: " + firstColor + ";") //'fill: green;'
-                    }
-                    if (shape instanceof Circle) {
-                        shape.setStyle("fill: " + secondColor + ";") //'fill: red
-                    }
+                    shape.style = style
                 }
             }
         }
@@ -128,19 +123,18 @@ export class Style extends Tool {
         }
 
 
-       
-
         select.addEventListener("change", (e: Event) => { 
             
             if(select.value === "Color"){
-                this.setFillUp("green;", "red")
+                this.setStyle(ShapeStyle.Color)
             }
             else if(select.value === "Wireframe"){
-                this.setFillUp("white", "white")
+                this.setStyle(ShapeStyle.Wireframe)
             }
             else{
-                this.setFillUp("grey", "grey")
+                this.setStyle(ShapeStyle.Default)
             }
+            
             this.doc.draw(this.render)
         })
 

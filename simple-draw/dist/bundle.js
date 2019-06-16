@@ -407,6 +407,28 @@ class SVGRender extends RenderStyler {
     setY(y) {
         this.positionY += y;
     }
+    setFillUpSvg(shape, firstColor, secondColor) {
+        if (shape instanceof shape_1.Rectangle) {
+            return "fill: " + firstColor + ";";
+        }
+        if (shape instanceof shape_1.Circle) {
+            return "fill: " + secondColor + ";";
+        }
+    }
+    setStyleSvg(shape) {
+        let stringToReturn = "";
+        stringToReturn += shape.selected ? 'stroke: blue; fill-opacity: 0.75;' : 'stroke:black; ';
+        if (shape.style === shape_1.ShapeStyle.Color) {
+            stringToReturn += this.setFillUpSvg(shape, "green;", "red");
+        }
+        else if (shape.style === shape_1.ShapeStyle.Wireframe) {
+            stringToReturn += this.setFillUpSvg(shape, "white", "white");
+        }
+        else {
+            stringToReturn += this.setFillUpSvg(shape, "grey", "grey");
+        }
+        return stringToReturn;
+    }
     draw(...layers) {
         this.svg.innerHTML = "";
         for (const layer of layers) {
@@ -414,7 +436,7 @@ class SVGRender extends RenderStyler {
                 for (const shape of layer.objects) {
                     if (shape instanceof shape_1.Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' + shape.style);
+                        e.setAttribute('style', this.setStyleSvg(shape));
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('x', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -427,7 +449,7 @@ class SVGRender extends RenderStyler {
                     }
                     else if (shape instanceof shape_1.Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' + shape.style);
+                        e.setAttribute('style', this.setStyleSvg(shape));
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('cx', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -725,13 +747,19 @@ exports.Selection = Selection;
 },{"./shape":11}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var ShapeStyle;
+(function (ShapeStyle) {
+    ShapeStyle[ShapeStyle["Default"] = 0] = "Default";
+    ShapeStyle[ShapeStyle["Wireframe"] = 1] = "Wireframe";
+    ShapeStyle[ShapeStyle["Color"] = 2] = "Color";
+})(ShapeStyle = exports.ShapeStyle || (exports.ShapeStyle = {}));
 class Shape {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.visible = true;
         this.selected = false;
-        this.style = "fill: grey; stroke: black";
+        this.style = ShapeStyle.Default; //"fill: grey; stroke: black"
     }
     translate(xd, yd) {
         this.x += xd;
@@ -842,16 +870,11 @@ class Translate extends Tool {
 }
 exports.Translate = Translate;
 class Style extends Tool {
-    setFillUp(firstColor, secondColor) {
+    setStyle(style) {
         for (const layer of this.doc.layers) {
             if (layer.visible) {
                 for (const shape of layer.objects) {
-                    if (shape instanceof shape_1.Rectangle) {
-                        shape.setStyle("fill: " + firstColor + ";"); //'fill: green;'
-                    }
-                    if (shape instanceof shape_1.Circle) {
-                        shape.setStyle("fill: " + secondColor + ";"); //'fill: red
-                    }
+                    shape.style = style;
                 }
             }
         }
@@ -868,13 +891,13 @@ class Style extends Tool {
         }
         select.addEventListener("change", (e) => {
             if (select.value === "Color") {
-                this.setFillUp("green;", "red");
+                this.setStyle(shape_1.ShapeStyle.Color);
             }
             else if (select.value === "Wireframe") {
-                this.setFillUp("white", "white");
+                this.setStyle(shape_1.ShapeStyle.Wireframe);
             }
             else {
-                this.setFillUp("grey", "grey");
+                this.setStyle(shape_1.ShapeStyle.Default);
             }
             this.doc.draw(this.render);
         });

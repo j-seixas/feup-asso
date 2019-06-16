@@ -1,4 +1,4 @@
-import { Shape, Circle, Rectangle } from "./shape"
+import { Shape, Circle, Rectangle, ShapeStyle } from "./shape"
 import { Layer } from "./layer"
 import { Selection } from './selection'
 
@@ -113,6 +113,31 @@ export class SVGRender extends RenderStyler implements Render {
         this.positionY += y
     }
 
+    setFillUpSvg(shape: Shape, firstColor: string, secondColor: string): string{
+        if (shape instanceof Rectangle) {
+            return "fill: " + firstColor + ";" 
+        }
+        if (shape instanceof Circle) {
+            return "fill: " + secondColor + ";" 
+        }
+    }
+
+    setStyleSvg(shape: Shape): string{
+        let stringToReturn = ""
+        stringToReturn += shape.selected ? 'stroke: blue; fill-opacity: 0.75;'  : 'stroke:black; ' 
+        if(shape.style === ShapeStyle.Color){
+            stringToReturn += this.setFillUpSvg(shape,"green;", "red")
+        }
+        else if(shape.style === ShapeStyle.Wireframe){
+            stringToReturn += this.setFillUpSvg(shape, "white", "white")
+        }
+        else{
+            stringToReturn += this.setFillUpSvg(shape, "grey", "grey")
+        }
+        
+        return stringToReturn
+    }
+
     draw(...layers: Array<Layer>): void {
         this.svg.innerHTML = ""
         for (const layer of layers) {
@@ -120,7 +145,7 @@ export class SVGRender extends RenderStyler implements Render {
                 for (const shape of layer.objects) {
                     if (shape instanceof Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' + shape.style)
+                        e.setAttribute('style', this.setStyleSvg(shape))
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('x', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
@@ -132,7 +157,7 @@ export class SVGRender extends RenderStyler implements Render {
                         this.svg.appendChild(e)
                     } else if (shape instanceof Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill-opacity: 0.75;' + shape.style : 'stroke:black; ' +  shape.style)
+                        e.setAttribute('style', this.setStyleSvg(shape))
                         const x = (shape.x + this.positionX) * this.zoom
                         e.setAttribute('cx', x.toString())
                         const y = (shape.y + this.positionY) * this.zoom
