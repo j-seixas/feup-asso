@@ -731,7 +731,7 @@ class Shape {
         this.y = y;
         this.visible = true;
         this.selected = false;
-        this.style = "fill: white; stroke: black";
+        this.style = "fill: grey; stroke: black";
     }
     translate(xd, yd) {
         this.x += xd;

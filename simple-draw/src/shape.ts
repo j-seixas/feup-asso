@@ -2,7 +2,7 @@ export abstract class Shape {
 
     visible = true
     selected = false
-    style = "fill: white; stroke: black"
+    style = "fill: grey; stroke: black"
 
     constructor(public x: number, public y: number) { }
 
