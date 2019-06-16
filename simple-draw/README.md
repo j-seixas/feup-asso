@@ -527,6 +527,18 @@ export class SVGRender extends RenderStyler implements Render {...}
 export class CanvasRender extends RenderStyler implements Render {...}
 ````
 
+Another implementation of state we puted into shape object. As long as application, objects also can have their own states. In this case shape can be in "Default", "Wireframe" and "Color" state, this information is stored in "style" field. In class there is a special method to change it, called setStyle() - you have to select one of three fields contained in enum and pass it as a parameter. This information allows to render objects in proper way in every implementation of renderer.
+
+````typescript
+export enum ShapeStyle {
+    Default, Wireframe, Color
+}
+
+setStyle(style: ShapeStyle){
+	this.style = style
+}
+````
+
 ### Interpreter
 
 **Problem:** Two interaction modes are required, the standard point-n-click interface and REPLs (read–eval–print loop), which involves text commands. Therefore it is needed an interpreter to understand and convert the text commands into the required actions.

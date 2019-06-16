@@ -126,13 +126,15 @@ export class SVGRender extends RenderStyler implements Render {
         let stringToReturn = ""
         stringToReturn += shape.selected ? 'stroke: blue;'  : 'stroke:black; ' 
         if(shape.style === ShapeStyle.Color){
-            stringToReturn += this.setFillUpSvg(shape,"green; fill-opacity: 0.75;", "red; fill-opacity: 0.75;")
+            stringToReturn += shape.selected ? "fill-opacity: 0.75;" : ""
+            stringToReturn += this.setFillUpSvg(shape,"green; ", "red;")
         }
         else if(shape.style === ShapeStyle.Wireframe){
             stringToReturn += this.setFillUpSvg(shape, "white; fill-opacity: 0;", "white; fill-opacity: 0;")
         }
         else{
-            stringToReturn += this.setFillUpSvg(shape, "grey; fill-opacity: 0.75;", "grey; fill-opacity: 0.75;")
+            stringToReturn += shape.selected ? "fill-opacity: 0.75;" : ""
+            stringToReturn += this.setFillUpSvg(shape, "grey;", "grey;")
         }
         
         return stringToReturn
