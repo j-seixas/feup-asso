@@ -1,7 +1,7 @@
 import { SimpleDrawDocument } from 'document';
-import { Render } from 'render';
+import { Render } from './render';
 import { Selection } from './selection';
-import { Shape } from 'shape';
+import { Shape, Rectangle, Circle, ShapeStyle } from './shape';
 
 export abstract class Tool {
     constructor(protected render: Render, protected doc: SimpleDrawDocument) { }
@@ -106,6 +106,16 @@ export class Translate extends Tool {
 
 export class Style extends Tool {
 
+    setStyle (style: ShapeStyle) {
+        for (const layer of this.doc.layers) {
+            if (layer.visible) {
+                for (const shape of layer.objects) {
+                    shape.style = style
+                }
+            }
+        }
+    }
+
     createTool(): Element {
         var options = ["Default", "Wireframe", "Color"]
 
@@ -118,6 +128,22 @@ export class Style extends Tool {
             option.text = options[i];
             select.appendChild(option);
         }
+
+
+        select.addEventListener("change", (e: Event) => { 
+            
+            if(select.value === "Color"){
+                this.setStyle(ShapeStyle.Color)
+            }
+            else if(select.value === "Wireframe"){
+                this.setStyle(ShapeStyle.Wireframe)
+            }
+            else{
+                this.setStyle(ShapeStyle.Default)
+            }
+            
+            this.doc.draw(this.render)
+        })
 
         return select
     }

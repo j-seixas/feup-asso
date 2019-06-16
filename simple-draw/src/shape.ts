@@ -1,13 +1,22 @@
+export enum ShapeStyle {
+    Default, Wireframe, Color
+}
+
 export abstract class Shape {
 
     visible = true
     selected = false
+    style = ShapeStyle.Default //"fill: grey; stroke: black"
 
     constructor(public x: number, public y: number) { }
 
     translate(xd: number, yd: number): void {
         this.x += xd
         this.y += yd
+    }
+
+    setStyle(style: ShapeStyle){
+        this.style = style
     }
 }
 

@@ -407,6 +407,28 @@ class SVGRender extends RenderStyler {
     setY(y) {
         this.positionY += y;
     }
+    setFillUpSvg(shape, firstColor, secondColor) {
+        if (shape instanceof shape_1.Rectangle) {
+            return "fill: " + firstColor + ";";
+        }
+        if (shape instanceof shape_1.Circle) {
+            return "fill: " + secondColor + ";";
+        }
+    }
+    setStyleSvg(shape) {
+        let stringToReturn = "";
+        stringToReturn += shape.selected ? 'stroke: blue; fill-opacity: 0.75;' : 'stroke:black; ';
+        if (shape.style === shape_1.ShapeStyle.Color) {
+            stringToReturn += this.setFillUpSvg(shape, "green;", "red");
+        }
+        else if (shape.style === shape_1.ShapeStyle.Wireframe) {
+            stringToReturn += this.setFillUpSvg(shape, "white", "white");
+        }
+        else {
+            stringToReturn += this.setFillUpSvg(shape, "grey", "grey");
+        }
+        return stringToReturn;
+    }
     draw(...layers) {
         this.svg.innerHTML = "";
         for (const layer of layers) {
@@ -414,7 +436,7 @@ class SVGRender extends RenderStyler {
                 for (const shape of layer.objects) {
                     if (shape instanceof shape_1.Rectangle && shape.visible) {
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey');
+                        e.setAttribute('style', this.setStyleSvg(shape));
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('x', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -427,7 +449,7 @@ class SVGRender extends RenderStyler {
                     }
                     else if (shape instanceof shape_1.Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        e.setAttribute('style', shape.selected ? 'stroke: blue; fill: white; fill-opacity: 0.75' : 'stroke: black; fill: grey');
+                        e.setAttribute('style', this.setStyleSvg(shape));
                         const x = (shape.x + this.positionX) * this.zoom;
                         e.setAttribute('cx', x.toString());
                         const y = (shape.y + this.positionY) * this.zoom;
@@ -725,16 +747,26 @@ exports.Selection = Selection;
 },{"./shape":11}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var ShapeStyle;
+(function (ShapeStyle) {
+    ShapeStyle[ShapeStyle["Default"] = 0] = "Default";
+    ShapeStyle[ShapeStyle["Wireframe"] = 1] = "Wireframe";
+    ShapeStyle[ShapeStyle["Color"] = 2] = "Color";
+})(ShapeStyle = exports.ShapeStyle || (exports.ShapeStyle = {}));
 class Shape {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.visible = true;
         this.selected = false;
+        this.style = ShapeStyle.Default; //"fill: grey; stroke: black"
     }
     translate(xd, yd) {
         this.x += xd;
         this.y += yd;
+    }
+    setStyle(style) {
+        this.style = style;
     }
 }
 exports.Shape = Shape;
@@ -762,6 +794,7 @@ exports.Circle = Circle;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const selection_1 = require("./selection");
+const shape_1 = require("./shape");
 class Tool {
     constructor(render, doc) {
         this.render = render;
@@ -837,6 +870,15 @@ class Translate extends Tool {
 }
 exports.Translate = Translate;
 class Style extends Tool {
+    setStyle(style) {
+        for (const layer of this.doc.layers) {
+            if (layer.visible) {
+                for (const shape of layer.objects) {
+                    shape.style = style;
+                }
+            }
+        }
+    }
     createTool() {
         var options = ["Default", "Wireframe", "Color"];
         const select = document.createElement('select');
@@ -847,12 +889,24 @@ class Style extends Tool {
             option.text = options[i];
             select.appendChild(option);
         }
+        select.addEventListener("change", (e) => {
+            if (select.value === "Color") {
+                this.setStyle(shape_1.ShapeStyle.Color);
+            }
+            else if (select.value === "Wireframe") {
+                this.setStyle(shape_1.ShapeStyle.Wireframe);
+            }
+            else {
+                this.setStyle(shape_1.ShapeStyle.Default);
+            }
+            this.doc.draw(this.render);
+        });
         return select;
     }
 }
 exports.Style = Style;
 
-},{"./selection":10}],13:[function(require,module,exports){
+},{"./selection":10,"./shape":11}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class UndoManager {
