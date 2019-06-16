@@ -240,6 +240,32 @@ export class CanvasRender extends RenderStyler implements Render {
         this.positionY += y
     }
 
+    setFillUpCnvs(shape: Shape, firstColor: string, secondColor: string): void{
+        if (shape instanceof Rectangle) {
+            this.ctx.fillStyle = firstColor
+        }
+        if (shape instanceof Circle) {
+            this.ctx.fillStyle = secondColor
+        }
+    }
+
+    setStyleCnvs(shape: Shape): void{
+
+        if(shape.style === ShapeStyle.Color){
+            let color1 = shape.selected ? "rgba(0, 128, 0, 0.75)" : "rgba(0, 128, 0, 1)"
+            let color2 = shape.selected ? "rgb(255, 0, 0, 0.75)" : "rgb(255, 0, 0, 1)"
+            this.setFillUpCnvs(shape,color1, color2) //green / red
+        }
+        else if(shape.style === ShapeStyle.Wireframe){
+            let color = shape.selected ? "rgba(255, 255, 255, 0.75)" : "rgba(255, 255, 255, 1)" 
+            this.setFillUpCnvs(shape, color, color)
+        }
+        else{
+            let color = shape.selected ? "rgba(128,128,128, 0.75)" : "rgba(128,128,128, 1)"
+            this.setFillUpCnvs(shape, color, color)
+        }
+    }
+
     draw(...layers: Array<Layer>): void {
         this.ctx.clearRect(0, 0, 550, 550)
         this.ctx.save()
@@ -250,13 +276,13 @@ export class CanvasRender extends RenderStyler implements Render {
                     if (shape instanceof Circle && shape.visible) {
                         this.ctx.beginPath()
                         this.ctx.arc(shape.x + this.positionX, shape.y + this.positionY, shape.radius, 0, 2 * Math.PI)
-                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "grey";
+                        this.setStyleCnvs(shape)
                         this.ctx.fill()
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.stroke()
                         this.ctx.closePath()
                     } else if (shape instanceof Rectangle && shape.visible) {
-                        this.ctx.fillStyle = shape.selected ? "rgba(255, 255, 255, 0.75)" : "grey";
+                        this.setStyleCnvs(shape)
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
