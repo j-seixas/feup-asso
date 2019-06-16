@@ -1,6 +1,7 @@
 import { SimpleDrawDocument } from 'document';
 import { Render } from 'render';
 import { Selection } from './selection';
+import { Shape } from 'shape';
 
 export abstract class Tool {
     constructor(protected render: Render, protected doc: SimpleDrawDocument) { }
@@ -10,7 +11,6 @@ export abstract class Tool {
 export class Zoom extends Tool {
 
     increaseZoom(): void {
-        Selection.getInstance();
         this.render.increaseZoom()
     }
 
@@ -52,12 +52,20 @@ export class Zoom extends Tool {
 
 export class Translate extends Tool {
 
-    setPositionX(n: number): void {
-        this.render.setX(n)
+    static setPositionSelection(x: number, y: number): boolean {
+        let selected = false;
+        for (let shape of Selection.getInstance().selectedObjects){
+            shape.translate(x, y);
+            selected = true;
+        }
+        return selected;
     }
 
-    setPositionY(n: number): void {
-        this.render.setY(n)
+    setPosition(x: number, y: number): void {
+        if (!Translate.setPositionSelection(x, y)) {
+            this.render.setX(x);
+            this.render.setY(y);
+        }            
     }
 
     createTool(): Element {
@@ -69,22 +77,22 @@ export class Translate extends Tool {
         const buttonUp = document.createElement('button')
         buttonUp.className = "btn btn-dark"
         buttonUp.innerHTML = "up"
-        buttonUp.addEventListener("click", (e: Event) => { this.setPositionY(-10); this.doc.draw(this.render) })
+        buttonUp.addEventListener("click", (e: Event) => { this.setPosition(0, -10); this.doc.draw(this.render) })
 
         const buttonLeft = document.createElement('button')
         buttonLeft.className = "btn btn-dark"
         buttonLeft.innerHTML = "left"
-        buttonLeft.addEventListener("click", (e: Event) => { this.setPositionX(-10); this.doc.draw(this.render) })
+        buttonLeft.addEventListener("click", (e: Event) => { this.setPosition(-10, 0); this.doc.draw(this.render) })
 
         const buttonDown = document.createElement('button')
         buttonDown.className = "btn btn-dark"
         buttonDown.innerHTML = "down"
-        buttonDown.addEventListener("click", (e: Event) => { this.setPositionY(10); this.doc.draw(this.render) })
+        buttonDown.addEventListener("click", (e: Event) => { this.setPosition(0, 10); this.doc.draw(this.render) })
 
         const buttonRight = document.createElement('button')
         buttonRight.className = "btn btn-dark"
         buttonRight.innerHTML = "right"
-        buttonRight.addEventListener("click", (e: Event) => { this.setPositionX(10); this.doc.draw(this.render) })
+        buttonRight.addEventListener("click", (e: Event) => { this.setPosition(10, 0); this.doc.draw(this.render) })
 
         buttonGroup.appendChild(buttonLeft)
         buttonGroup.appendChild(buttonUp)

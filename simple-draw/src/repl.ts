@@ -118,7 +118,7 @@ class Context {
         for (let i = 1; i < and.length; i++)
                 params.push((and[i] as TerminalExpressionNumber).getValue());
         try {
-            return true;
+            return ;
         } catch (e){
             return false;
         }
