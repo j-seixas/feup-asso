@@ -41,6 +41,47 @@ Identification of the main problems, design patterns and solutions.
 
 ### Features
 
+![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-1.gif)
+
+**Figure 1:** Documents are rendered both in SVG or HTMLCanvas and multiple viewports of the same model.
+
+![Figure 2](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-2.gif)
+
+**Figure 2:** Support persistence in multiple formats: TXT and XML.
+
+![Figure 3](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-3.gif)
+
+**Figure 3:** Extensible with different objects: rectangles and circles.
+
+![Figure 4](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-4.gif)
+
+**Figure 4:** Extensible with new tools: translate and rotate.
+
+![Figure 5](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-5.gif)
+
+**Figure 5:** Drag to select multiple objects.
+
+![Figure 6](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-6.gif)
+
+**Figure 6:** Document layers.
+
+![Figure 7](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-7.gif)
+
+**Figure 7:** Viewport tools: translate and zoom.
+
+![Figure 8](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-8.gif)
+
+**Figure 8:** Different view styles per viewport: default, wireframe and color.
+
+![Figure 9](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-9.gif)
+
+**Figure 9:** Two interaction modes: point-n-click and REPLs.
+
+![Figure 10](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-10.gif)
+
+**Figure 10:** Undo and redo of all operations.
+
+
 ### Architecture
 
 #### Model-View-Controller (MVC)
@@ -869,4 +910,4 @@ TODO
 
 7. Have quality factors been explicitly assessed?
 
-**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns
+**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns.
