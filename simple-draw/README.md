@@ -900,10 +900,7 @@ export class ViewController implements Observer {
 
 **Answer:** Yes. The functionalities are working with a defined interface. File exporting is using `FileExporter` interface, which contains methods to support different file formats, and after implementation of this interface, new data source should be working without any problems. Factories are implementing `RenderFactory` interface with a function returning an object of type Render. This type is also an interface implemented by our render classes, and it ensures necessary methods and fields for working with shape objects. After the implementation of that interface, a new class will work with the rest of the code.
 
-TODO
-***here should be something about external tools***
-
-4. Is the structure of the data and its organisation consistent with the domain of the requirements?
+1. Is the structure of the data and its organisation consistent with the domain of the requirements?
 
 **Answer:** Our structure of data supports layers and shapes, which go inside these layers. It's easy to represent in different file formats with exporting tools. Undo/Redo operations are easy to do with this structure as well as modifying the position of this object in views. It can be rendered in a different way (SVG, HTMLCanvas) which is also important in the requirements, as well as have multiple views and manipulate them. If we create a new shape it will work with the rest of the shapes and they can be selected and manipulated with tools. With these arguments, we can assume that our application's structure is consistent with the domain requirements.
 
