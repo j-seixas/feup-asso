@@ -93,6 +93,11 @@ MVC is an architectural pattern, basically a way of organizing code. The idea be
 - **View**: Made up of all the functions that directly interact with the user. This is the code that makes the app look nice, and otherwise defines how the user sees and interacts with it.
 - **Controller**: Acts as a link between the Model and the View, receiving user input and deciding what to do with it.
 
+Our architecture follows the MVC model:
+- **Model**: SimpleDrawDocument, Shape and subclasses.
+- **View**: Render and subclasses, EventListener.
+- **Controller**: ViewController, Selection, Tool and subclasses and UndoManager.
+
 ### Factory Method
 
 **Problem:** Develop a simple graphical editor to draw different objects, such as rectangles and circles.
