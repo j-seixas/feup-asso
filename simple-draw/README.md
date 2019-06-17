@@ -13,7 +13,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 * [x] Documents are rendered both in SVG or HTMLCanvas;
 * [x] Support persistence in multiple formats (TXT, XML, BIN...);
 * [x] Extensible with different objects (triangles, arrows...);
-* [ ] Extensible with new tools (rotate, translate...);
+* [x] Extensible with new tools (rotate, translate...);
 * [x] Drag to select multiple objects;
 * [x] Document layers (with compositing strategies).
 
@@ -43,7 +43,7 @@ Identification of the main problems, design patterns and solutions.
 
 ![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-1.gif)
 
-**Figure 1:** Documents are rendered both in SVG or HTMLCanvas and multiple views (viewports) of the same model.
+**Figure 1:** Documents are rendered both in SVG or HTMLCanvas and multiple viewports of the same model.
 
 ![Figure 2](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-2.gif)
 
@@ -830,4 +830,4 @@ TODO
 
 7. Have quality factors been explicitly assessed?
 
-**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns
+**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns.
