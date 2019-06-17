@@ -71,20 +71,22 @@
     </nav>
 
     <main>
-        <div id="global-tools" class="text-center">
-        </div>
-        <form class="d-flex align-items-start" id="commandForm">
-            <div class="form-group mx-sm-3 mb-2">
-                <div class="">
-                    <label class="sr-only" for="commandLine">Command</label>
-                    <input type="text" class="form-control" id="commandLine" placeholder="Enter command" required>
-                    <div class="invalid-feedback">
-                        Command not recognized, please check your syntax.
+        <div class="d-flex">
+            <form class="d-flex align-items-start" id="commandForm">
+                <div class="form-group mx-sm-3 mb-2">
+                    <div class="">
+                        <label class="sr-only" for="commandLine">Command</label>
+                        <input type="text" class="form-control" id="commandLine" placeholder="Enter command" required>
+                        <div class="invalid-feedback">
+                            Command not recognized, please check your syntax.
+                        </div>
                     </div>
                 </div>
+                <button type="submit" class="btn btn-primary mb-2">Submit</button>
+            </form>
+            <div id="global-tools" class="text-center">
             </div>
-            <button type="submit" class="btn btn-primary mb-2">Submit</button>
-        </form>
+        </div>
 
         <div class="container-fluid mb-4">
             <div class="row">
