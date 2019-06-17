@@ -43,7 +43,27 @@ Identification of the main problems, design patterns and solutions.
 
 ![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-1.gif)
 
-Figure 1: Documents are rendered both in SVG or HTMLCanvas.
+**Figure 1:** Documents are rendered both in SVG or HTMLCanvas.
+
+![Figure 2](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-2.gif)
+
+**Figure 2:** Support persistence in multiple formats: TXT and XML.
+
+![Figure 3](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-3.gif)
+
+**Figure 3:** Extensible with different objects: rectangles and circles.
+
+![Figure 4](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-4.gif)
+
+**Figure 4:** Extensible with new tools: translate and rotate.
+
+![Figure 5](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-5.gif)
+
+**Figure 5:** Drag to select multiple objects.
+
+![Figure 6](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-6.gif)
+
+**Figure 6:** Document layers.
 
 ### Architecture
 
