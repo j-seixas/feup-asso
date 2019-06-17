@@ -127,7 +127,7 @@ export class EventListener {
 
     DownloadFile(text: string, format: FileFormat) {
         var file;
-        var fileName = "simpleDraw." + FileFormat[format]
+        var fileName = "simpleDraw." + FileFormat[format].toLowerCase()
 
         if (format === FileFormat.Txt) {
             file = new File([text], fileName, { type: "text/plain;charset=utf-8" });

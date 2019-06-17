@@ -41,6 +41,7 @@ export class TextFileExporter implements FileExporter {
     textToReturn: string
 
     CreateFileHeader() {
+        this.textToReturn = ""
     }
 
     CreateFileContent(layers: Array<Layer>) {

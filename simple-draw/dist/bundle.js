@@ -189,7 +189,7 @@ class EventListener {
     }
     DownloadFile(text, format) {
         var file;
-        var fileName = "simpleDraw." + exportFactory_1.FileFormat[format];
+        var fileName = "simpleDraw." + exportFactory_1.FileFormat[format].toLowerCase();
         if (format === exportFactory_1.FileFormat.Txt) {
             file = new File([text], fileName, { type: "text/plain;charset=utf-8" });
         }
@@ -232,6 +232,7 @@ class ConsolePrinter {
 exports.ConsolePrinter = ConsolePrinter;
 class TextFileExporter {
     CreateFileHeader() {
+        this.textToReturn = "";
     }
     CreateFileContent(layers) {
         for (const layer of layers) {
