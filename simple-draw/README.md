@@ -789,4 +789,4 @@ TODO
 
 7. Have quality factors been explicitly assessed?
 
-**Answer:** We didn't use any tools to measure the quality of our code. We ignored taking care of the maximum count of nested conditions or loops. Using patterns is improving this quality, and also if we are going to talk about how the application works. Quality can be measured if functionalities are working properly and follow requirements.
+**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns
