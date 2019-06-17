@@ -60,7 +60,7 @@ export class EventListener {
         this.changeStyleButton.addEventListener("click", (e: Event) => {
             this.view.changeState()
             if (this.view.styler.style === RenderStyle.Backgrounded) {
-                this.changeStyleButton.style.backgroundColor = 'red'
+                this.changeStyleButton.style.backgroundColor = '#007bff'
             }
             else if (this.view.styler.style === RenderStyle.Normal) {
                 this.changeStyleButton.style.backgroundColor = ''

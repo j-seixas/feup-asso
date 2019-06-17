@@ -37,7 +37,6 @@ export class SimpleDrawDocument extends Observable {
 
     createRectangle(x: number, y: number, width: number, height: number, layer: number): Shape {
         return this.do(new CreateRectangleAction(this.layers[layer - 1], x, y, width, height))
-        this.notify();
     }
 
     createCircle(x: number, y: number, radius: number, layer: number): Shape {
