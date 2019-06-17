@@ -35,8 +35,7 @@ class CreateRectangleAction extends CreateShapeAction {
 }
 exports.CreateRectangleAction = CreateRectangleAction;
 class TranslateAction {
-    constructor(layer, shape, xd, yd) {
-        this.layer = layer;
+    constructor(shape, xd, yd) {
         this.shape = shape;
         this.xd = xd;
         this.yd = yd;
@@ -49,7 +48,6 @@ class TranslateAction {
     undo() {
         this.shape.x = this.oldX;
         this.shape.y = this.oldY;
-        // this.shape.translate(-this.xd, -this.yd)
     }
 }
 exports.TranslateAction = TranslateAction;
@@ -60,8 +58,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const layer_1 = require("./layer");
 const actions_1 = require("./actions");
 const undo_1 = require("./undo");
-class SimpleDrawDocument {
+const view_1 = require("./view");
+class SimpleDrawDocument extends view_1.Observable {
     constructor(numLayers) {
+        super();
         this.undoManager = new undo_1.UndoManager();
         this.layers = new Array();
         for (let i = 0; i < numLayers; i++) {
@@ -79,18 +79,24 @@ class SimpleDrawDocument {
     }
     do(a) {
         this.undoManager.onActionDone(a);
-        return a.do();
+        let ret = a.do();
+        this.notify();
+        return ret;
     }
     createRectangle(x, y, width, height, layer) {
         return this.do(new actions_1.CreateRectangleAction(this.layers[layer - 1], x, y, width, height));
+        this.notify();
     }
     createCircle(x, y, radius, layer) {
         return this.do(new actions_1.CreateCircleAction(this.layers[layer - 1], x, y, radius));
     }
+    translate(s, xd, yd) {
+        return this.do(new actions_1.TranslateAction(s, xd, yd));
+    }
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
 
-},{"./actions":1,"./layer":6,"./undo":13}],3:[function(require,module,exports){
+},{"./actions":1,"./layer":6,"./undo":13,"./view":14}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const view_1 = require("./view");
@@ -103,7 +109,7 @@ class EventListener {
         this.doc = doc;
         this.view = view;
         this.fileExporter = fileExporter;
-        this.interpreter = new repl_1.Repl(doc);
+        this.interpreter = new repl_1.Repl(doc, view);
         this.undoButton = document.getElementById('undo');
         this.undoButton.addEventListener("click", (e) => {
             this.doc.undo();
@@ -395,11 +401,11 @@ class SVGRender extends RenderStyler {
     }
     mouseDown(e) {
     }
-    increaseZoom() {
-        this.zoom *= 2;
+    increaseZoom(factor) {
+        this.zoom *= factor;
     }
-    decreaseZoom() {
-        this.zoom /= 2;
+    decreaseZoom(factor) {
+        this.zoom /= factor;
     }
     setX(x) {
         this.positionX += x;
@@ -500,11 +506,11 @@ class CanvasRender extends RenderStyler {
         col.appendChild(canvas);
         this.ctx = canvas.getContext('2d');
     }
-    increaseZoom() {
-        this.zoom *= 2;
+    increaseZoom(factor) {
+        this.zoom *= factor;
     }
-    decreaseZoom() {
-        this.zoom /= 2;
+    decreaseZoom(factor) {
+        this.zoom /= factor;
     }
     setX(x) {
         this.positionX += x;
@@ -567,9 +573,12 @@ exports.CanvasRender = CanvasRender;
 },{"./selection":10,"./shape":11}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tools_1 = require("./tools");
+const view_1 = require("./view");
 class Context {
-    constructor(cmd, doc) {
+    constructor(cmd, doc, view) {
         this.doc = doc;
+        this.view = view;
         this.i = 0;
         this.input = cmd.split(' ');
     }
@@ -585,6 +594,9 @@ class Context {
     }
     getDoc() {
         return this.doc;
+    }
+    getView() {
+        return this.view;
     }
 }
 class TerminalExpression {
@@ -646,7 +658,6 @@ class CreateExp {
     interpret(context) {
         let and = [new TerminalExpression(new RegExp("^create$"))];
         let or = [new RectangleExp(), new CircleExp()];
-        let ret = true;
         for (const exp of and)
             if (!exp.interpret(context))
                 return false;
@@ -661,14 +672,153 @@ class RotateExp {
         return false;
     }
 }
+class ZoomExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^zoom$")),
+            new TerminalExpressionNumber(false), new TerminalExpressionNumber(true)];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        let params = new Array();
+        for (let i = 1; i < and.length; i++)
+            params.push(and[i].getValue());
+        try {
+            context.getView().renders[params[0] - 1].increaseZoom(params[1]);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
+class TranslateSelectionExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^selection$")),
+            new TerminalExpressionNumber(true), new TerminalExpressionNumber(true)];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        let params = new Array();
+        for (let i = 1; i < and.length; i++)
+            params.push(and[i].getValue());
+        try {
+            return tools_1.Translate.setPositionSelection(context.getDoc(), params[0], params[1]);
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
+class TranslateViewportExp {
+    interpret(context) {
+        let and = [new TerminalExpressionNumber(false),
+            new TerminalExpressionNumber(true), new TerminalExpressionNumber(true)];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        let params = new Array();
+        for (let i = 0; i < and.length; i++)
+            params.push(and[i].getValue());
+        try {
+            context.getView().renders[params[0] - 1].setX(params[1]);
+            context.getView().renders[params[0] - 1].setX(params[2]);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
 class TranslateExp {
     interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^translate$"))];
+        let or = [new TranslateSelectionExp(), new TranslateViewportExp()];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        for (const exp of or)
+            if (exp.interpret(context))
+                return true;
+        return false;
+    }
+}
+class UndoExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^undo$"))];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        try {
+            context.getDoc().undo();
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
+class RedoExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^redo$"))];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        try {
+            context.getDoc().redo();
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
+class CreateCanvasExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^canvas$"))];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        try {
+            context.getView().addRender(new view_1.CanvasFactory());
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
+class CreateSVGExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^svg$"))];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        try {
+            context.getView().addRender(new view_1.SVGFactory());
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+}
+class CreateViewportExp {
+    interpret(context) {
+        let and = [new TerminalExpression(new RegExp("^viewport$"))];
+        let or = [new CreateCanvasExp(), new CreateSVGExp()];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        for (const exp of or)
+            if (exp.interpret(context))
+                return true;
         return false;
     }
 }
 class Command {
     interpret(context) {
-        let or = [new CreateExp(), new RotateExp(), new TranslateExp()];
+        let or = [new CreateExp(), new RotateExp(), new TranslateExp(),
+            new UndoExp(), new RedoExp(), new ZoomExp(), new CreateViewportExp()];
         for (const exp of or) {
             if (exp.interpret(context))
                 return true;
@@ -677,17 +827,18 @@ class Command {
     }
 }
 class Repl {
-    constructor(doc) {
+    constructor(doc, view) {
         this.doc = doc;
+        this.view = view;
     }
     intepretCommand(cmd) {
-        let ctx = new Context(cmd, this.doc);
+        let ctx = new Context(cmd, this.doc, this.view);
         return new Command().interpret(ctx);
     }
 }
 exports.Repl = Repl;
 
-},{}],9:[function(require,module,exports){
+},{"./tools":12,"./view":14}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const document_1 = require("./document");
@@ -825,11 +976,10 @@ class Tool {
 exports.Tool = Tool;
 class Zoom extends Tool {
     increaseZoom() {
-        selection_1.Selection.getInstance();
-        this.render.increaseZoom();
+        this.render.increaseZoom(2);
     }
     decreaseZoom() {
-        this.render.decreaseZoom();
+        this.render.decreaseZoom(2);
     }
     createTool() {
         const zoomContainer = document.createElement('div');
@@ -855,11 +1005,19 @@ class Zoom extends Tool {
 }
 exports.Zoom = Zoom;
 class Translate extends Tool {
-    setPositionX(n) {
-        this.render.setX(n);
+    static setPositionSelection(doc, x, y) {
+        let selected = false;
+        for (let shape of selection_1.Selection.getInstance().selectedObjects) {
+            doc.translate(shape, x, y);
+            selected = true;
+        }
+        return selected;
     }
-    setPositionY(n) {
-        this.render.setY(n);
+    setPosition(x, y) {
+        if (!Translate.setPositionSelection(this.doc, x, y)) {
+            this.render.setX(x);
+            this.render.setY(y);
+        }
     }
     createTool() {
         const translateContainer = document.createElement('div');
@@ -868,19 +1026,19 @@ class Translate extends Tool {
         const buttonUp = document.createElement('button');
         buttonUp.className = "btn btn-dark";
         buttonUp.innerHTML = "up";
-        buttonUp.addEventListener("click", (e) => { this.setPositionY(-10); this.doc.draw(this.render); });
+        buttonUp.addEventListener("click", (e) => { this.setPosition(0, -10); this.doc.draw(this.render); });
         const buttonLeft = document.createElement('button');
         buttonLeft.className = "btn btn-dark";
         buttonLeft.innerHTML = "left";
-        buttonLeft.addEventListener("click", (e) => { this.setPositionX(-10); this.doc.draw(this.render); });
+        buttonLeft.addEventListener("click", (e) => { this.setPosition(-10, 0); this.doc.draw(this.render); });
         const buttonDown = document.createElement('button');
         buttonDown.className = "btn btn-dark";
         buttonDown.innerHTML = "down";
-        buttonDown.addEventListener("click", (e) => { this.setPositionY(10); this.doc.draw(this.render); });
+        buttonDown.addEventListener("click", (e) => { this.setPosition(0, 10); this.doc.draw(this.render); });
         const buttonRight = document.createElement('button');
         buttonRight.className = "btn btn-dark";
         buttonRight.innerHTML = "right";
-        buttonRight.addEventListener("click", (e) => { this.setPositionX(10); this.doc.draw(this.render); });
+        buttonRight.addEventListener("click", (e) => { this.setPosition(10, 0); this.doc.draw(this.render); });
         buttonGroup.appendChild(buttonLeft);
         buttonGroup.appendChild(buttonUp);
         buttonGroup.appendChild(buttonDown);
@@ -956,6 +1114,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const render_1 = require("./render");
 const selection_1 = require("./selection");
 const tools_1 = require("./tools");
+class Observable {
+    constructor() {
+        this.observers = new Array();
+    }
+    register(obs) { this.observers.push(obs); }
+    notify() {
+        for (let obs of this.observers)
+            obs.update();
+    }
+}
+exports.Observable = Observable;
 class SVGFactory {
     createRender() {
         return new render_1.SVGRender();
@@ -977,6 +1146,7 @@ class ViewController {
         this.renders.push(factory.createRender());
         this.setLayers();
         this.createViewportTools();
+        this.doc.register(this);
         selection_1.Selection.getInstance().setView(this);
     }
     changeState() {
@@ -985,6 +1155,9 @@ class ViewController {
     addRender(factory) {
         this.renders.push(factory.createRender());
         this.createViewportTools();
+        this.render();
+    }
+    update() {
         this.render();
     }
     render() {
