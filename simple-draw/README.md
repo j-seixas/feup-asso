@@ -13,7 +13,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 * [x] Documents are rendered both in SVG or HTMLCanvas;
 * [x] Support persistence in multiple formats (TXT, XML, BIN...);
 * [x] Extensible with different objects (triangles, arrows...);
-* [ ] Extensible with new tools (rotate, translate...);
+* [x] Extensible with new tools (rotate, translate...);
 * [x] Drag to select multiple objects;
 * [x] Document layers (with compositing strategies).
 
@@ -40,6 +40,47 @@ Identification of the main problems, design patterns and solutions.
 [**INSERT DIAGRAM HERE:** how files communicate and stuff, how everything is connected]
 
 ### Features
+
+![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-1.gif)
+
+**Figure 1:** Documents are rendered both in SVG or HTMLCanvas and multiple viewports of the same model.
+
+![Figure 2](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-2.gif)
+
+**Figure 2:** Support persistence in multiple formats: TXT and XML.
+
+![Figure 3](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-3.gif)
+
+**Figure 3:** Extensible with different objects: rectangles and circles.
+
+![Figure 4](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-4.gif)
+
+**Figure 4:** Extensible with new tools: translate and rotate.
+
+![Figure 5](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-5.gif)
+
+**Figure 5:** Drag to select multiple objects.
+
+![Figure 6](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-6.gif)
+
+**Figure 6:** Document layers.
+
+![Figure 7](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-7.gif)
+
+**Figure 7:** Viewport tools: translate and zoom.
+
+![Figure 8](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-8.gif)
+
+**Figure 8:** Different view styles per viewport: default, wireframe and color.
+
+![Figure 9](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-9.gif)
+
+**Figure 9:** Two interaction modes: point-n-click and REPLs.
+
+![Figure 10](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-10.gif)
+
+**Figure 10:** Undo and redo of all operations.
+
 
 ### Architecture
 
@@ -107,6 +148,69 @@ export class CreateRectangleAction extends CreateShapeAction<Rectangle> {
     }
 }
 ```
+
+
+
+**Problem:** Extensible with new tools (rotate, translate...).
+
+#### Solution
+
+Another use of the **Factory Method** design pattern is in making the application extensible with new tools, which can be applied for both the viewport and/or individual shapes and selections. This pattern is used so that the client can easily create and add new tools to the HTML without needing to change the existing code, abstracting the creation process of the tools, which makes the application extensible.
+
+To do this, we created an abstract superclass called `Tool`, which contains a factory method `createTool`. This method returns a created HTML `Element`, which contains all of the options (buttons, selectors, etc.) that the user interacts to use the tool:
+```typescript
+export abstract class Tool {
+    constructor(protected render: Render, protected doc: SimpleDrawDocument) { }
+    abstract createTool(lastRenderId: number): Element;
+}
+```
+Then, all tools, which create HTML elements, extend this superclass, therefore delegating the creation details of the tool interface to the subclasses, which may include methods which are specific to those classes. For example in the class `Rotate`:
+```typescript
+export class Rotate extends Tool {
+
+    static rotateSelection(doc: SimpleDrawDocument, deg: number): boolean {
+        //...
+    }
+
+    createTool(): Element {
+        const rotateContainer = document.createElement('div')
+
+        const buttonGroup = document.createElement('div')
+        buttonGroup.className = "btn-group"
+
+        const button45 = document.createElement('button')
+        button45.className = "btn btn-secondary"
+        button45.innerHTML = "45°"
+        button45.addEventListener("click", (e: Event) => { Rotate.rotateSelection(this.doc, 45); })
+
+        //....
+
+        buttonGroup.appendChild(button45)
+        buttonGroup.appendChild(button90)
+        buttonGroup.appendChild(button_minus45)
+        buttonGroup.appendChild(button_minus90)
+        rotateContainer.appendChild(buttonGroup)
+
+        return rotateContainer
+    }
+}
+```
+
+In this example, the creation details of this class include 4 different buttons in the `createTool` method, which are `button45`, `button90`, `button_minus45`, `button_minus90`, which rotate the selection of shapes 45 and 90 degrees clockwise and conter-clockwise, respectively. The actual rotation is done using the method rotateSelection, which is passed in the callback, when the buttons are created.
+
+Because of the factory method, when the client creates and adds a new method to the interface, it only needs to know the subclass of the Tool. In the class `ViewController`, the method `createViewportTools` creates 3 new tools, passing the viewport which they are associated in the constructor, and adds them to the viewport, only by knowing the subclass of each tool, and calling the factory method `createTool`.
+```typescript
+    createViewportTools(): void {
+        //....
+
+        buttonContainer.appendChild(new Zoom(this.renders[lastRenderId], this.doc).createTool());
+        buttonContainer.appendChild(new Style(this.renders[lastRenderId], this.doc).createTool());
+        buttonContainer.appendChild(new Translate(this.renders[lastRenderId], this.doc).createTool());
+
+        lastRender[lastRenderId].appendChild(buttonContainer)
+    }
+```
+This means that if we want to create a new tool and add it to the viewport, we just repeat this call with the new `Tool` subclass.
 
 ### Command
 
@@ -197,9 +301,25 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 ```
 
 **Translate Shape Action**
-TODO
+
 ```typescript
-add when working
+export class TranslateAction implements Action<void> {
+    oldX: number
+    oldY: number
+
+    constructor(public shape: Shape, private xd: number, private yd: number) { }
+
+    do(): void {
+        this.oldX = this.shape.x
+        this.oldY = this.shape.y
+        this.shape.translate(this.xd, this.yd)
+    }
+
+    undo() {
+        this.shape.x = this.oldX
+        this.shape.y = this.oldY
+    }
+}
 ```
 
 ### Strategy
@@ -790,4 +910,4 @@ TODO
 
 7. Have quality factors been explicitly assessed?
 
-**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns
+**Answer:** As we developed the system, we had in mind the modularity and the coupling between them, so we can say that yes, quality factors were taken into account while developing the features and using the patterns.
