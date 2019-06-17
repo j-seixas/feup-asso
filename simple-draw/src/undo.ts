@@ -1,6 +1,8 @@
-type UndoableAction<S> = { do(): S; undo(): void }
+import { Action } from "actions";
 
-export class UndoManager<S, A extends UndoableAction<S>> {
+//type UndoableAction<S> = { do(): S; undo(): void }
+
+export class UndoManager<S, A extends Action<S>> {
   doStack = new Array<A>();
   undoStack = new Array<A>();
 
