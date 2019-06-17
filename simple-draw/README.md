@@ -37,7 +37,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 
 Identification of the main problems, design patterns and solutions.
 
-![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/)
+![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/SimpleDrawDiagram.png)
 
 **Figure 1:** Simple Draw TS's UML.
 
@@ -251,9 +251,8 @@ export class SimpleDrawDocument {
 ```
 
 ```typescript
-type UndoableAction<S> = { do(): S; undo(): void }
 
-export class UndoManager<S, A extends UndoableAction<S>> {
+export class UndoManager<S, A extends Action<S>> {
   doStack = new Array<A>();
   undoStack = new Array<A>();
 
