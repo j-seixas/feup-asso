@@ -35,7 +35,7 @@ export class TranslateAction implements Action<void> {
     oldX: number
     oldY: number
 
-    constructor(private layer: Layer, public shape: Shape, private xd: number, private yd: number) { }
+    constructor(public shape: Shape, private xd: number, private yd: number) { }
 
     do(): void {
         this.oldX = this.shape.x
@@ -46,6 +46,6 @@ export class TranslateAction implements Action<void> {
     undo() {
         this.shape.x = this.oldX
         this.shape.y = this.oldY
-        // this.shape.translate(-this.xd, -this.yd)
+        this.shape.translate(-this.xd, -this.yd)
     }
 }

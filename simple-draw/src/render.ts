@@ -30,8 +30,8 @@ export interface Render {
     shapeStyle: ShapeStyle
     draw(...objs: Array<Shape>): void
 
-    increaseZoom(): void
-    decreaseZoom(): void
+    increaseZoom(factor: number): void
+    decreaseZoom(factor: number): void
     setX(x: number): void
     setY(y: number): void
 }
@@ -99,12 +99,12 @@ export class SVGRender extends RenderStyler implements Render {
 
     }
 
-    increaseZoom(): void {
-        this.zoom *= 2
+    increaseZoom(factor: number): void {
+        this.zoom *= factor
     }
 
-    decreaseZoom(): void {
-        this.zoom /= 2
+    decreaseZoom(factor: number): void {
+        this.zoom /= factor
     }
 
     setX(x: number): void {
@@ -229,12 +229,12 @@ export class CanvasRender extends RenderStyler implements Render {
         this.ctx = canvas.getContext('2d')
     }
 
-    increaseZoom(): void {
-        this.zoom *= 2
+    increaseZoom(factor: number): void {
+        this.zoom *= factor
     }
 
-    decreaseZoom(): void {
-        this.zoom /= 2
+    decreaseZoom(factor: number): void {
+        this.zoom /= factor
     }
 
     setX(x: number): void {
@@ -261,8 +261,8 @@ export class CanvasRender extends RenderStyler implements Render {
             let color2 = shape.selected ? "rgb(255, 0, 0, 0.75)" : "rgb(255, 0, 0, 1)"
             this.setFillUpCnvs(shape,color1, color2) //green / red
         }
-        else if(this.shapeStyle === ShapeStyle.Wireframe){
-            let color = shape.selected ? "rgba(255, 255, 255, 0)" : "rgba(255, 255, 255, 0)" 
+        else if(this.shapeStyle === ShapeStyle.Wireframe){ 
+            let color = shape.selected ? "rgba(255, 255, 255, 0)" :"rgba(255, 255, 255, 0)" 
             this.setFillUpCnvs(shape, color, color)
         }
         else{

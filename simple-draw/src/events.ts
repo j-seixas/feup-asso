@@ -28,7 +28,7 @@ export class EventListener {
         this.doc = doc
         this.view = view
         this.fileExporter = fileExporter
-        this.interpreter = new Repl(doc);
+        this.interpreter = new Repl(doc, view);
 
         this.undoButton = <HTMLElement>document.getElementById('undo')
         this.undoButton.addEventListener("click", (e: Event) => {

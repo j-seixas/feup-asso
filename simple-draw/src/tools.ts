@@ -11,11 +11,11 @@ export abstract class Tool {
 export class Zoom extends Tool {
 
     increaseZoom(): void {
-        this.render.increaseZoom()
+        this.render.increaseZoom(2)
     }
 
     decreaseZoom(): void {
-        this.render.decreaseZoom()
+        this.render.decreaseZoom(2)
     }
 
     createTool(): Element {
@@ -52,17 +52,17 @@ export class Zoom extends Tool {
 
 export class Translate extends Tool {
 
-    static setPositionSelection(x: number, y: number): boolean {
+    static setPositionSelection(doc: SimpleDrawDocument, x: number, y: number): boolean {
         let selected = false;
         for (let shape of Selection.getInstance().selectedObjects){
-            shape.translate(x, y);
+            doc.translate(shape, x, y);
             selected = true;
         }
         return selected;
     }
 
     setPosition(x: number, y: number): void {
-        if (!Translate.setPositionSelection(x, y)) {
+        if (!Translate.setPositionSelection(this.doc, x, y)) {
             this.render.setX(x);
             this.render.setY(y);
         }            

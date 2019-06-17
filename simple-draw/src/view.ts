@@ -9,6 +9,19 @@ export interface RenderFactory {
     createRender(): Render
 }
 
+export interface Observer {
+    update(): void
+}
+
+export class Observable {
+    observers : Array<Observer> = new Array<Observer>();
+    register(obs: Observer): void {this.observers.push(obs);}
+    notify(): void {
+        for (let obs of this.observers) 
+            obs.update();
+    }
+}
+
 export class SVGFactory implements RenderFactory {
     createRender(): Render {
         return new SVGRender()
@@ -21,7 +34,7 @@ export class CanvasFactory implements RenderFactory {
     }
 }
 
-export class ViewController {
+export class ViewController implements Observer {
     renders = new Array<Render>()
     styler = RenderStyler
 
@@ -30,6 +43,7 @@ export class ViewController {
         this.renders.push(factory.createRender())
         this.setLayers()
         this.createViewportTools()
+        this.doc.register(this);
         Selection.getInstance().setView(this);
     }
 
@@ -41,6 +55,10 @@ export class ViewController {
         this.renders.push(factory.createRender())
         this.createViewportTools()
         this.render()
+    }
+
+    update(): void {
+        this.render();
     }
 
     render(): void {
