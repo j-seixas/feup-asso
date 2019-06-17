@@ -770,7 +770,7 @@ TODO
 
 4. Is the structure of the data and its organisation consistent with the domain of the requirements?
 
-**Answer:** Our structure of data supports layers and shapes put inside these layers. It's easy to represent in export files going to external tools. Undo/Redo operations are easy to do with this structure as well as modifying the position of this object in views. It can be rendered in a different way (SVG, HTMLCanvas) which is also important in the requirements. If we create a new shape it will work with the rest of the shapes, dragging and different operations. With these arguments, we can assume that our application it's consistent with domain requirements.
+**Answer:** Our structure of data supports layers and shapes put inside these layers. It's easy to represent in different file formats with exporting tools. Undo/Redo operations are easy to do with this structure as well as modifying the position of this object in views. It can be rendered in a different way (SVG, HTMLCanvas) which is also important in the requirements, as well as have multiple views and manipulate them. If we create a new shape it will work with the rest of the shapes and they can be selected and manipulated with tools. With these arguments, we can assume that our application's structure is consistent with the domain requirements.
 
 5. Is the structure of the data consistent with the requirements?
 
