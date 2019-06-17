@@ -43,7 +43,7 @@ Identification of the main problems, design patterns and solutions.
 
 ![Figure 1](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-1.gif)
 
-**Figure 1:** Documents are rendered both in SVG or HTMLCanvas.
+**Figure 1:** Documents are rendered both in SVG or HTMLCanvas and multiple views (viewports) of the same model.
 
 ![Figure 2](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-2.gif)
 
@@ -64,6 +64,22 @@ Identification of the main problems, design patterns and solutions.
 ![Figure 6](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-6.gif)
 
 **Figure 6:** Document layers.
+
+![Figure 7](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-7.gif)
+
+**Figure 7:** Viewport tools: translate and zoom.
+
+![Figure 8](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-8.gif)
+
+**Figure 8:** Different view styles per viewport: default, wireframe and color.
+
+![Figure 9](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-9.gif)
+
+**Figure 9:** Two interaction modes: point-n-click and REPLs.
+
+![Figure 10](https://github.com/literallysofia/feup-asso/blob/master/simple-draw/assets/feature-10.gif)
+
+**Figure 10:** Undo and redo of all operations.
 
 ### Architecture
 
