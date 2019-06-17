@@ -41,6 +41,10 @@ Identification of the main problems, design patterns and solutions.
 
 ### Features
 
+![Figure 1](https://github.com/literallysofia/feup-asso/tree/master/simple-draw/assets/feature-1.gif)
+
+Figure 1: Documents are rendered both in SVG or HTMLCanvas.
+
 ### Architecture
 
 #### Model-View-Controller (MVC)
