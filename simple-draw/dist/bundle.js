@@ -416,8 +416,6 @@ class SVGRender extends RenderStyler {
         });
         col.appendChild(this.svg);
     }
-    mouseDown(e) {
-    }
     increaseZoom(factor) {
         this.zoom *= factor;
     }
