@@ -291,11 +291,18 @@ export class CanvasRender extends RenderStyler implements Render {
                         this.ctx.closePath()
                     } else if (shape instanceof Rectangle && shape.visible) {
                         this.setStyleCnvs(shape)
+                        
+                        this.ctx.translate(shape.x + this.positionX + shape.width/2.0, shape.y + this.positionY + shape.height/2.0);
                         this.ctx.rotate(shape.rotation * Math.PI / 180)
+                        this.ctx.translate(-(shape.x + this.positionX + shape.width/2.0), -(shape.y + this.positionY + shape.height/2.0));
+
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
+
+                        this.ctx.translate(shape.x + this.positionX + shape.width/2.0, shape.y + this.positionY + shape.height/2.0);
                         this.ctx.rotate(-shape.rotation * Math.PI / 180)
+                        this.ctx.translate(-(shape.x + this.positionX + shape.width/2.0), -(shape.y + this.positionY + shape.height/2.0));
                     }
                 }
         }
