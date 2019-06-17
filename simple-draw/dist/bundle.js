@@ -152,7 +152,7 @@ class EventListener {
         this.changeStyleButton.addEventListener("click", (e) => {
             this.view.changeState();
             if (this.view.styler.style === render_1.RenderStyle.Backgrounded) {
-                this.changeStyleButton.style.backgroundColor = 'red';
+                this.changeStyleButton.style.backgroundColor = '#007bff';
             }
             else if (this.view.styler.style === render_1.RenderStyle.Normal) {
                 this.changeStyleButton.style.backgroundColor = '';
@@ -391,7 +391,7 @@ class SVGRender extends RenderStyler {
             this.svg.setAttribute('style', 'border: 1px solid blue');
         }
         else if (RenderStyler.style === RenderStyle.Backgrounded) {
-            this.svg.setAttribute('style', 'border: 5px solid green; background-color: rgb(50, 115, 220); ');
+            this.svg.setAttribute('style', 'border: 3px solid blue; background-color: #9BC1FF; ');
         }
         this.svg.setAttribute('width', '550');
         this.svg.setAttribute('height', '500');
@@ -506,7 +506,7 @@ class CanvasRender extends RenderStyler {
             canvas.setAttribute('style', 'border: 1px solid red');
         }
         else if (RenderStyle.Backgrounded === RenderStyle.Backgrounded) {
-            canvas.setAttribute('style', 'border: 5px solid yellow; background-color: #05ffb0;');
+            canvas.setAttribute('style', 'border: 3px solid red; background-color: #9BC1FF;');
         }
         canvas.setAttribute('width', '550');
         canvas.setAttribute('height', '500');
