@@ -95,10 +95,6 @@ export class SVGRender extends RenderStyler implements Render {
         col.appendChild(this.svg)
     }
 
-    mouseDown(e: MouseEvent): void {
-
-    }
-
     increaseZoom(factor: number): void {
         this.zoom *= factor
     }

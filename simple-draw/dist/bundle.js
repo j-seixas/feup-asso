@@ -416,8 +416,6 @@ class SVGRender extends RenderStyler {
         });
         col.appendChild(this.svg);
     }
-    mouseDown(e) {
-    }
     increaseZoom(factor) {
         this.zoom *= factor;
     }
@@ -579,11 +577,15 @@ class CanvasRender extends RenderStyler {
                     }
                     else if (shape instanceof shape_1.Rectangle && shape.visible) {
                         this.setStyleCnvs(shape);
+                        this.ctx.translate(shape.x + this.positionX + shape.width / 2.0, shape.y + this.positionY + shape.height / 2.0);
                         this.ctx.rotate(shape.rotation * Math.PI / 180);
+                        this.ctx.translate(-(shape.x + this.positionX + shape.width / 2.0), -(shape.y + this.positionY + shape.height / 2.0));
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black";
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
+                        this.ctx.translate(shape.x + this.positionX + shape.width / 2.0, shape.y + this.positionY + shape.height / 2.0);
                         this.ctx.rotate(-shape.rotation * Math.PI / 180);
+                        this.ctx.translate(-(shape.x + this.positionX + shape.width / 2.0), -(shape.y + this.positionY + shape.height / 2.0));
                     }
                 }
         }
