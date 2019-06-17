@@ -22,7 +22,7 @@ Development of a very simple graphical editor to draw basic geometric objects, m
 * [x] Multiple views (viewports) of the same model;
 * [x] Viewport tools (translate, zoom);
 * [ ] Different view styles per viewport (wireframe, color);
-* [ ] Two interaction modes: point-n-click and REPLs;
+* [x] Two interaction modes: point-n-click and REPLs;
 * [x] Support (un)limited Undo / Redo of all operations.
 
 ---
@@ -572,7 +572,8 @@ For example the `Command` class, which represents the root of the grammar tree, 
 ````typescript
  class Command implements Expression {
      interpret(context: Context): boolean {
-         let or: Array<Expression> = [new CreateExp(), new RotateExp(), new TranslateExp()];
+         let or: Array<Expression> = [new CreateExp(), new RotateExp(), new TranslateExp(), 
+            new UndoExp(), new RedoExp(), new ZoomExp(), new CreateViewportExp()];
          for (const exp of or) {
              if (exp.interpret(context)) return true;
          }
@@ -590,7 +591,7 @@ For example the `Command` class, which represents the root of the grammar tree, 
      constructor(private regExp: RegExp){}
 
      interpret(context: Context): boolean {
-         return context.hasNext() && this.regExp.test(this.capture = context.getToken());
+         return context.hasNext() && this.regExp.test(this.capture = context.getToken()) && context.next();
      }
 
  }
@@ -616,10 +617,12 @@ Eventually, with the processing of the grammar, it arrives at final rules, where
             new TerminalExpressionNumber(true), new TerminalExpressionNumber(true), new TerminalExpressionNumber(true), new TerminalExpressionNumber(false)];
         for (const exp of args)
             if (!exp.interpret(context)) return false;
-        let params: Array<number> = new Array<number>();
-        for (let i = 1; i < args.length; i++)
-            params.push((args[i] as TerminalExpressionNumber).getValue());
-        return (context.getDoc().createRectangle(params[0], params[1], params[2], params[3], params[4]) !== null);
+        // parse parameters
+        try {
+            return context.getDoc().createRectangle(params[0], params[1], params[2], params[3], params[4]) !== null;
+        } catch (e){
+            return false;
+        }
      }
  }
 
@@ -629,22 +632,24 @@ Eventually, with the processing of the grammar, it arrives at final rules, where
             new TerminalExpressionNumber(true), new TerminalExpressionNumber(false)];
         for (const exp of args)
             if (!exp.interpret(context)) return false;
-        let params: Array<number> = new Array<number>();
-        for (let i = 1; i < args.length; i++)
-            params.push((args[i] as TerminalExpressionNumber).getValue());
-        return (context.getDoc().createCircle(params[0], params[1], params[2], params[3]) !== null);
+        // parse parameters
+        try {
+            return (context.getDoc().createCircle(params[0], params[1], params[2], params[3]) !== null);
+        } catch (e){
+            return false;
+        }
      }    
 }
 ````
 
-Finally, there is the `Context` class. This is the class that contains the input, which is tokenized during the creation of the class. Because it is passed through all the extension classes, there should be a way to access its elements sequentially, without needing to access the data structure directly, or save the token number to access the variable. For that, we used the **Iterator** design pattern, intialized in element 0, with method to traverse the list `getToken` and `hasNext`, to check is if there are more elements left
+Finally, there is the `Context` class. This is the class that contains the input, which is tokenized during the creation of the class. Because it is passed through all the extension classes, there should be a way to access its elements sequentially, without needing to access the data structure directly, or save the token number to access the variable. For that, we used the **Iterator** design pattern, intialized in element 0, with method to traverse the list `getToken`, to get the current item, `hasNext`, to check is if there are more elements left, and `next`, to advance the iterator:
 
 ````typescript
 class Context {
      private input : Array<string>;
      private i : number = 0; 
 
-     constructor(cmd: string, private doc: SimpleDrawDocument) {
+     constructor(cmd: string, private doc: SimpleDrawDocument, private view: ViewController) {
         this.input = cmd.split(' ');
      }
 
@@ -653,19 +658,95 @@ class Context {
     }
 
     getToken(): string {
-        let token = this.input[this.i]
-        this.i++;
-        return token;
+        return this.input[this.i];
     }
+
+    next(): boolean {
+        this.i++;
+        return true;
+    }
+    
  }
 ````
+
+This is the list of valid commands by the command line interaction mode, with syntax corresponding:
+- **Create shape**: `create rectangle <x> <y> <width> <height> <layerNumber>` for rectangles;
+		    `create circle <x> <y> <radius> <layerNumber>` for circles
+- **Translate**: `translate selection <x> <y>` to translate shapes, after selecting shapes with mouse;
+		 `translate <viewportNumber> <x> <y>` to translate a specific viewport
+- **Undo**: `undo`, undo action in any viewport
+- **Redo**: `redo`, redo action in any viewport
+- **Zoom**: `zoom <viewportNumber> <factor>` where `factor` can be > 1, to zoom in, or between 0 and 1, to zoom out
+- **Create viewport**: `viewport canvas` to create new `HTMLCanvas` viewport;
+		       `viewport svg` to create new `SVG` viewport;
 
 ### Observer
 
 **Problem:** All views should update automatically on change.
 
 #### Solution
-TODO
+
+To implement new tools that act on shapes of the document, instead of the viewports, it is important that all of the viewports of the document, which are the **View** in the MVC architecture update automatically with changes in the document, which is the **Model** in the MVC architecture. To do that we used the **Observer** design pattern, which is adequate for cases for these. In this pattern, objects called **observers**, watch over for a set of subject objects by registering with them (**observables**), each of which keep a list of which observers are watching it, and when an important event happens, notify all of them. Then the observers can perform a specific action to handle the event:
+
+````typescript
+export interface Observer {
+    update(): void
+}
+
+export class Observable {
+    observers : Array<Observer> = new Array<Observer>();
+    register(obs: Observer): void {this.observers.push(obs);}
+    notify(): void {
+        for (let obs of this.observers) 
+            obs.update();
+    }
+}
+````
+
+In this implementation, our View, or in this case, the `ViewController`, which contains all of the viewports, is the `Observer`:
+
+````typescript
+export class ViewController implements Observer {
+
+    constructor(public doc: SimpleDrawDocument, factory: RenderFactory) {
+        // unrelated code
+        this.doc.register(this);
+        //.....
+    }
+````
+
+As you can see, this `Observer` registers itself with `doc`, which is a `SimpleDrawDocument`. This object represents our model, with all of the shapes it contains, and it will be the `Observable`, in this case:
+
+````typescript
+export class SimpleDrawDocument extends Observable {
+     //....
+     do<T>(a: Action<T>): T {
+        this.undoManager.onActionDone(a)
+        let ret : T = a.do();
+        this.notify();
+        return ret
+     }
+     //....
+}
+````
+
+Every time an (undoable) action/operation is performed in the `SimpleDrawDocument`, the `do` method is executed with that action. Because the actions or operations performed in the document need to be updated automatically on the view, after the action is performed, this method informs the `Observer` objects, which include the view, to redraw all of the viewports. This is implemented in the method `update`, in `ViewController`:
+
+````typescript
+export class ViewController implements Observer {
+    //....
+    update(): void {
+        this.render();
+    }
+
+    render(): void {
+        for (const render of this.renders) {
+            this.doc.draw(render)
+        }
+    }
+    //....
+}
+````
 
 ---
 
