@@ -17,7 +17,7 @@ class CreateShapeAction {
 }
 class CreateCircleAction extends CreateShapeAction {
     constructor(layer, x, y, radius) {
-        super(layer, new shape_1.Circle(x, y, radius));
+        super(layer, new shape_1.Circle(x, y, radius, 0));
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -26,7 +26,7 @@ class CreateCircleAction extends CreateShapeAction {
 exports.CreateCircleAction = CreateCircleAction;
 class CreateRectangleAction extends CreateShapeAction {
     constructor(layer, x, y, width, height) {
-        super(layer, new shape_1.Rectangle(x, y, width, height));
+        super(layer, new shape_1.Rectangle(x, y, width, height, 0));
         this.x = x;
         this.y = y;
         this.width = width;
@@ -51,6 +51,20 @@ class TranslateAction {
     }
 }
 exports.TranslateAction = TranslateAction;
+class RotateAction {
+    constructor(shape, degree) {
+        this.shape = shape;
+        this.degree = degree;
+    }
+    do() {
+        this.oldDegree = this.shape.rotation;
+        this.shape.rotate(this.degree);
+    }
+    undo() {
+        this.shape.rotation = this.oldDegree;
+    }
+}
+exports.RotateAction = RotateAction;
 
 },{"./shape":11}],2:[function(require,module,exports){
 "use strict";
@@ -85,13 +99,15 @@ class SimpleDrawDocument extends view_1.Observable {
     }
     createRectangle(x, y, width, height, layer) {
         return this.do(new actions_1.CreateRectangleAction(this.layers[layer - 1], x, y, width, height));
-        this.notify();
     }
     createCircle(x, y, radius, layer) {
         return this.do(new actions_1.CreateCircleAction(this.layers[layer - 1], x, y, radius));
     }
     translate(s, xd, yd) {
         return this.do(new actions_1.TranslateAction(s, xd, yd));
+    }
+    rotate(s, degree) {
+        return this.do(new actions_1.RotateAction(s, degree));
     }
 }
 exports.SimpleDrawDocument = SimpleDrawDocument;
@@ -327,7 +343,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const shape_1 = require("./shape");
 class Layer extends shape_1.Shape {
     constructor(name, x, y) {
-        super(x, y);
+        super(x, y, 0);
         this.name = name;
         this.x = x;
         this.y = y;
@@ -444,6 +460,7 @@ class SVGRender extends RenderStyler {
             if (layer.visible)
                 for (const shape of layer.objects) {
                     if (shape instanceof shape_1.Rectangle && shape.visible) {
+                        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                         e.setAttribute('style', this.setStyleSvg(shape));
                         const x = (shape.x + this.positionX) * this.zoom;
@@ -454,7 +471,9 @@ class SVGRender extends RenderStyler {
                         e.setAttribute('width', w.toString());
                         const h = shape.height * this.zoom;
                         e.setAttribute('height', h.toString());
-                        this.svg.appendChild(e);
+                        g.setAttribute('transform', 'rotate(' + shape.rotation + "," + (x + w / 2.0) + "," + (y + h / 2.0) + ")");
+                        g.appendChild(e);
+                        this.svg.appendChild(g);
                     }
                     else if (shape instanceof shape_1.Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -560,9 +579,11 @@ class CanvasRender extends RenderStyler {
                     }
                     else if (shape instanceof shape_1.Rectangle && shape.visible) {
                         this.setStyleCnvs(shape);
+                        this.ctx.rotate(shape.rotation * Math.PI / 180);
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black";
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height);
+                        this.ctx.rotate(-shape.rotation * Math.PI / 180);
                     }
                 }
         }
@@ -611,7 +632,7 @@ class TerminalExpression {
 class TerminalExpressionNumber extends TerminalExpression {
     constructor(float) {
         if (float)
-            super(new RegExp('^[0-9]+(\.[0-9]+)?$'));
+            super(new RegExp('^-?[0-9]+(\.[0-9]+)?$'));
         else
             super(new RegExp('^[0-9]+$'));
     }
@@ -670,7 +691,17 @@ class CreateExp {
 }
 class RotateExp {
     interpret(context) {
-        return false;
+        let and = [new TerminalExpression(new RegExp("^rotate$")),
+            new TerminalExpression(new RegExp("^selection$")), new TerminalExpressionNumber(true)];
+        for (const exp of and)
+            if (!exp.interpret(context))
+                return false;
+        try {
+            return tools_1.Rotate.rotateSelection(context.getDoc(), and[2].getValue());
+        }
+        catch (e) {
+            return false;
+        }
     }
 }
 class ZoomExp {
@@ -931,9 +962,10 @@ var ShapeStyle;
     ShapeStyle[ShapeStyle["Color"] = 2] = "Color";
 })(ShapeStyle = exports.ShapeStyle || (exports.ShapeStyle = {}));
 class Shape {
-    constructor(x, y) {
+    constructor(x, y, rotation) {
         this.x = x;
         this.y = y;
+        this.rotation = rotation;
         this.visible = true;
         this.selected = false;
     }
@@ -941,24 +973,29 @@ class Shape {
         this.x += xd;
         this.y += yd;
     }
+    rotate(degree) {
+        this.rotation += degree;
+    }
 }
 exports.Shape = Shape;
 class Rectangle extends Shape {
-    constructor(x, y, width, height) {
-        super(x, y);
+    constructor(x, y, width, height, rotation) {
+        super(x, y, rotation);
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.rotation = rotation;
     }
 }
 exports.Rectangle = Rectangle;
 class Circle extends Shape {
-    constructor(x, y, radius) {
-        super(x, y);
+    constructor(x, y, radius, rotation) {
+        super(x, y, rotation);
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.rotation = rotation;
     }
 }
 exports.Circle = Circle;
@@ -1079,6 +1116,44 @@ class Style extends Tool {
     }
 }
 exports.Style = Style;
+class Rotate extends Tool {
+    static rotateSelection(doc, deg) {
+        let selected = false;
+        for (let shape of selection_1.Selection.getInstance().selectedObjects) {
+            doc.rotate(shape, deg);
+            selected = true;
+        }
+        return selected;
+    }
+    createTool() {
+        const rotateContainer = document.createElement('div');
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = "btn-group";
+        const button45 = document.createElement('button');
+        button45.className = "btn btn-secondary";
+        button45.innerHTML = "45°";
+        button45.addEventListener("click", (e) => { Rotate.rotateSelection(this.doc, 45); });
+        const button90 = document.createElement('button');
+        button90.className = "btn btn-secondary";
+        button90.innerHTML = "90°";
+        button90.addEventListener("click", (e) => { Rotate.rotateSelection(this.doc, 90); });
+        const button_minus45 = document.createElement('button');
+        button_minus45.className = "btn btn-secondary";
+        button_minus45.innerHTML = "-45°";
+        button_minus45.addEventListener("click", (e) => { Rotate.rotateSelection(this.doc, -45); });
+        const button_minus90 = document.createElement('button');
+        button_minus90.className = "btn btn-secondary";
+        button_minus90.innerHTML = "-90°";
+        button_minus90.addEventListener("click", (e) => { Rotate.rotateSelection(this.doc, -90); });
+        buttonGroup.appendChild(button45);
+        buttonGroup.appendChild(button90);
+        buttonGroup.appendChild(button_minus45);
+        buttonGroup.appendChild(button_minus90);
+        rotateContainer.appendChild(buttonGroup);
+        return rotateContainer;
+    }
+}
+exports.Rotate = Rotate;
 
 },{"./selection":10,"./shape":11}],13:[function(require,module,exports){
 "use strict";
@@ -1146,6 +1221,7 @@ class ViewController {
         this.styler.style = render_1.RenderStyle.Normal;
         this.renders.push(factory.createRender());
         this.setLayers();
+        this.createGlobalTools();
         this.createViewportTools();
         this.doc.register(this);
         selection_1.Selection.getInstance().setView(this);
@@ -1165,6 +1241,10 @@ class ViewController {
         for (const render of this.renders) {
             this.doc.draw(render);
         }
+    }
+    createGlobalTools() {
+        const toolsContainer = document.getElementById("global-tools");
+        toolsContainer.appendChild(new tools_1.Rotate(this.renders[0], this.doc).createTool());
     }
     createViewportTools() {
         const lastRender = document.querySelectorAll("[id=renders] > .render");

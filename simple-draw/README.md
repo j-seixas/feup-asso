@@ -674,6 +674,7 @@ This is the list of valid commands by the command line interaction mode, with sy
 		    `create circle <x> <y> <radius> <layerNumber>` for circles
 - **Translate**: `translate selection <x> <y>` to translate shapes, after selecting shapes with mouse;
 		 `translate <viewportNumber> <x> <y>` to translate a specific viewport
+- **Rotate**: `rotate selection <degree>` to rotate shapes by `degree`, after selecting shapes with mouse
 - **Undo**: `undo`, undo action in any viewport
 - **Redo**: `redo`, redo action in any viewport
 - **Zoom**: `zoom <viewportNumber> <factor>` where `factor` can be > 1, to zoom in, or between 0 and 1, to zoom out

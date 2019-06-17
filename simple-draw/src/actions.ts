@@ -21,13 +21,13 @@ abstract class CreateShapeAction<S extends Shape> implements Action<S> {
 
 export class CreateCircleAction extends CreateShapeAction<Circle> {
     constructor(layer: Layer, private x: number, private y: number, private radius: number) {
-        super(layer, new Circle(x, y, radius))
+        super(layer, new Circle(x, y, radius, 0))
     }
 }
 
 export class CreateRectangleAction extends CreateShapeAction<Rectangle> {
     constructor(layer: Layer, private x: number, private y: number, private width: number, private height: number) {
-        super(layer, new Rectangle(x, y, width, height))
+        super(layer, new Rectangle(x, y, width, height, 0))
     }
 }
 
@@ -46,5 +46,20 @@ export class TranslateAction implements Action<void> {
     undo() {
         this.shape.x = this.oldX
         this.shape.y = this.oldY
+    }
+}
+
+export class RotateAction implements Action<void> {
+    oldDegree: number
+
+    constructor(public shape: Shape, private degree: number) { }
+
+    do(): void {
+        this.oldDegree = this.shape.rotation
+        this.shape.rotate(this.degree)
+    }
+
+    undo() {
+        this.shape.rotation = this.oldDegree
     }
 }

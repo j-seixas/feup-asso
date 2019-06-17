@@ -1,4 +1,4 @@
-import { Translate } from "./tools";
+import { Translate, Rotate } from "./tools";
 import { SimpleDrawDocument } from "document";
 import { ViewController, CanvasFactory, SVGFactory } from "./view";
 
@@ -49,7 +49,7 @@ class Context {
  
  class TerminalExpressionNumber extends TerminalExpression {
     constructor(float: boolean){
-        if (float) super(new RegExp('^[0-9]+(\.[0-9]+)?$'));
+        if (float) super(new RegExp('^-?[0-9]+(\.[0-9]+)?$'));
         else super(new RegExp('^[0-9]+$'));
     }
 
@@ -107,7 +107,15 @@ class Context {
 
  class RotateExp implements Expression {
     interpret(context: Context): boolean {
-         return false;
+        let and: Array<Expression> = [new TerminalExpression(new RegExp("^rotate$")),
+            new TerminalExpression(new RegExp("^selection$")), new TerminalExpressionNumber(true)];
+        for (const exp of and)
+            if (!exp.interpret(context)) return false;
+        try {
+            return Rotate.rotateSelection(context.getDoc(), (and[2] as TerminalExpressionNumber).getValue());
+        } catch (e){
+            return false;
+        } 
     }
      
  }

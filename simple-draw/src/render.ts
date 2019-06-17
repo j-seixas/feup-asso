@@ -148,6 +148,7 @@ export class SVGRender extends RenderStyler implements Render {
             if (layer.visible)
                 for (const shape of layer.objects) {
                     if (shape instanceof Rectangle && shape.visible) {
+                        const g = document.createElementNS("http://www.w3.org/2000/svg", "g")
                         const e = document.createElementNS("http://www.w3.org/2000/svg", "rect")
                         e.setAttribute('style', this.setStyleSvg(shape))
                         const x = (shape.x + this.positionX) * this.zoom
@@ -158,7 +159,9 @@ export class SVGRender extends RenderStyler implements Render {
                         e.setAttribute('width', w.toString())
                         const h = shape.height * this.zoom
                         e.setAttribute('height', h.toString())
-                        this.svg.appendChild(e)
+                        g.setAttribute('transform', 'rotate(' + shape.rotation + "," + (x + w/2.0 ) + "," + (y + h/2.0) + ")");
+                        g.appendChild(e)
+                        this.svg.appendChild(g)
                     } else if (shape instanceof Circle && shape.visible) {
                         const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
                         e.setAttribute('style', this.setStyleSvg(shape))
@@ -288,9 +291,11 @@ export class CanvasRender extends RenderStyler implements Render {
                         this.ctx.closePath()
                     } else if (shape instanceof Rectangle && shape.visible) {
                         this.setStyleCnvs(shape)
+                        this.ctx.rotate(shape.rotation * Math.PI / 180)
                         this.ctx.fillRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
                         this.ctx.strokeStyle = shape.selected ? "blue" : "black"
                         this.ctx.strokeRect(shape.x + this.positionX, shape.y + this.positionY, shape.width, shape.height)
+                        this.ctx.rotate(-shape.rotation * Math.PI / 180)
                     }
                 }
         }

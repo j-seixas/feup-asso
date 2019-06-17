@@ -142,3 +142,50 @@ export class Style extends Tool {
         return select
     }
 }
+
+export class Rotate extends Tool {
+
+    static rotateSelection(doc: SimpleDrawDocument, deg: number): boolean {
+        let selected = false;
+        for (let shape of Selection.getInstance().selectedObjects){
+            doc.rotate(shape, deg);
+            selected = true;
+        }
+        return selected;
+    }
+
+    createTool(): Element {
+        const rotateContainer = document.createElement('div')
+
+        const buttonGroup = document.createElement('div')
+        buttonGroup.className = "btn-group"
+
+        const button45 = document.createElement('button')
+        button45.className = "btn btn-secondary"
+        button45.innerHTML = "45°"
+        button45.addEventListener("click", (e: Event) => { Rotate.rotateSelection(this.doc, 45); })
+
+        const button90 = document.createElement('button')
+        button90.className = "btn btn-secondary"
+        button90.innerHTML = "90°"
+        button90.addEventListener("click", (e: Event) => { Rotate.rotateSelection(this.doc, 90); })
+
+        const button_minus45 = document.createElement('button')
+        button_minus45.className = "btn btn-secondary"
+        button_minus45.innerHTML = "-45°"
+        button_minus45.addEventListener("click", (e: Event) => { Rotate.rotateSelection(this.doc, -45);})
+
+        const button_minus90 = document.createElement('button')
+        button_minus90.className = "btn btn-secondary"
+        button_minus90.innerHTML = "-90°"
+        button_minus90.addEventListener("click", (e: Event) => { Rotate.rotateSelection(this.doc, -90);})
+
+        buttonGroup.appendChild(button45)
+        buttonGroup.appendChild(button90)
+        buttonGroup.appendChild(button_minus45)
+        buttonGroup.appendChild(button_minus90)
+        rotateContainer.appendChild(buttonGroup)
+
+        return rotateContainer
+    }
+}

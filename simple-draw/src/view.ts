@@ -3,7 +3,7 @@ import { Shape } from './shape'
 import { Layer } from './layer'
 import { Render, SVGRender, CanvasRender, RenderStyle, RenderStyler } from './render'
 import { Selection } from './selection'
-import { Zoom, Translate, Style } from './tools'
+import { Zoom, Translate, Style, Rotate } from './tools'
 
 export interface RenderFactory {
     createRender(): Render
@@ -42,6 +42,7 @@ export class ViewController implements Observer {
         this.styler.style = RenderStyle.Normal
         this.renders.push(factory.createRender())
         this.setLayers()
+        this.createGlobalTools();
         this.createViewportTools()
         this.doc.register(this);
         Selection.getInstance().setView(this);
@@ -65,6 +66,11 @@ export class ViewController implements Observer {
         for (const render of this.renders) {
             this.doc.draw(render)
         }
+    }
+
+    createGlobalTools(): void {
+        const toolsContainer = document.getElementById("global-tools")
+        toolsContainer.appendChild(new Rotate(this.renders[0], this.doc).createTool());
     }
 
     createViewportTools(): void {

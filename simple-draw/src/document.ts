@@ -1,6 +1,6 @@
 import { Shape } from './shape'
 import { Layer } from './layer'
-import { Action, CreateCircleAction, CreateRectangleAction, TranslateAction } from './actions'
+import { Action, CreateCircleAction, CreateRectangleAction, TranslateAction, RotateAction } from './actions'
 import { Render } from './render';
 import { UndoManager } from "./undo";
 import { Observable } from './view';
@@ -37,7 +37,6 @@ export class SimpleDrawDocument extends Observable {
 
     createRectangle(x: number, y: number, width: number, height: number, layer: number): Shape {
         return this.do(new CreateRectangleAction(this.layers[layer - 1], x, y, width, height))
-        this.notify();
     }
 
     createCircle(x: number, y: number, radius: number, layer: number): Shape {
@@ -46,5 +45,9 @@ export class SimpleDrawDocument extends Observable {
 
     translate(s: Shape, xd: number, yd: number): void {
         return this.do(new TranslateAction(s, xd, yd))
+    }
+
+    rotate(s: Shape, degree: number): void {
+        return this.do(new RotateAction(s, degree))
     }
 }
